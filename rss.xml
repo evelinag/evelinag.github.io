@@ -1,0 +1,38 @@
+<rss version="2.0">
+  <channel>
+    <title>Evelina Gabasova's blog</title>
+    <link>http://evelinag.com</link>
+    <description>Evelina Gabasova's personal blog. I'll be writing about machine learning and data science in F#. 
+</description>
+    <item>
+      <title>Who's the most central? F# network on Twitter</title>
+      <guid>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter</guid>
+      <link>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter/index.html</link>
+      <pubDate>Sun, 11 May 2014 23:00:00 GMT</pubDate>
+      <description>&lt;div class="row"&gt;
+&lt;div class="large-6 columns"&gt;
+
+&lt;p&gt;Have you ever wondered who you should follow on Twitter to get more interesting
+F# content? 
+Recently I've written a chapter on social network analysis for the new 
+&lt;a href="http://www.manning.com/petricek2/"&gt;F# Deep Dives&lt;/a&gt; book. The chapter shows
+how to download data on social connections from Twitter and how to do some
+exploratory data analysis, such as finding accounts that people
+find worth following.&lt;/p&gt;
+
+&lt;p&gt;I worked with a network around the 
+&lt;a href="http://fsharp.org"&gt;F# Software Foundation's&lt;/a&gt; account. What
+emerged is a nice picture of how F# community looks on Twitter and which 
+users are the most central to the network. 
+Since the results are quite interesting, I'd like to share them with wider F# community.
+&lt;/div&gt;
+&lt;div class="large-6 columns"&gt;
+&lt;img src="PageRankNetwork-small.png" alt="Snapshot of the F# Twitter network" title="Snapshot of the F# Twitter network" /&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/p&gt;
+
+
+</description>
+    </item>
+  </channel>
+</rss>
