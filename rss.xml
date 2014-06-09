@@ -5,10 +5,42 @@
     <description>Evelina Gabasova's personal blog. I'll be writing about machine learning and data science in F#. 
 </description>
     <item>
+      <title>Comparing F# and C# with dependency networks</title>
+      <guid>http://evelinag.com/blog/2014/06-09-comparing-dependency-networks</guid>
+      <link>http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/index.html</link>
+      <pubDate>Mon, 09 Jun 2014 09:45:25 GMT</pubDate>
+      <description>&lt;div class="row"&gt;
+&lt;div class="medium-8 columns"&gt;
+
+&lt;p&gt;Fans of different programming languages always argue about benefits of their language
+of choice. It is difficult to use objective criteria in a debate like this. Terms like 
+'clarity' or 'maintainability' are too vague and subjective. What if we used some tools from network 
+science to compare projects written in different languages?&lt;/p&gt;
+
+&lt;p&gt;In this blog post I use network analysis to investigate how complex dependency graphs are and
+if they differ between C# and F#.
+It turns out that F# and C# 
+dependency networks have quite different structures and use 
+different local network patterns.
+For example, I'll describe specific types of cyclic dependencies 
+that frequently appear only in C# projects.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;div class="medium-4 columns"&gt;
+
+&lt;p&gt;&lt;img src="http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/Motifs.png" alt="Examples of motifs on 3 and 4 nodes" title="Examples of patterns (motifs) on 3 and 4 nodes" /&gt;&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Who's the most central? F# network on Twitter</title>
       <guid>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter</guid>
       <link>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter/index.html</link>
-      <pubDate>Sun, 11 May 2014 23:00:00 GMT</pubDate>
+      <pubDate>Sun, 11 May 2014 22:00:00 GMT</pubDate>
       <description>&lt;div class="row"&gt;
 &lt;div class="medium-6 columns"&gt;
 

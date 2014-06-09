@@ -1,0 +1,851 @@
+
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Comparing F# and C# with dependency networks</title>
+    <meta name="description" content="Evelina Gabasova's personal blog. I'll be writing about machine learning and data science in F#." />
+    <meta name="author" content="Evelina Gabasova" />
+    <meta name="copyright" content="Evelina Gabasova 2014" />
+
+    <!-- Twitter cards -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="@evelgab">
+    <meta name="twitter:title" content="Comparing F# and C# with dependency networks">
+    <meta name="twitter:description" content="">
+    <!-- End Twitter cards -->
+
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/foundation.min.css">
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/fontsStylesheet.css">
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/personalStyles.css">
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/pygment_trac.css">
+
+    <link rel="shortcut icon" href="http://evelinag.com/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="http://evelinag.com/fsharp.formatting/tooltips.css" />
+    <script type="text/javascript" src="http://evelinag.com/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="http://evelinag.com/javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <!-- Google Analytics -->
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-50895981-1', 'evelinag.com');
+        ga('send', 'pageview');
+
+    </script>
+    <!-- End Google Analytics -->
+</head>
+
+
+<body>
+    <!-- Nav Bar -->
+    <div class="row">
+        <div class="medium-12 columns">
+
+            <div class="logo">
+                <a href="http://www.evelinag.com"><img alt="Evelina Gabasova's blog" data-interchange="[http://evelinag.com/logo/logo.png, (default)], [http://evelinag.com/logo/logoSmall.png, (small)]" /></a>
+            </div>
+
+            <hr />
+        </div>
+    </div>
+    <!-- End Nav -->
+    <!-- Main Page Content and Sidebar -->
+    <div class="row">
+
+        <!-- Main Blog Content -->
+        <div class="large-9 medium-9 small-12 columns" role="content">
+            
+<h1>Comparing F# and C# with dependency networks</h1>
+<article>
+    
+<div class="row">
+<div class="medium-8 columns">
+
+<p>This blog post is an addition to excellent article from Scott Wlaschin on 
+modularity and cyclic dependencies in real-world F# and C# projects
+<a href="http://fsharpforfunandprofit.com/posts/cycles-and-modularity-in-the-wild/">Cycles and modularity in the wild</a>
+I wanted to look at the same data that Scott extracted in his 
+article but from network science perspective.</p>
+
+<p>I wanted to investigate how complex dependency networks are and
+if they differ significantly between C# and F#.
+It turns out that F# and C# 
+dependency graphs have actually quite different structures
+and they use different local network patterns.
+For example, I'll describe several different types of cyclic dependencies 
+that frequently appear only in C# projects.</p>
+
+</div>
+<div class="medium-4 columns">
+
+<p><img src="Motifs.png" alt="Examples of motifs on 3 and 4 nodes" title="Examples of patterns (motifs) on 3 and 4 nodes" /></p>
+
+</div>
+</div>
+
+<!-- more -->
+
+<h2>Dependency networks</h2>
+
+<p>For my analysis, I extracted dependency networks from 40 different projects, half of
+them written in C# and half of them in F#. All the networks were from 
+compiled assemblies that can be downloaded through NuGet, 
+using parts of Scott Wlaschin's code. 
+If you haven't read the <a href="http://fsharpforfunandprofit.com/posts/cycles-and-modularity-in-the-wild/">Cycles and modularity in the wild</a>
+article by Scott Wlaschin, I highly recommend it. 
+I used similar methodology for my analysis so if you want more details, head
+over to <a href="http://fsharpforfunandprofit.com/posts/cycles-and-modularity-in-the-wild/">fsharpforfunandprofit.com</a>
+for a more detailed description. Here I'll give just a brief overview.</p>
+
+<h4>Structure of a dependency network</h4>
+
+<p>A dependency network is formed by nodes and oriented links between them.</p>
+
+<p>Nodes in the dependency network are formed by top-level</p>
+
+<ul>
+<li>Classes in C#</li>
+<li>Modules in F#</li>
+</ul>
+
+<p>Compiler turns F# modules into static classes so the two definitions should
+be roughly comparable, at least on the CIL level. 
+Also, both types represent only the top-level classes
+and modules, nested types are incorporated into their parent class or module.
+The networks analyzed in this blog post contain all the classes and modules, 
+not just the public ones.</p>
+
+<p><img src="linkAB.png" alt="Link from A to B" /></p>
+
+<p>Links between the nodes represent dependencies. 
+There is a link from A to B in the network if:</p>
+
+<ul>
+<li>Class B inherits from class A or implements interface A.</li>
+<li>Function in B calls a function or method from A.</li>
+<li>Field, property, method or function in B references A
+as a parameter or as a return type.</li>
+</ul>
+
+<p>Note that I switched direction of dependency arrows
+in the network compared to the original article at 
+<a href="http://fsharpforfunandprofit.com/posts/cycles-and-modularity-in-the-wild/">fsharpforfunandprofit.com</a>.
+Now links represent the direction in which information is passed between
+nodes. This definition corresponds more to the logic of information flow in a program. 
+For example if there is a bug in a function, it will propagate along the dependency
+arrows into all nodes that call the function.</p>
+
+<h4>Projects under the spotlight</h4>
+
+<p>I expanded the list of analysed projects compared to the original analysis 
+at <a href="http://fsharpforfunandprofit.com/posts/cycles-and-modularity-in-the-wild/">fsharpforfunandprofit.com</a>.
+Again, the projects are mostly not directly comparable. 
+Hopefully by using more project, our data get averaged and we can
+get a bigger picture out of them. 
+The results are are probably still biased from the small sample size though.</p>
+
+<p>Here are the 40 projects (individual dlls) that got included 
+into the analysis (in no particular order):</p>
+
+<h6>C# projects:</h6>
+
+<p>Antlr, AutoMapper, Castle, elmah, EntityFramework, FParsecCS, log4net, MathNet.Numerics, SignalR, Bcl.Runtime, Owin, Cecil, Moq, Nancy, Newtonsoft.Json, Nuget, NUnit, SpecFlow, xunit, YamlDotNet</p>
+
+<h6>F# projects:</h6>
+
+<p>canopy, Deedle, Fake, Foq, FParsecFS, FsCheck, FSharp.Compiler.Service, FSharp.Core, FSharp.Data, FSharp.Data.Twitter, FSharpx, FsPowerPack, FsSql, FsUnit, FsYaml, Storm, TickSpec, WebSharper, WebSharper.Core, WebSharper.Html</p>
+
+<h2>Network statistics</h2>
+
+<p>The networks extracted from compiled project dlls have very different sizes.
+The following chart shows the number of nodes (classes or modules) and number 
+of dependencies in each project. The axes in the figure are logarithmic so that we
+can put data with different scales into one picture.</p>
+
+<p><img src="networkSize.png" alt="Number of nodes vs. number of dependencies" title="Number of nodes vs. number of dependencies" /></p>
+
+<p>Projects written in F# tend to be smaller and C# projects tend to be larger
+both in the number of nodes and number of dependencies. 
+It is interesting that the ratio of number of nodes to number of links is roughly
+the same among F# and C# projects which is why the plot looks approximately 
+like a straight line.</p>
+
+<p>Next question we might ask is how complex are the networks? One measure of 
+complexity in code depedendency networks is how long are chained dependencies
+in the graph. If there are long chains of dependencies in a project, it definitely
+increases complexity of the code. 
+A standard measure is a network diameter. It is computed by looking at shortest
+paths between all possible pairs of nodes in a network. 
+Diameter is then the length of the longest
+of these paths. For the C# and F# projects we get these box plots:</p>
+
+<p><img src="diameters.png" alt="Network diameters" /></p>
+
+<p>Diameter of analyzed C# projects is on average more than double the diameter 
+of F# projects. Diameters are actually roughly proportional to the number of nodes and 
+links in each network. Because C# has larger networks, diameters expand as well.</p>
+
+<p>One aspect where F# and C# projects differ dramatically is the number of 
+isolated nodes. These are standalone modules or classes that do not have any
+dependency within the project. Here is a box plot showing the proportion of 
+ standalone nodes.</p>
+
+<p><img src="isolatedNodes.png" alt="Isolated nodes" /></p>
+
+<p>Isolated nodes appear much more frequently
+in F# projects than in C# projects. This might be an effect of different 
+programming paradigms. Object-oriented language like C# might require
+the programmer to introduce more dependencies into the code. As a result,
+functional F# has on average cleaner modularity than C#.</p>
+
+<p>Below are images of networks from two different projects as an example. 
+There is <code>Yaml.NET</code> on the left and <code>FSharp.Core</code> on the right. The two projects
+are not comparable in terms of their scope. However, their networks have 
+roughly the same number of nodes and similar diameter.</p>
+
+<p><code>FSharp.Core</code> has many more isolated nodes that do not have any dependencies
+within the project which seems to be typical for F# projects.
+The densely connected core of the project is much smaller than in C#. 
+The two networks are meant just as an illustration of typical features
+of C# and F# dependency networks.</p>
+
+<div class="row">
+<div class="large-6 columns">
+
+<p><img src="csNetwork-YamlDotNet.png" alt="Yaml.NET network" title="Yaml.NET network" /></p>
+
+</div>
+<div class="large-6 columns">
+
+<p><img src="fsNetwork-FSharp.Core.png" alt="FSharp.Core network" title="FSharp.Core network" /></p>
+
+</div>
+</div>
+
+<p>Here are the detailed numbers for the analyzed projects:</p>
+
+<h4>C# code statistics</h4>
+
+<div class="smallTable">
+
+<table>
+<thead>
+<tr class="header">
+<th><p>Project</p></th>
+<th align="center"><p>Code size</p></th>
+<th align="center"><p>Number of nodes</p></th>
+<th align="center"><p>Number of links</p></th>
+<th align="center"><p>Isolated nodes</p></th>
+<th align="center"><p>Diameter</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Antlr</p></td>
+<td align="center"><p>34344</p></td>
+<td align="center"><p>91</p></td>
+<td align="center"><p>257</p></td>
+<td align="center"><p>8.8 %</p></td>
+<td align="center"><p>5</p></td>
+</tr>
+<tr class="even">
+<td><p>AutoMapper</p></td>
+<td align="center"><p>34793</p></td>
+<td align="center"><p>152</p></td>
+<td align="center"><p>549</p></td>
+<td align="center"><p>5.3 %</p></td>
+<td align="center"><p>8</p></td>
+</tr>
+<tr class="odd">
+<td><p>Castle</p></td>
+<td align="center"><p>112538</p></td>
+<td align="center"><p>430</p></td>
+<td align="center"><p>1766</p></td>
+<td align="center"><p>5.6 %</p></td>
+<td align="center"><p>8</p></td>
+</tr>
+<tr class="even">
+<td><p>elmah</p></td>
+<td align="center"><p>43728</p></td>
+<td align="center"><p>116</p></td>
+<td align="center"><p>300</p></td>
+<td align="center"><p>7.8 %</p></td>
+<td align="center"><p>5</p></td>
+</tr>
+<tr class="odd">
+<td><p>EntityFramework</p></td>
+<td align="center"><p>1144189</p></td>
+<td align="center"><p>1679</p></td>
+<td align="center"><p>11671</p></td>
+<td align="center"><p>4.7 %</p></td>
+<td align="center"><p>16</p></td>
+</tr>
+<tr class="even">
+<td><p>FParsecCS</p></td>
+<td align="center"><p>32230</p></td>
+<td align="center"><p>35</p></td>
+<td align="center"><p>48</p></td>
+<td align="center"><p>14.3 %</p></td>
+<td align="center"><p>3</p></td>
+</tr>
+<tr class="odd">
+<td><p>log4net</p></td>
+<td align="center"><p>102651</p></td>
+<td align="center"><p>227</p></td>
+<td align="center"><p>746</p></td>
+<td align="center"><p>0.9 %</p></td>
+<td align="center"><p>10</p></td>
+</tr>
+<tr class="even">
+<td><p>MathNet.Numerics</p></td>
+<td align="center"><p>492095</p></td>
+<td align="center"><p>342</p></td>
+<td align="center"><p>1285</p></td>
+<td align="center"><p>5.6 %</p></td>
+<td align="center"><p>8</p></td>
+</tr>
+<tr class="odd">
+<td><p>SignalR</p></td>
+<td align="center"><p>63690</p></td>
+<td align="center"><p>221</p></td>
+<td align="center"><p>735</p></td>
+<td align="center"><p>6.8 %</p></td>
+<td align="center"><p>11</p></td>
+</tr>
+<tr class="even">
+<td><p>Bcl.Runtime</p></td>
+<td align="center"><p>73</p></td>
+<td align="center"><p>8</p></td>
+<td align="center"><p>2</p></td>
+<td align="center"><p>62.5 %</p></td>
+<td align="center"><p>1</p></td>
+</tr>
+<tr class="odd">
+<td><p>Owin</p></td>
+<td align="center"><p>13376</p></td>
+<td align="center"><p>55</p></td>
+<td align="center"><p>98</p></td>
+<td align="center"><p>10.9 %</p></td>
+<td align="center"><p>7</p></td>
+</tr>
+<tr class="even">
+<td><p>Cecil</p></td>
+<td align="center"><p>100650</p></td>
+<td align="center"><p>240</p></td>
+<td align="center"><p>1145</p></td>
+<td align="center"><p>5.0 %</p></td>
+<td align="center"><p>8</p></td>
+</tr>
+<tr class="odd">
+<td><p>Moq</p></td>
+<td align="center"><p>158417</p></td>
+<td align="center"><p>541</p></td>
+<td align="center"><p>1536</p></td>
+<td align="center"><p>11.1 %</p></td>
+<td align="center"><p>14</p></td>
+</tr>
+<tr class="even">
+<td><p>Nancy</p></td>
+<td align="center"><p>130818</p></td>
+<td align="center"><p>369</p></td>
+<td align="center"><p>1205</p></td>
+<td align="center"><p>5.4 %</p></td>
+<td align="center"><p>12</p></td>
+</tr>
+<tr class="odd">
+<td><p>Newtonsoft.Json</p></td>
+<td align="center"><p>157716</p></td>
+<td align="center"><p>237</p></td>
+<td align="center"><p>1005</p></td>
+<td align="center"><p>4.6 %</p></td>
+<td align="center"><p>13</p></td>
+</tr>
+<tr class="even">
+<td><p>Nuget</p></td>
+<td align="center"><p>101586</p></td>
+<td align="center"><p>229</p></td>
+<td align="center"><p>943</p></td>
+<td align="center"><p>2.2 %</p></td>
+<td align="center"><p>10</p></td>
+</tr>
+<tr class="odd">
+<td><p>NUnit</p></td>
+<td align="center"><p>45873</p></td>
+<td align="center"><p>183</p></td>
+<td align="center"><p>505</p></td>
+<td align="center"><p>14.2 %</p></td>
+<td align="center"><p>7</p></td>
+</tr>
+<tr class="even">
+<td><p>SpecFlow</p></td>
+<td align="center"><p>41187</p></td>
+<td align="center"><p>242</p></td>
+<td align="center"><p>578</p></td>
+<td align="center"><p>2.5 %</p></td>
+<td align="center"><p>7</p></td>
+</tr>
+<tr class="odd">
+<td><p>xunit</p></td>
+<td align="center"><p>14590</p></td>
+<td align="center"><p>72</p></td>
+<td align="center"><p>209</p></td>
+<td align="center"><p>1.4 %</p></td>
+<td align="center"><p>7</p></td>
+</tr>
+<tr class="even">
+<td><p>YamlDotNet</p></td>
+<td align="center"><p>42372</p></td>
+<td align="center"><p>161</p></td>
+<td align="center"><p>550</p></td>
+<td align="center"><p>2.5 %</p></td>
+<td align="center"><p>7</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+
+<h4>F# code statistics</h4>
+
+<div class="smallTable">
+
+<table>
+<thead>
+<tr class="header">
+<th><p>Project</p></th>
+<th align="center"><p>Code size</p></th>
+<th align="center"><p>Number of nodes</p></th>
+<th align="center"><p>Number of links</p></th>
+<th align="center"><p>Isolated nodes</p></th>
+<th align="center"><p>Diameter</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>canopy</p></td>
+<td align="center"><p>23630</p></td>
+<td align="center"><p>11</p></td>
+<td align="center"><p>12</p></td>
+<td align="center"><p>27.3 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+<tr class="even">
+<td><p>Deedle</p></td>
+<td align="center"><p>122918</p></td>
+<td align="center"><p>95</p></td>
+<td align="center"><p>249</p></td>
+<td align="center"><p>18.9 %</p></td>
+<td align="center"><p>5</p></td>
+</tr>
+<tr class="odd">
+<td><p>Fake</p></td>
+<td align="center"><p>1395</p></td>
+<td align="center"><p>3</p></td>
+<td align="center"><p>1</p></td>
+<td align="center"><p>33.3 %</p></td>
+<td align="center"><p>1</p></td>
+</tr>
+<tr class="even">
+<td><p>Foq</p></td>
+<td align="center"><p>38532</p></td>
+<td align="center"><p>40</p></td>
+<td align="center"><p>75</p></td>
+<td align="center"><p>5.0 %</p></td>
+<td align="center"><p>3</p></td>
+</tr>
+<tr class="odd">
+<td><p>FParsecFS</p></td>
+<td align="center"><p>45946</p></td>
+<td align="center"><p>6</p></td>
+<td align="center"><p>4</p></td>
+<td align="center"><p>33.3 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+<tr class="even">
+<td><p>FsCheck</p></td>
+<td align="center"><p>76418</p></td>
+<td align="center"><p>54</p></td>
+<td align="center"><p>103</p></td>
+<td align="center"><p>16.7 %</p></td>
+<td align="center"><p>5</p></td>
+</tr>
+<tr class="odd">
+<td><p>FSharp.Compiler.Service</p></td>
+<td align="center"><p>110523</p></td>
+<td align="center"><p>42</p></td>
+<td align="center"><p>23</p></td>
+<td align="center"><p>50.0 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+<tr class="even">
+<td><p>FSharp.Core</p></td>
+<td align="center"><p>206348</p></td>
+<td align="center"><p>154</p></td>
+<td align="center"><p>287</p></td>
+<td align="center"><p>40.3 %</p></td>
+<td align="center"><p>6</p></td>
+</tr>
+<tr class="odd">
+<td><p>FSharp.Data</p></td>
+<td align="center"><p>135001</p></td>
+<td align="center"><p>94</p></td>
+<td align="center"><p>173</p></td>
+<td align="center"><p>8.5 %</p></td>
+<td align="center"><p>6</p></td>
+</tr>
+<tr class="even">
+<td><p>FSharp.Data.Twitter</p></td>
+<td align="center"><p>10372</p></td>
+<td align="center"><p>20</p></td>
+<td align="center"><p>29</p></td>
+<td align="center"><p>25.0 %</p></td>
+<td align="center"><p>3</p></td>
+</tr>
+<tr class="odd">
+<td><p>FSharpx</p></td>
+<td align="center"><p>290577</p></td>
+<td align="center"><p>175</p></td>
+<td align="center"><p>77</p></td>
+<td align="center"><p>56.0 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+<tr class="even">
+<td><p>FsPowerPack</p></td>
+<td align="center"><p>102878</p></td>
+<td align="center"><p>93</p></td>
+<td align="center"><p>68</p></td>
+<td align="center"><p>46.2 %</p></td>
+<td align="center"><p>4</p></td>
+</tr>
+<tr class="odd">
+<td><p>FsSql</p></td>
+<td align="center"><p>15311</p></td>
+<td align="center"><p>13</p></td>
+<td align="center"><p>14</p></td>
+<td align="center"><p>0.0 %</p></td>
+<td align="center"><p>4</p></td>
+</tr>
+<tr class="even">
+<td><p>FsUnit</p></td>
+<td align="center"><p>1580</p></td>
+<td align="center"><p>2</p></td>
+<td align="center"><p>0</p></td>
+<td align="center"><p>100.0 %</p></td>
+<td align="center"><p>0</p></td>
+</tr>
+<tr class="odd">
+<td><p>FsYaml</p></td>
+<td align="center"><p>14573</p></td>
+<td align="center"><p>8</p></td>
+<td align="center"><p>10</p></td>
+<td align="center"><p>12.5 %</p></td>
+<td align="center"><p>3</p></td>
+</tr>
+<tr class="even">
+<td><p>Storm</p></td>
+<td align="center"><p>55072</p></td>
+<td align="center"><p>67</p></td>
+<td align="center"><p>195</p></td>
+<td align="center"><p>3.0 %</p></td>
+<td align="center"><p>5</p></td>
+</tr>
+<tr class="odd">
+<td><p>TickSpec</p></td>
+<td align="center"><p>27970</p></td>
+<td align="center"><p>34</p></td>
+<td align="center"><p>48</p></td>
+<td align="center"><p>5.9 %</p></td>
+<td align="center"><p>3</p></td>
+</tr>
+<tr class="even">
+<td><p>WebSharper</p></td>
+<td align="center"><p>43747</p></td>
+<td align="center"><p>56</p></td>
+<td align="center"><p>22</p></td>
+<td align="center"><p>57.1 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+<tr class="odd">
+<td><p>WebSharper.Core</p></td>
+<td align="center"><p>83201</p></td>
+<td align="center"><p>12</p></td>
+<td align="center"><p>13</p></td>
+<td align="center"><p>25.0 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+<tr class="even">
+<td><p>WebSharper.Html</p></td>
+<td align="center"><p>14152</p></td>
+<td align="center"><p>19</p></td>
+<td align="center"><p>37</p></td>
+<td align="center"><p>10.5 %</p></td>
+<td align="center"><p>2</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+
+<h2>Network motifs</h2>
+
+<p>We looked at some global properties of dependency networks, now we turn to 
+explore more local features. 
+Motifs are small reccurring patterns of connections between nodes that appear in
+real-life networks. For example, there has been a lot of research on motifs
+in biological networks and their functional meaning. We can apply the same approach
+to our dependency networks to see if there are any typical patterns.</p>
+
+<p>Motif finding in general networks is computationally hard because it involves
+identifying graph isomorphisms. The larger the motif, the harder it is to find it
+in a network. In this analysis, I looked only at motifs
+on three and four nodes. I used the
+<code>igraph</code> package in R with F# RProvider. 
+The motif finding function from <code>igraph</code> counts the number of times each possible motif
+on three or four nodes appears in a given network.</p>
+
+<h3>Motifs on 3 nodes</h3>
+
+<p><img src="Motifs_3nodes.png" alt="Motifs on 3 nodes" /></p>
+
+<p>There are 13 possible motifs on three nodes. I computed how many times each of these 
+motifs appears in the project networks. Because
+each network has different size, the counts were normalized with respect to the total number
+of motifs that appear in each network. The following bar plot shows average frequencies of
+different motifs in F# and C# projects.</p>
+
+<h4>Average motif profiles on 3 nodes in C# and F# projects</h4>
+
+<p><img src="fsVsCsMotifs_3nodes.png" alt="Motif profiles in C# and F# projects" /></p>
+
+<p>Motifs number 1, 2, 4 and 5 are the most common in both C# and F# projects. 
+They seem to differ only in how often each motif appears. The results seem 
+quite intuitive because these motifs look like standard patterns that
+would be expected in a software project.
+The bar plot shows only the average frequencies
+and variance between individual projects is quite high. 
+Summary of results for each project is available <a href="https://github.com/evelinag/Projects/blob/master/CodeNetworks/code/data/motifs_3nodes.csv">here</a>.</p>
+
+<h4>Motifs that are C#-specific</h4>
+
+<p>What is interesting is that there are several motifs that appear in 
+many C# projects but they are not in any of the analyzed F# projects.
+Here they are:</p>
+
+<p><img src="csharpOnlyMotifs_3nodes.png" alt="C# only motifs" /></p>
+
+<p>Additionally motif number 12 appears just once in <code>FSharp.Core</code> and nowhere else
+among the F# projects. 
+All of these motifs contain cyclic dependencies. Scott Wlaschin wrote
+a nice post on why <a href="http://fsharpforfunandprofit.com/posts/cyclic-dependencies/">cyclic dependencies are evil</a>. 
+Simply said, they add complexity, mess up structure of code
+and complicate maintainability. 
+So, this is how the evil cyclic dependencies look in real-world projects. 
+Especially motif number 13 with full connectivity looks like 
+something that should be avoided. How frequent are these cyclic motifs?</p>
+
+<table>
+<thead>
+<tr class="header">
+<th><p>Motif</p></th>
+<th align="center"><p>Number of projects</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>8</p></td>
+<td align="center"><p>13</p></td>
+</tr>
+<tr class="even">
+<td><p>9</p></td>
+<td align="center"><p>9</p></td>
+</tr>
+<tr class="odd">
+<td><p>10</p></td>
+<td align="center"><p>14</p></td>
+</tr>
+<tr class="even">
+<td><p>13</p></td>
+<td align="center"><p>4</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>The table shows how many projects contain each of the C#-specific motifs. 
+Motifs number 8 and 10 are in majority of the analysed networks so they are
+quite widespread. Fortunately, the most entagled motif 13 is the least common and
+occurs only in 4 projects. There are no motifs that appear only in F# projects.</p>
+
+<h3>Motifs on 4 nodes</h3>
+
+<p>I will not give the full analysis of motifs on 4 nodes because there are 199
+of them. However, there are a few interesting points. Again, F# and C# share
+the most common motifs which look like patterns that we would expect to see:</p>
+
+<p><img src="Motifs_4nodes.png" alt="Most common motifs on 4 nodes" title="Most common motifs on 4 nodes" /></p>
+
+<p>And again, we have some motifs that appear only in C# projects, this time we have 129
+motifs that are C#-specific. There are no motifs that would be only in F# projects. 
+These are the most common C#-specific ones:</p>
+
+<p><img src="csharpOnlyMotifs_4nodes.png" alt="C#-specific motifs on 4 nodes" title="Most common C#-specific motifs on 4 nodes" /></p>
+
+<p>These motifs are also quite widespread.<br />
+The first one appears in 14 projects, the rest of them in 13 projects.
+Finally, the most complex motif on 4 nodes</p>
+
+<p><img src="ugliest_4nodes.png" alt="The most complex motif on 4 nodes" title="The most complex motif on 4 nodes" /></p>
+
+<p>It turns out that this motif appears in 3 of the C# projects (EntityFramework, Mono.Cecil
+and Newtonsoft.Json). This pattern looks like quite a poor design choice.</p>
+
+<h2>Explore motifs in your projects</h2>
+
+<p>If you want to find out the motif profile of your own project, this
+<a href="journal/analyseCodeNetworks.html">FsLab Journal</a> shows how to run the analysis. 
+Source code from the Journal is available <a href="https://github.com/evelinag/Projects/tree/master/CodeNetworks/networksJournal">here</a>.
+You can also download full source code that replicates results from this blog post 
+from my <a href="https://github.com/evelinag/Projects/tree/master/CodeNetworks/code">GitHub page</a>.</p>
+
+<h2>Summary</h2>
+
+<p>In this blog post, I looked at dependency networks in several 
+C# and F# projects. The analysis shows some similarities and differences
+between the two programming languages. In general, C# projects tend 
+to be larger, with more classes and dependencies. They also have
+longer chains of dependencies on average. Real world F# projects
+are smaller with cleaner structure.</p>
+
+<p>I also described recurring patterns (motifs) that appear in dependency networks. 
+The most common motifs are similar in C# and F# projects. However, most of C# 
+projects contain motifs with complicated cyclic dependencies that do not appear
+in F# at all. Cyclic dependencies in general complicate the code and obscure
+dependency structure.</p>
+
+<p>This analysis is still very limited, for example it is debatable if 
+the dependency networks are well defined with respect to both languages. 
+Nevertheless, it seems that this type of analysis can reveal some additional 
+aspects of code structure.</p>
+
+<p>In general, it seems that most C# projects would be harder to maintain because of all the
+cyclic dependencies and more complex structure overall. The question is if
+it is a feature of the language that encourages programmers 
+to create more complex systems? You decide.</p>
+
+<p>I also presented a poster on this topic at 
+<a href="http://www.cnn.group.cam.ac.uk/cambridge-networks-day">Cambridge Networks Day 2014</a>.</p>
+
+<iframe src="http://wl.figshare.com/articles/1036337/embed?show_title=1" width="568" height="525" frameborder="0"></iframe>
+
+
+</article>
+
+<p class="post-meta">
+    Published on Saturday, 24 May 2014
+    <br />
+    By <a href="https://plus.google.com/+EvelinaGabasova?rel=author">Evelina Gabasova</a><br />
+</p>
+
+<!-- AddThis Button BEGIN -->
+<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+    <a class="addthis_button_twitter"></a>
+    <a class="addthis_button_reddit"></a>
+    <a class="addthis_button_google_plusone_share"></a>
+    <a class="addthis_button_facebook"></a>
+    <a class="addthis_button_compact"></a><a class="addthis_counter addthis_bubble_style"></a>
+</div>
+<br />
+
+<script type="text/javascript">var addthis_config = { "data_track_addressbar": true };</script>
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-531bbb5c0879f9d7"></script>
+<!-- AddThis Button END -->
+        </div>
+        <!-- End Main Content -->
+
+        <!-- Sidebar -->
+        <aside class="large-3 medium-3 columns">
+            <div class="panel">
+                <h5>About me</h5>
+
+                <img src="http://evelinag.com/img/me_bw_square_small.jpg">
+                <p>
+                    Welcome to my blog! <br />
+                    I'll be writing about data science and machine learning using
+                    the F# programming language. <br />
+                    I'm Evelina Gabasova, currently a PhD student in statistical genomics
+                    at Cambridge University in
+                    <a href="http://www.mrc-bsu.cam.ac.uk/">MRC Biostatistics Unit</a>.
+                </p>
+
+                <h5>Contact me</h5>
+                <ul class="no-bullet">
+                    <li><div class="twittercontact"><a href="http://twitter.com/evelgab">@evelgab</a></div></li>
+                    <li><div class="emailcontact"><a href="mailto:evelina@evelinag.com">evelina@evelinag.com</a></div></li>
+                    <li><div class="githubcontact"><a href="http://github.com/evelinag">evelinag</a></div></li>
+                    <li><div class="linkedincontact"><a href="http://uk.linkedin.com/in/egabasova">egabasova</a></div></li>
+                </ul>
+                <br/>
+                <br/>
+                <br />
+                <br />
+            </div>
+        </aside>
+        <!-- End Sidebar -->
+    </div>
+    <!-- End Main Content and Sidebar -->
+
+    <!-- Footer -->
+    <footer class="row">
+        <div class="large-12 columns">
+            <hr />
+            <div class="row">
+                <div class="large-6 columns">
+                    <p>
+                        This site is generated using <a href="https://github.com/fsprojects/FsBlog">FsBlog</a> and hosted on <a href="http://github.com/evelinag">GitHub</a>.
+                        <br />By <a href="https://plus.google.com/+EvelinaGabasova?rel=author">Evelina Gabasova</a>, 2014
+                    </p>
+                </div>
+                <div class="large-6 columns">
+                    <ul class="inline-list right">
+                        <li><div class="contact">Contact </div></li>
+                        <li><div class="twittercontact"><a href="http://twitter.com/evelgab">@evelgab</a></div></li>
+                        <li><div class="emailcontact"><a href="mailto:evelina@evelinag.com">evelina@evelinag.com</a></div></li>
+                        <li><div class="githubcontact"><a href="http://github.com/evelinag">evelinag</a></div></li>
+                        <li><div class="linkedincontact"><a href="http://uk.linkedin.com/in/egabasova">egabasova</a></div></li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Footer -->
+
+    <!-- Foundation scripts -->
+    <script src="http://evelinag.com/javascripts/vendor/jquery.js"></script>
+    <script src="http://evelinag.com/javascripts/foundation.min.js"></script>
+    <script src="http://evelinag.com/javascripts/foundation/foundation.interchange.js"></script>
+    <script>
+        $(document).foundation();
+    </script>
+    <!-- End Foundation scripts -->
+
+</body>
+
+</html>
