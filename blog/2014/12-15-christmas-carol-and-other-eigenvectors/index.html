@@ -1,0 +1,1017 @@
+
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Christmas Carol and other eigenvectors</title>
+    <meta name="description" content="This is day 15 of the F# Advent Calendar. Do you know who wrote the classic Christmas story, 'A Christmas Carol'? Are you sure it was Charles Dickens? In this blog post, I'm using Principal Component Analysis to compare and visualise similarity between classic works of literature." />
+    <meta name="author" content="Evelina Gabasova" />
+    <meta name="copyright" content="Evelina Gabasova 2014" />
+
+    <!-- Twitter cards -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="@evelgab">
+    <meta name="twitter:title" content="Christmas Carol and other eigenvectors">
+    <meta name="twitter:description" content="This is day 15 of the F# Advent Calendar. Do you know who wrote the classic Christmas story, 'A Christmas Carol'? Are you sure it was Charles Dickens? In this blog post, I'm using Principal Component Analysis to compare and visualise similarity between classic works of literature.">
+        <meta name="twitter:image" content="http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/author_pca(small).png">
+    <!-- End Twitter cards -->
+
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/foundation.min.css">
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/fontsStylesheet.css">
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/personalStyles.css">
+    <link rel="stylesheet" href="http://evelinag.com/stylesheets/pygment_trac.css">
+
+    <link rel="shortcut icon" href="http://evelinag.com/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="http://evelinag.com/fsharp.formatting/tooltips.css" />
+    <script type="text/javascript" src="http://evelinag.com/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="http://evelinag.com/javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <!-- Google Analytics -->
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-50895981-1', 'evelinag.com');
+        ga('send', 'pageview');
+
+    </script>
+    <!-- End Google Analytics -->
+</head>
+
+
+<body>
+    <!-- Nav Bar -->
+    <div class="row">
+        <div class="medium-12 columns">
+
+            <div class="logo">
+                <a href="http://www.evelinag.com"><img alt="Evelina Gabasova's blog" data-interchange="[http://evelinag.com/logo/logo.png, (default)], [http://evelinag.com/logo/logoSmall.png, (small)]" /></a>
+            </div>
+
+            <hr />
+        </div>
+    </div>
+    <!-- End Nav -->
+    <!-- Main Page Content and Sidebar -->
+    <div class="row">
+
+        <!-- Main Blog Content -->
+        <div class="large-9 medium-9 small-12 columns" role="content">
+            
+<h1>Christmas Carol and other eigenvectors</h1>
+<article>
+    
+<div class="row">
+<div class="medium-5 columns">
+
+<p>This blog post marks day 15 of the amazing <a href="https://sergeytihon.wordpress.com/2014/11/24/f-advent-calendar-in-english-2014/">F# Advent Calendar</a>. 
+Christmas is getting closer - soon we will have time to 
+relax and perhaps read a nice book.
+Do you know who wrote the classic Christmas story, 
+<a href="http://en.wikipedia.org/wiki/A_Christmas_Carol">'A Christmas Carol'</a>?
+All sources claim it was Charles Dickens, but how can we be sure? I'll look
+at how this book compares to other books he wrote in terms of the language 
+used in the books. I'll also analyse other classic works of literature from
+the Victorian and Edwardian era and look at similarity of their
+language. In the end, I'll try to find out if it really was Charles Dickens 
+who wrote 'A Christmas Carol'.</p>
+
+</div>
+<div class="medium-7 columns">
+
+<p><img src="http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/Charles_Dickens-A_Christmas_Carol-Title_page-First_edition_1843.jpg" alt="First edition of Christmas Carol, 1843" /></p>
+
+</div>
+</div>
+
+<!-- more -->
+
+<p>This is a simple data analysis project which compares and visualises
+some publicly available classic English books. General approach to analysis
+of complex data that are hard to compare directly is to describe the
+data using a set of characteristic features. 
+For my literature analysis, I'll be using
+frequencies of pairs of letters, called bigrams. These simple features
+capture some characteristics of the language that different authors use.</p>
+
+<p>I compute such features for a set of classic books in English. Then
+I use Principal Component Analysis (PCA) to find how different is the language
+of different authors. I also use the PCA projection to visualise the 
+data and visually explore their similarity.</p>
+
+<p>Finally, I use the k nearest neighbours classification method to see
+if it really was Charles Dickens who wrote 'A Christmas Carol'.
+I will be using F# through this post, source code is available
+from my <a href="https://github.com/evelinag/Projects/tree/master/PCA">GitHub</a>.</p>
+
+<h2>Parsing books from Project Gutenberg</h2>
+
+<p>For this project, I downloaded 82 books in total from 8 classic English authors:</p>
+
+<ul>
+<li>Jane Austen</li>
+<li>Charlotte Bronte</li>
+<li>Charles Dickens</li>
+<li>Arthur C. Doyle</li>
+<li>Emily Bronte</li>
+<li>Thomas Hardy</li>
+<li>Rudyard Kipling</li>
+<li>H. G. Wells</li>
+</ul>
+
+<p>All the books I used are in the public domain, available from
+<a href="https://www.gutenberg.org/">Project Gutenberg</a>. The books I'm using
+in my little project are also available on my <a href="https://github.com/evelinag/Projects/tree/master/PCA">GitHub</a>
+together with all the source code.</p>
+
+<p>The first and most annoying step of any data analysis is to clean the data. 
+Every book from project Gutenberg comes with licence agreement at the 
+beginning and the full licence text at the end. The structure of these
+sections is fairly standardised, which makes it fairly easy to strip each book 
+off these parts. The preamble in the beginning also contains book title
+which we can extract.</p>
+
+<p>In F#, it's straightforward to load text of each book separated into lines 
+and then look for the specific lines that mark the beginning and end of each book.
+The following functions identify the main body of text, standardise it to
+lower case and and also find the book title.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">System</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">IO</span>
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="i">BookPart</span> <span class="o">=</span> | <span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="i">Start</span> | <span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="i">End</span>
+
+<span class="c">// This function uses specific format of books from Project Gutenberg</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="i">isBookPart</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="i">part</span> (<span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="i">line</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">string</span>) <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">keyword</span> <span class="o">=</span> 
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="i">part</span> <span class="k">with</span>
+        | <span onmouseout="hideTip(event, 'fs4', 13)" onmouseover="showTip(event, 'fs4', 13)" class="i">Start</span> <span class="k">-&gt;</span> <span class="s">&quot;</span><span class="s">START</span><span class="s">&quot;</span>
+        | <span onmouseout="hideTip(event, 'fs5', 14)" onmouseover="showTip(event, 'fs5', 14)" class="i">End</span> <span class="k">-&gt;</span> <span class="s">&quot;</span><span class="s">END</span><span class="s">&quot;</span>
+    (<span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="i">line</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 16)" onmouseover="showTip(event, 'fs11', 16)" class="i">Contains</span> (<span onmouseout="hideTip(event, 'fs10', 17)" onmouseover="showTip(event, 'fs10', 17)" class="i">keyword</span> <span class="o">+</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">OF</span><span class="s"> </span><span class="s">THIS</span><span class="s"> </span><span class="s">PROJECT</span><span class="s"> </span><span class="s">GUTENBERG</span><span class="s"> </span><span class="s">EBOOK</span><span class="s">&quot;</span>))
+    <span class="o">||</span> (<span onmouseout="hideTip(event, 'fs8', 18)" onmouseover="showTip(event, 'fs8', 18)" class="i">line</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 19)" onmouseover="showTip(event, 'fs11', 19)" class="i">Contains</span> (<span onmouseout="hideTip(event, 'fs10', 20)" onmouseover="showTip(event, 'fs10', 20)" class="i">keyword</span> <span class="o">+</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">OF</span><span class="s"> </span><span class="s">THE</span><span class="s"> </span><span class="s">PROJECT</span><span class="s"> </span><span class="s">GUTENBERG</span><span class="s"> </span><span class="s">EBOOK</span><span class="s">&quot;</span>))
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 21)" onmouseover="showTip(event, 'fs12', 21)" class="i">bookStarted</span> <span onmouseout="hideTip(event, 'fs8', 22)" onmouseover="showTip(event, 'fs8', 22)" class="i">line</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 23)" onmouseover="showTip(event, 'fs6', 23)" class="i">isBookPart</span> <span onmouseout="hideTip(event, 'fs4', 24)" onmouseover="showTip(event, 'fs4', 24)" class="i">Start</span> <span onmouseout="hideTip(event, 'fs8', 25)" onmouseover="showTip(event, 'fs8', 25)" class="i">line</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 26)" onmouseover="showTip(event, 'fs13', 26)" class="i">bookFinished</span> <span onmouseout="hideTip(event, 'fs8', 27)" onmouseover="showTip(event, 'fs8', 27)" class="i">line</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 28)" onmouseover="showTip(event, 'fs6', 28)" class="i">isBookPart</span> <span onmouseout="hideTip(event, 'fs5', 29)" onmouseover="showTip(event, 'fs5', 29)" class="i">End</span> <span onmouseout="hideTip(event, 'fs8', 30)" onmouseover="showTip(event, 'fs8', 30)" class="i">line</span>
+
+<span class="c">// Process lines of text in a book, skip license agreements</span>
+<span class="c">// and standardise letters</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 31)" onmouseover="showTip(event, 'fs14', 31)" class="i">cleanText</span> (<span onmouseout="hideTip(event, 'fs15', 32)" onmouseover="showTip(event, 'fs15', 32)" class="i">lines</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs9', 33)" onmouseover="showTip(event, 'fs9', 33)" class="i">string</span>[]) <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs15', 34)" onmouseover="showTip(event, 'fs15', 34)" class="i">lines</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 35)" onmouseover="showTip(event, 'fs16', 35)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs17', 36)" onmouseover="showTip(event, 'fs17', 36)" class="i">skipWhile</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs18', 37)" onmouseover="showTip(event, 'fs18', 37)" class="i">str</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs19', 38)" onmouseover="showTip(event, 'fs19', 38)" class="i">not</span> (<span onmouseout="hideTip(event, 'fs12', 39)" onmouseover="showTip(event, 'fs12', 39)" class="i">bookStarted</span> <span onmouseout="hideTip(event, 'fs18', 40)" onmouseover="showTip(event, 'fs18', 40)" class="i">str</span>))
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 41)" onmouseover="showTip(event, 'fs16', 41)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 42)" onmouseover="showTip(event, 'fs20', 42)" class="i">takeWhile</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs18', 43)" onmouseover="showTip(event, 'fs18', 43)" class="i">str</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs19', 44)" onmouseover="showTip(event, 'fs19', 44)" class="i">not</span> (<span onmouseout="hideTip(event, 'fs13', 45)" onmouseover="showTip(event, 'fs13', 45)" class="i">bookFinished</span> <span onmouseout="hideTip(event, 'fs18', 46)" onmouseover="showTip(event, 'fs18', 46)" class="i">str</span>))
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs21', 47)" onmouseover="showTip(event, 'fs21', 47)" class="i">String</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs22', 48)" onmouseover="showTip(event, 'fs22', 48)" class="i">concat</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">&quot;</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 49)" onmouseover="showTip(event, 'fs16', 49)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 50)" onmouseover="showTip(event, 'fs23', 50)" class="i">map</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs24', 51)" onmouseover="showTip(event, 'fs24', 51)" class="i">c</span> <span class="k">-&gt;</span> 
+        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs25', 52)" onmouseover="showTip(event, 'fs25', 52)" class="i">Char</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs26', 53)" onmouseover="showTip(event, 'fs26', 53)" class="i">IsLetter</span> <span onmouseout="hideTip(event, 'fs24', 54)" onmouseover="showTip(event, 'fs24', 54)" class="i">c</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs25', 55)" onmouseover="showTip(event, 'fs25', 55)" class="i">Char</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 56)" onmouseover="showTip(event, 'fs27', 56)" class="i">ToLowerInvariant</span> <span onmouseout="hideTip(event, 'fs24', 57)" onmouseover="showTip(event, 'fs24', 57)" class="i">c</span>
+        <span class="k">else</span> <span class="s">&#39; &#39;</span>)
+
+<span class="c">// Extract title of a book from the preamble</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 58)" onmouseover="showTip(event, 'fs28', 58)" class="i">getBookTitle</span> (<span onmouseout="hideTip(event, 'fs15', 59)" onmouseover="showTip(event, 'fs15', 59)" class="i">lines</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs9', 60)" onmouseover="showTip(event, 'fs9', 60)" class="i">string</span>[]) <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs15', 61)" onmouseover="showTip(event, 'fs15', 61)" class="i">lines</span><span class="o">.</span>[<span class="n">0..</span><span class="n">15</span>]
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 62)" onmouseover="showTip(event, 'fs29', 62)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 63)" onmouseover="showTip(event, 'fs30', 63)" class="i">pick</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs18', 64)" onmouseover="showTip(event, 'fs18', 64)" class="i">str</span> <span class="k">-&gt;</span> 
+        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs18', 65)" onmouseover="showTip(event, 'fs18', 65)" class="i">str</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 66)" onmouseover="showTip(event, 'fs31', 66)" class="i">StartsWith</span> <span class="s">&quot;</span><span class="s">Title</span><span class="s">:</span><span class="s">&quot;</span> <span class="k">then</span> 
+            <span onmouseout="hideTip(event, 'fs32', 67)" onmouseover="showTip(event, 'fs32', 67)" class="i">Some</span>(<span onmouseout="hideTip(event, 'fs18', 68)" onmouseover="showTip(event, 'fs18', 68)" class="i">str</span><span class="o">.</span>[<span class="n">6..</span>]<span class="o">.</span><span class="i">Trim</span>() )
+        <span class="k">else</span> <span onmouseout="hideTip(event, 'fs33', 69)" onmouseover="showTip(event, 'fs33', 69)" class="i">None</span>)        </pre>
+</td>
+</tr>
+</table>
+
+<p>Now we have all the ingredients to pre-process each book:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 70)" onmouseover="showTip(event, 'fs34', 70)" class="i">loadBook</span> <span onmouseout="hideTip(event, 'fs35', 71)" onmouseover="showTip(event, 'fs35', 71)" class="i">filename</span> <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 72)" onmouseover="showTip(event, 'fs36', 72)" class="i">fullContents</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs37', 73)" onmouseover="showTip(event, 'fs37', 73)" class="i">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 74)" onmouseover="showTip(event, 'fs38', 74)" class="i">ReadAllLines</span> <span onmouseout="hideTip(event, 'fs35', 75)" onmouseover="showTip(event, 'fs35', 75)" class="i">filename</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 76)" onmouseover="showTip(event, 'fs39', 76)" class="i">title</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 77)" onmouseover="showTip(event, 'fs28', 77)" class="i">getBookTitle</span> <span onmouseout="hideTip(event, 'fs36', 78)" onmouseover="showTip(event, 'fs36', 78)" class="i">fullContents</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 79)" onmouseover="showTip(event, 'fs40', 79)" class="i">text</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 80)" onmouseover="showTip(event, 'fs14', 80)" class="i">cleanText</span> <span onmouseout="hideTip(event, 'fs36', 81)" onmouseover="showTip(event, 'fs36', 81)" class="i">fullContents</span>
+    <span onmouseout="hideTip(event, 'fs39', 82)" onmouseover="showTip(event, 'fs39', 82)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs40', 83)" onmouseover="showTip(event, 'fs40', 83)" class="i">text</span></pre>
+</td>
+</tr>
+</table>
+
+<h2>Representing text with bigrams</h2>
+
+<p>Bigrams are simply pairs of letters. They are used in 
+various language modelling algorithms. For example, different
+languages use bigrams with frequencies that are characteristic for each language.
+This property makes it possible to 
+use bigrams for simple language idenfication.</p>
+
+<p>Generally, other symbols than letters can be included into bigrams as well. 
+Pairs of letters and spaces show what are common characters at the beginning
+and the end of words. Here I define all possible bigrams that I'm interested in.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 84)" onmouseover="showTip(event, 'fs41', 84)" class="i">alphabet</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">abcdefghijklmnopqrstuvwxyz</span><span class="s">&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs42', 85)" onmouseover="showTip(event, 'fs42', 85)" class="i">letterPairs</span> <span class="o">=</span>
+    [| <span class="k">for</span> <span onmouseout="hideTip(event, 'fs43', 86)" onmouseover="showTip(event, 'fs43', 86)" class="i">a</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs41', 87)" onmouseover="showTip(event, 'fs41', 87)" class="i">alphabet</span> <span class="k">do</span> 
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs44', 88)" onmouseover="showTip(event, 'fs44', 88)" class="i">b</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs41', 89)" onmouseover="showTip(event, 'fs41', 89)" class="i">alphabet</span> <span class="k">do</span>
+            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs43', 90)" onmouseover="showTip(event, 'fs43', 90)" class="i">a</span> <span class="o">&lt;&gt;</span> <span class="s">&#39; &#39;</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs44', 91)" onmouseover="showTip(event, 'fs44', 91)" class="i">b</span> <span class="o">&lt;&gt;</span> <span class="s">&#39; &#39;</span> <span class="k">then</span> <span class="k">yield</span> [|<span onmouseout="hideTip(event, 'fs43', 92)" onmouseover="showTip(event, 'fs43', 92)" class="i">a</span>; <span onmouseout="hideTip(event, 'fs44', 93)" onmouseover="showTip(event, 'fs44', 93)" class="i">b</span>|] |]</pre>
+</td>
+</tr>
+</table>
+
+<p>This piece of code generates all possible pairs of letters (and spaces).
+I skip the bigram formed of two consecutive spaces because it does not carry
+information about the language.</p>
+
+<p>Finally, we can write a function that turns a book into a sequence
+of bigram counts. When we have sequence of letters in a book, it is 
+very easy to split it into all consequtive pairs of letters using
+<code>Seq.windowed</code> (or <code>Seq.pairwise</code>) and then count occurences of each pair with 
+<code>Seq.countBy</code>. If we wanted to count number of trigrams (triples
+of letters), we would only need to change the window size in <code>Seq.windowed</code>.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 94)" onmouseover="showTip(event, 'fs45', 94)" class="i">rawBigrams</span> <span class="o">=</span>
+    <span class="i">text</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 95)" onmouseover="showTip(event, 'fs16', 95)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 96)" onmouseover="showTip(event, 'fs46', 96)" class="i">windowed</span> <span class="n">2</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 97)" onmouseover="showTip(event, 'fs16', 97)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 98)" onmouseover="showTip(event, 'fs47', 98)" class="i">countBy</span> <span onmouseout="hideTip(event, 'fs48', 99)" onmouseover="showTip(event, 'fs48', 99)" class="i">id</span></pre>
+</td>
+</tr>
+</table>
+
+<p>The following is the complete function which processes a whole book and returns bigram
+counts in a standard order defined by <code>letterPairs</code>.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// Extract title and bigram counts from a specific book</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 100)" onmouseover="showTip(event, 'fs49', 100)" class="i">bookBigrams</span> <span onmouseout="hideTip(event, 'fs35', 101)" onmouseover="showTip(event, 'fs35', 101)" class="i">filename</span> <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 102)" onmouseover="showTip(event, 'fs39', 102)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs40', 103)" onmouseover="showTip(event, 'fs40', 103)" class="i">text</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 104)" onmouseover="showTip(event, 'fs34', 104)" class="i">loadBook</span> <span onmouseout="hideTip(event, 'fs35', 105)" onmouseover="showTip(event, 'fs35', 105)" class="i">filename</span>
+
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs50', 106)" onmouseover="showTip(event, 'fs50', 106)" class="i">rawBigrams</span> <span class="o">=</span>
+        <span onmouseout="hideTip(event, 'fs40', 107)" onmouseover="showTip(event, 'fs40', 107)" class="i">text</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 108)" onmouseover="showTip(event, 'fs16', 108)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 109)" onmouseover="showTip(event, 'fs46', 109)" class="i">windowed</span> <span class="n">2</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 110)" onmouseover="showTip(event, 'fs16', 110)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 111)" onmouseover="showTip(event, 'fs47', 111)" class="i">countBy</span> <span onmouseout="hideTip(event, 'fs48', 112)" onmouseover="showTip(event, 'fs48', 112)" class="i">id</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 113)" onmouseover="showTip(event, 'fs51', 113)" class="i">dict</span>
+
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs52', 114)" onmouseover="showTip(event, 'fs52', 114)" class="i">bigramCountVector</span> <span class="o">=</span>
+        <span onmouseout="hideTip(event, 'fs42', 115)" onmouseover="showTip(event, 'fs42', 115)" class="i">letterPairs</span> 
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 116)" onmouseover="showTip(event, 'fs29', 116)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 117)" onmouseover="showTip(event, 'fs53', 117)" class="i">map</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs54', 118)" onmouseover="showTip(event, 'fs54', 118)" class="i">pair</span> <span class="k">-&gt;</span> 
+            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs50', 119)" onmouseover="showTip(event, 'fs50', 119)" class="i">rawBigrams</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs55', 120)" onmouseover="showTip(event, 'fs55', 120)" class="i">ContainsKey</span> <span onmouseout="hideTip(event, 'fs54', 121)" onmouseover="showTip(event, 'fs54', 121)" class="i">pair</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs50', 122)" onmouseover="showTip(event, 'fs50', 122)" class="i">rawBigrams</span><span class="o">.</span>[<span onmouseout="hideTip(event, 'fs54', 123)" onmouseover="showTip(event, 'fs54', 123)" class="i">pair</span>]
+            <span class="k">else</span> <span class="n">0</span>)
+
+    <span onmouseout="hideTip(event, 'fs39', 124)" onmouseover="showTip(event, 'fs39', 124)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs52', 125)" onmouseover="showTip(event, 'fs52', 125)" class="i">bigramCountVector</span></pre>
+</td>
+</tr>
+</table>
+
+<p>Now we can find which bigrams are the most frequent in each book.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 126)" onmouseover="showTip(event, 'fs56', 126)" class="i">filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">/</span><span class="s">Temp</span><span class="s">/</span><span class="s">books</span><span class="s">/</span><span class="s">Dickens</span><span class="s">/</span><span class="s">pg46</span><span class="s">.</span><span class="s">txt</span><span class="s">&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs57', 127)" onmouseover="showTip(event, 'fs57', 127)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs58', 128)" onmouseover="showTip(event, 'fs58', 128)" class="i">data</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs49', 129)" onmouseover="showTip(event, 'fs49', 129)" class="i">bookBigrams</span> <span onmouseout="hideTip(event, 'fs56', 130)" onmouseover="showTip(event, 'fs56', 130)" class="i">filename</span>
+
+<span class="c">// most common bigrams</span>
+<span onmouseout="hideTip(event, 'fs29', 131)" onmouseover="showTip(event, 'fs29', 131)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 132)" onmouseover="showTip(event, 'fs59', 132)" class="i">zip</span> <span onmouseout="hideTip(event, 'fs42', 133)" onmouseover="showTip(event, 'fs42', 133)" class="i">letterPairs</span> <span onmouseout="hideTip(event, 'fs58', 134)" onmouseover="showTip(event, 'fs58', 134)" class="i">data</span>
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 135)" onmouseover="showTip(event, 'fs29', 135)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 136)" onmouseover="showTip(event, 'fs60', 136)" class="i">sortBy</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs61', 137)" onmouseover="showTip(event, 'fs61', 137)" class="i">x</span> <span class="k">-&gt;</span> <span class="o">-</span> <span onmouseout="hideTip(event, 'fs62', 138)" onmouseover="showTip(event, 'fs62', 138)" class="i">snd</span> <span onmouseout="hideTip(event, 'fs61', 139)" onmouseover="showTip(event, 'fs61', 139)" class="i">x</span>)
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 140)" onmouseover="showTip(event, 'fs16', 140)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 141)" onmouseover="showTip(event, 'fs63', 141)" class="i">take</span> <span class="n">3</span></pre>
+</td>
+</tr>
+</table>
+
+<p>In 'A Christmas Carol', the most common bigram is 'th' followed by 'he'. 
+It seems that the most frequent word in the book is 'the'!</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">val</span> <span class="i">it</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs64', 142)" onmouseover="showTip(event, 'fs64', 142)" class="i">seq</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs65', 143)" onmouseover="showTip(event, 'fs65', 143)" class="i">char</span> [] <span class="o">*</span> <span onmouseout="hideTip(event, 'fs66', 144)" onmouseover="showTip(event, 'fs66', 144)" class="i">int</span><span class="o">&gt;</span> <span class="o">=</span>
+<span onmouseout="hideTip(event, 'fs64', 145)" onmouseover="showTip(event, 'fs64', 145)" class="i">seq</span> [([|<span class="s">&#39;t&#39;</span>; <span class="s">&#39;h&#39;</span>|], <span class="n">3650</span>); ([|<span class="s">&#39;h&#39;</span>; <span class="s">&#39;e&#39;</span>|], <span class="n">3532</span>); ([|<span class="s">&#39;i&#39;</span>; <span class="s">&#39;n&#39;</span>|], <span class="n">2155</span>)]</pre>
+</td>
+</tr>
+</table>
+
+<p>The following block of code processes all books in my little data set.
+Each book is located in a directory named after its author. To speed it up,
+I run this step in parallel using F# <code>PSeq</code>.
+Computing bigrams from all the books is still the most time-consuming step
+of the analysis. For this reason, I save the results into a <code>csv</code> file
+so that I don't have to re-run the computation often. You can find the
+resulting <code>csv</code> file in the source-code.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">packages</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Collections</span><span class="s">.</span><span class="s">ParallelSeq</span><span class="s">/</span><span class="s">lib</span><span class="s">/</span><span class="s">net40</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Collections</span><span class="s">.</span><span class="s">ParallelSeq</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+<span class="k">open</span> <span class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs67', 146)" onmouseover="showTip(event, 'fs67', 146)" class="i">Collections</span><span class="o">.</span><span class="i">ParallelSeq</span>
+
+<span class="k">let</span> <span class="i">booksDir</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">/</span><span class="s">Temp</span><span class="s">/</span><span class="s">books</span><span class="s">&quot;</span>
+<span class="k">let</span> <span class="i">authorDirs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs68', 147)" onmouseover="showTip(event, 'fs68', 147)" class="i">Directory</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 148)" onmouseover="showTip(event, 'fs69', 148)" class="i">GetDirectories</span>(<span class="i">booksDir</span>)
+
+<span class="c">// Compute bigram counts for all books</span>
+<span class="k">let</span> <span class="i">authorBigrams</span> <span class="o">=</span>
+    <span class="i">authorDirs</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 149)" onmouseover="showTip(event, 'fs29', 149)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 150)" onmouseover="showTip(event, 'fs53', 150)" class="i">map</span> (<span class="k">fun</span> <span class="i">d</span> <span class="k">-&gt;</span> 
+        <span onmouseout="hideTip(event, 'fs68', 151)" onmouseover="showTip(event, 'fs68', 151)" class="i">Directory</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 152)" onmouseover="showTip(event, 'fs70', 152)" class="i">GetFiles</span>(<span class="i">d</span>)
+        <span class="o">|&gt;</span> <span class="i">PSeq</span><span class="o">.</span><span class="i">map</span> (<span class="k">fun</span> <span class="i">file</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs49', 153)" onmouseover="showTip(event, 'fs49', 153)" class="i">bookBigrams</span> <span class="i">file</span>)
+        <span class="o">|&gt;</span> <span class="i">PSeq</span><span class="o">.</span><span class="i">toArray</span>)
+
+<span id="fst71" onmouseout="hideTip(event, 'fs71', 154)" onmouseover="showTip(event, 'fs71', 154, document.getElementById('fst71'))" class="omitted">(Save computed results into a csv file.)</span></pre>
+</td>
+</tr>
+</table>
+
+<h2>Data preprocessing</h2>
+
+<p>Although now we have counts of bigrams in all the books, we are
+still not finished with the clean-up! There are many bigrams that
+are only rarely appearing in standard English text, such as 'qb' or 'bg'. 
+These rare bigrams behave like noise in our data - they might come 
+for example from some unusual name used just by one author etc.</p>
+
+<p><img src="bigramCounts.png" alt="Bigram counts" /></p>
+
+<p>The graph shows how many times each bigram appears in the books.
+We can safely discard many of the bigrams that are only rarely used.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// read csv file and extract data</span>
+<span id="fst72" onmouseout="hideTip(event, 'fs72', 155)" onmouseover="showTip(event, 'fs72', 155, document.getElementById('fst72'))" class="omitted">(Read csv file and extract data.)</span>
+
+<span class="c">// Sort bigrams by frequency</span>
+<span class="k">let</span> <span class="i">sortedBigrams</span> <span class="o">=</span> 
+    [| <span class="k">for</span> <span class="i">idx</span> <span class="k">in</span> <span class="n">0..</span><span onmouseout="hideTip(event, 'fs42', 156)" onmouseover="showTip(event, 'fs42', 156)" class="i">letterPairs</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs73', 157)" onmouseover="showTip(event, 'fs73', 157)" class="i">Length</span> <span class="o">-</span> <span class="n">1</span> <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="i">sum</span> <span class="o">=</span> <span class="i">fullData</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 158)" onmouseover="showTip(event, 'fs29', 158)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs74', 159)" onmouseover="showTip(event, 'fs74', 159)" class="i">sumBy</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">xs</span><span class="o">.</span>[<span class="i">idx</span>])
+        <span class="i">idx</span>, <span class="i">sum</span> |]
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 160)" onmouseover="showTip(event, 'fs29', 160)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 161)" onmouseover="showTip(event, 'fs60', 161)" class="i">sortBy</span> (<span class="k">fun</span> (<span class="i">idx</span>, <span class="i">sum</span>) <span class="k">-&gt;</span> <span class="o">-</span><span class="i">sum</span>)
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 162)" onmouseover="showTip(event, 'fs29', 162)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 163)" onmouseover="showTip(event, 'fs53', 163)" class="i">map</span> <span onmouseout="hideTip(event, 'fs75', 164)" onmouseover="showTip(event, 'fs75', 164)" class="i">fst</span>
+
+<span class="c">// How many bigrams to keep</span>
+<span class="k">let</span> <span class="i">bigramCount</span> <span class="o">=</span> <span class="n">400</span>
+<span class="k">let</span> <span class="i">mostUsedBigrams</span> <span class="o">=</span> <span class="i">sortedBigrams</span><span class="o">.</span>[<span class="n">0..</span><span class="i">bigramCount</span><span class="o">-</span><span class="n">1</span>] <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs76', 165)" onmouseover="showTip(event, 'fs76', 165)" class="i">set</span>
+
+<span class="k">let</span> <span class="i">chooseBigrams</span> <span class="i">bigramValues</span> <span class="o">=</span>
+    <span class="i">bigramValues</span> 
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 166)" onmouseover="showTip(event, 'fs29', 166)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs77', 167)" onmouseover="showTip(event, 'fs77', 167)" class="i">mapi</span> (<span class="k">fun</span> <span class="i">i</span> <span class="i">x</span> <span class="k">-&gt;</span> 
+        <span class="k">if</span> <span class="i">mostUsedBigrams</span><span class="o">.</span><span class="i">Contains</span> <span class="i">i</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs32', 168)" onmouseover="showTip(event, 'fs32', 168)" class="i">Some</span>(<span class="i">x</span>) <span class="k">else</span> <span onmouseout="hideTip(event, 'fs33', 169)" onmouseover="showTip(event, 'fs33', 169)" class="i">None</span>) 
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 170)" onmouseover="showTip(event, 'fs29', 170)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs78', 171)" onmouseover="showTip(event, 'fs78', 171)" class="i">choose</span> <span onmouseout="hideTip(event, 'fs48', 172)" onmouseover="showTip(event, 'fs48', 172)" class="i">id</span>    </pre>
+</td>
+</tr>
+</table>
+
+<p>Here I'm keeping only the 400 most frequent bigrams. The last step in
+preprocessing the data is to normalize the total counts for each
+bigram to relative frequencies within each document.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// Normalize counts to relative frequencies</span>
+<span class="k">let</span> <span class="i">normalize</span> (<span class="i">xs</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs79', 173)" onmouseover="showTip(event, 'fs79', 173)" class="i">float</span>[]) <span class="o">=</span>
+    <span class="k">let</span> <span class="i">total</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 174)" onmouseover="showTip(event, 'fs29', 174)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs80', 175)" onmouseover="showTip(event, 'fs80', 175)" class="i">sum</span> <span class="i">xs</span>
+    <span class="i">xs</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 176)" onmouseover="showTip(event, 'fs29', 176)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 177)" onmouseover="showTip(event, 'fs53', 177)" class="i">map</span> (<span class="k">fun</span> <span class="i">x</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">/</span><span class="i">total</span>)</pre>
+</td>
+</tr>
+</table>
+
+<p>Finally, the data are prepared for the mathematical analysis. 
+The following piece of code turns the data into a matrix.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 178)" onmouseover="showTip(event, 'fs81', 178)" class="i">Numerics</span>
+<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 179)" onmouseover="showTip(event, 'fs81', 179)" class="i">Numerics</span><span class="o">.</span><span class="i">LinearAlgebra</span>
+<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 180)" onmouseover="showTip(event, 'fs81', 180)" class="i">Numerics</span><span class="o">.</span><span class="i">LinearAlgebra</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs82', 181)" onmouseover="showTip(event, 'fs82', 181)" class="i">Double</span>       
+
+<span class="k">let</span> <span class="i">dataMatrix</span> <span class="o">=</span> 
+    <span class="i">fullData</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 182)" onmouseover="showTip(event, 'fs29', 182)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 183)" onmouseover="showTip(event, 'fs53', 183)" class="i">map</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">chooseBigrams</span> <span class="i">xs</span>)    
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 184)" onmouseover="showTip(event, 'fs29', 184)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 185)" onmouseover="showTip(event, 'fs53', 185)" class="i">map</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">normalize</span> <span class="i">xs</span>)
+    <span class="o">|&gt;</span> <span class="i">DenseMatrix</span><span class="o">.</span><span class="i">ofColumnArrays</span>   </pre>
+</td>
+</tr>
+</table>
+
+<h2>Principal Component Analysis</h2>
+
+<p>Principal Component Analysis (PCA) is a mathematical method 
+for data transformation. It is most commonly used 
+for dimensionality reduction. Right now we have 400-dimensional 
+dataset, i.e. separate dimension for each bigram. It is hard to
+visualise such data to get an overview of relations between individual
+books and authors. PCA gives us a method to project data onto 
+a lower-dimensional hyperspace while preserving most differences.
+In the projection, data points that are far in the original data 
+should stay distant from each other and vice versa.</p>
+
+<p>PCA can be mathematically derived as a projection into a lower-dimensional
+hyperspace which minimizes the sum of squared differences between
+the original data point and its low-dimensional projection. What it does
+in simple terms is that it finds directions of largest variance in
+the data.</p>
+
+<p><img src="pca_sample.png" alt="PCA illustration" /></p>
+
+<p>In the illustration above, the first principal component shows the
+direction of the largest variance in the data. The second principal component
+points to a direction of smaller variance.
+We can use principal component directions as a new coordinate system.
+For dimensionality reduction, we typically discard directions (dimensions) that account
+only for small variance in the data - these dimensions
+are not very informative (because they don't vary between data points), 
+or account for noise in the data.</p>
+
+<p>Before the actual Principal Component Analysis, we have to 
+center data such that their mean is at zero.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// Mean vector of the whole dataset</span>
+<span class="k">let</span> <span class="i">center</span> <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">n</span> <span class="o">=</span> <span class="i">dataMatrix</span><span class="o">.</span><span class="i">ColumnCount</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs79', 186)" onmouseover="showTip(event, 'fs79', 186)" class="i">float</span>
+    <span class="i">dataMatrix</span><span class="o">.</span><span class="i">RowSums</span>() <span class="o">/</span> <span class="i">n</span>
+
+<span class="c">// Normalize data to zero mean</span>
+<span class="k">let</span> <span class="i">centeredMatrix</span> <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">sumMatrix</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 187)" onmouseover="showTip(event, 'fs29', 187)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs83', 188)" onmouseover="showTip(event, 'fs83', 188)" class="i">init</span> <span class="i">dataMatrix</span><span class="o">.</span><span class="i">ColumnCount</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="i">center</span>)
+                   <span class="o">|&gt;</span> <span class="i">DenseMatrix</span><span class="o">.</span><span class="i">OfColumnVectors</span>
+    <span class="i">dataMatrix</span> <span class="o">-</span> <span class="i">sumMatrix</span></pre>
+</td>
+</tr>
+</table>
+
+<p>The standard algorithm for computing principal component
+analysis is very simple, principal components are eigenvectors
+of data covariance matrix. There is a function for eigenvalue decomposition
+in <code>Math.NET Numerics</code>, which makes it straightforward to compute
+in F#. First we need to calculate the covariance matrix 
+of our centered data.</p>
+
+<p><span class="math">\[S = \frac{1}{N-1} X X^T\]</span></p>
+
+<p><span class="math">\(X\)</span> is the data matrix and <span class="math">\(S\)</span> is the resulting covariance. 
+I will work with a scaled covariance matrix <span class="math">\(X X^T\)</span> which has the
+same eigenvectors as the matrix <span class="math">\(S\)</span>.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// Compute covariance matrix</span>
+<span class="k">let</span> <span class="i">covarianceMatrix</span> <span class="o">=</span> <span class="i">centeredMatrix</span> <span class="o">*</span> <span class="i">centeredMatrix</span><span class="o">.</span><span class="i">Transpose</span>()
+
+<span class="c">// Eigenvalue decomposition</span>
+<span class="k">let</span> <span class="i">evd</span> <span class="o">=</span> <span class="i">covarianceMatrix</span><span class="o">.</span><span class="i">Evd</span>()</pre>
+</td>
+</tr>
+</table>
+
+<p>In variable <code>evd</code> we now have an object returned by <code>Math.NET</code> 
+which contains eigenvectors and eigenvalues of the covariance matrix.
+Directions of the largest variance are eigenvectors that correspond
+to largest eigenvalues. Since eigenvalues are ordered from smallest to 
+the largest, we have to pick eigenvectors from the end of their
+matrix. The following function returns a matrix formed of 
+<span class="math">\(d\)</span> most important eigenvectors.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="i">eigenvectors</span> <span class="i">d</span> <span class="o">=</span> 
+    <span class="k">let</span> <span class="i">m</span> <span class="o">=</span> <span class="i">evd</span><span class="o">.</span><span class="i">EigenVectors</span>
+    <span class="i">m</span><span class="o">.</span>[<span class="n">0..</span><span class="i">m</span><span class="o">.</span><span class="i">RowCount</span><span class="o">-</span><span class="n">1</span>, <span class="i">m</span><span class="o">.</span><span class="i">ColumnCount</span><span class="o">-</span><span class="i">d</span><span class="o">..</span><span class="i">m</span><span class="o">.</span><span class="i">ColumnCount</span><span class="o">-</span><span class="n">1</span>]</pre>
+</td>
+</tr>
+</table>
+
+<p>With eigenvectors ready, we can compute projection of 
+our data set onto a specified number of dimensions <span class="math">\(d\)</span>.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="o">$$$</span>
+</pre>
+</td>
+</tr>
+</table>
+
+<p><span class="math">\(\tilde{X} is an approximation of our original data matrix\)</span>X<span class="math">\(in\)</span>d<span class="math">\(dimensions
+and\)</span>E_d<span class="math">\(is the eigenvector matrix formed of\)</span>d$ most important eigenvectors. 
+The following function takes number of dimensions as an 
+input and returns projection of the data into the specified number
+of dimensions.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="i">projection</span> <span class="i">d</span> <span class="o">=</span> (<span class="i">eigenvectors</span> <span class="i">d</span>)<span class="o">.</span><span class="i">Transpose</span>() <span class="o">*</span> <span class="i">centeredMatrix</span></pre>
+</td>
+</tr>
+</table>
+
+<h2>Similarity of classic works of literature</h2>
+
+<p>Finally we can look at the classic books and how do they compare
+in terms of language that they use. The plot below shows a projection
+onto two most significant principal components.</p>
+
+<a href="author_pca(big).png"><img src="author_pca.png"></a>
+
+<p>The resulting image is quite interesting: H. G. Wells and Rudyard Kipling
+are well separated from the others. This might be the result of
+using foreign and exotic names in their books. On the other hand, 
+Arthur Conan Doyle
+seems to be all over the place - perhaps Sherlock Holmes investigated
+cases in many different environments. 
+Another interesting thing is that women authors, Jane Austen and 
+the Bronte sisters are all grouped together in the bottom half of the plot.</p>
+
+<p>Note that this visualisation is very simplifying - it summarizes
+400-dimensional vectors into just two dimensions. Still, it seems
+to reveal some interesting regularities in our data.</p>
+
+<h2>So who wrote 'A Christmas Carol'?</h2>
+
+<p>Let's turn to the key question of this blog post - was it indeed Charles
+Dickens who wrote the book <code>A Christmas Carol</code>? For this, I will
+use a simple classification algorithm, k nearest neighbours. The algorithm
+itself is very simple: it computes distances of our data point of interest
+(the book) to all other data points (other books). Then it selects <span class="math">\(k\)</span>
+nearest items. The author of the Christmas Carol book will be the author who wrote most
+of the books that are closests.</p>
+
+<p>This classification algorithm works very well when combined with PCA. 
+In its standard form, k nearest neighbours suffers from the so-called 
+<a href="http://en.wikipedia.org/wiki/Curse_of_dimensionality#Nearest_neighbor_search">curse of dimensionality</a>.
+When computing distances in very high-dimensional spaces, the result
+is highly sensitive to noise and irrelevant dimensions. By preprocessing
+data with PCA and projecting it into a lower-dimensional space, 
+k nearest neighbours turns into a much more robust algorithm.</p>
+
+<p>For our analysis of 'A Christmas Carol', I projected the books' bigram 
+frequencies into 20 dimensions. This captures more information about
+the data than the 2D visualisation.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="i">projectedData</span> <span class="o">=</span> <span class="i">projection</span> <span class="n">20</span>
+<span class="k">let</span> <span class="i">christmasCarol</span> <span class="o">=</span> <span class="i">projectedData</span><span class="o">.</span><span class="i">Column</span>(<span class="i">christmasCarolIdx</span>)</pre>
+</td>
+</tr>
+</table>
+
+<p>To "identify" the author, I will look at only three nearest neighbours
+based on Euclidean distance:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="i">kNearest</span> <span class="i">k</span> <span class="o">=</span> 
+    [| <span class="k">for</span> <span class="i">idx</span>, <span class="i">v</span> <span class="k">in</span> <span class="i">projectedData</span><span class="o">.</span><span class="i">EnumerateColumnsIndexed</span>() <span class="k">do</span>
+        <span class="k">if</span> <span class="i">idx</span> <span class="o">&lt;&gt;</span> <span class="i">christmasCarolIdx</span> <span class="k">then</span>
+            <span class="k">let</span> <span class="i">distance</span> <span class="o">=</span> (<span class="i">v</span> <span class="o">-</span> <span class="i">christmasCarol</span>)<span class="o">*</span>(<span class="i">v</span> <span class="o">-</span> <span class="i">christmasCarol</span>)
+            <span class="k">yield</span> <span class="i">titles</span><span class="o">.</span>[<span class="i">idx</span>], <span class="i">distance</span> |]
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 189)" onmouseover="showTip(event, 'fs16', 189)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs84', 190)" onmouseover="showTip(event, 'fs84', 190)" class="i">sortBy</span> <span onmouseout="hideTip(event, 'fs62', 191)" onmouseover="showTip(event, 'fs62', 191)" class="i">snd</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 192)" onmouseover="showTip(event, 'fs16', 192)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 193)" onmouseover="showTip(event, 'fs63', 193)" class="i">take</span> <span class="i">k</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 194)" onmouseover="showTip(event, 'fs29', 194)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 195)" onmouseover="showTip(event, 'fs85', 195)" class="i">ofSeq</span>
+
+<span class="i">kNearest</span> <span class="n">3</span></pre>
+</td>
+</tr>
+</table>
+
+<p>What is the conclusion?</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">val</span> <span class="i">it</span> <span class="o">:</span> (<span onmouseout="hideTip(event, 'fs9', 196)" onmouseover="showTip(event, 'fs9', 196)" class="i">string</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs79', 197)" onmouseover="showTip(event, 'fs79', 197)" class="i">float</span>) [] <span class="o">=</span>
+  [|(<span class="s">&quot;</span><span class="s">Oliver</span><span class="s"> </span><span class="s">Twist</span><span class="s">&quot;</span>, <span class="n">0.0001679233456</span>);
+    (<span class="s">&quot;</span><span class="s">A</span><span class="s"> </span><span class="s">Tale</span><span class="s"> </span><span class="s">of</span><span class="s"> </span><span class="s">Two</span><span class="s"> </span><span class="s">Cities</span><span class="s">&quot;</span>, <span class="n">0.0001827125101</span>);
+    (<span class="s">&quot;</span><span class="s">The</span><span class="s"> </span><span class="s">Sign</span><span class="s"> </span><span class="s">of</span><span class="s"> </span><span class="s">the</span><span class="s"> </span><span class="s">Four</span><span class="s">&quot;</span>, <span class="n">0.0002067513054</span>)|]</pre>
+</td>
+</tr>
+</table>
+
+<p>Well, it seems it must have been Charles Dickens after all! Two out of three
+closest books were written by him.
+This shows that our simple PCA analysis on bigrams
+was able to capture some characteristics of language used by different
+authors.</p>
+
+<h2>Summary</h2>
+
+<p>In this Christmas themed blog post, I went through the task of
+identifying author of a book based on features of language he used
+in his work. Although this is a simple toy problem, the general principles 
+apply to other problems as well. 
+Principal component analysis is an incredibly useful tool for visualisation
+of complex high-dimensional data. Together with k nearest neighbours 
+algorithm it can be used for easy exploration for supervised
+learning problems. And it might even help you in fairy tales!</p>
+
+<a href="http://xkcd.com/872/"><img src="fairy_tales.png"></a>
+
+<p><a href="http://xkcd.com/872/">Source: xkcd.com</a></p>
+
+<p>Happy holidays!</p>
+
+<div class="tip" id="fs1">namespace System</div>
+<div class="tip" id="fs2">namespace System.IO</div>
+<div class="tip" id="fs3">type BookPart =<br />&#160;&#160;| Start<br />&#160;&#160;| End<br /><br />Full name: christmascarolandothereigenvectors.BookPart</div>
+<div class="tip" id="fs4">union case BookPart.Start: BookPart</div>
+<div class="tip" id="fs5">union case BookPart.End: BookPart</div>
+<div class="tip" id="fs6">val isBookPart : part:BookPart -&gt; line:string -&gt; bool<br /><br />Full name: christmascarolandothereigenvectors.isBookPart</div>
+<div class="tip" id="fs7">val part : BookPart</div>
+<div class="tip" id="fs8">val line : string</div>
+<div class="tip" id="fs9">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs10">val keyword : string</div>
+<div class="tip" id="fs11">String.Contains(value: string) : bool</div>
+<div class="tip" id="fs12">val bookStarted : line:string -&gt; bool<br /><br />Full name: christmascarolandothereigenvectors.bookStarted</div>
+<div class="tip" id="fs13">val bookFinished : line:string -&gt; bool<br /><br />Full name: christmascarolandothereigenvectors.bookFinished</div>
+<div class="tip" id="fs14">val cleanText : lines:string [] -&gt; seq&lt;char&gt;<br /><br />Full name: christmascarolandothereigenvectors.cleanText</div>
+<div class="tip" id="fs15">val lines : string []</div>
+<div class="tip" id="fs16">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs17">val skipWhile : predicate:(&#39;T -&gt; bool) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.skipWhile</div>
+<div class="tip" id="fs18">val str : string</div>
+<div class="tip" id="fs19">val not : value:bool -&gt; bool<br /><br />Full name: Microsoft.FSharp.Core.Operators.not</div>
+<div class="tip" id="fs20">val takeWhile : predicate:(&#39;T -&gt; bool) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.takeWhile</div>
+<div class="tip" id="fs21">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
+<div class="tip" id="fs22">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
+<div class="tip" id="fs23">val map : mapping:(&#39;T -&gt; &#39;U) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;U&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.map</div>
+<div class="tip" id="fs24">val c : char</div>
+<div class="tip" id="fs25">type Char =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Equals : obj:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member GetTypeCode : unit -&gt; TypeCode<br />&#160;&#160;&#160;&#160;member ToString : unit -&gt; string + 1 overload<br />&#160;&#160;&#160;&#160;static val MaxValue : char<br />&#160;&#160;&#160;&#160;static val MinValue : char<br />&#160;&#160;&#160;&#160;static member ConvertFromUtf32 : utf32:int -&gt; string<br />&#160;&#160;&#160;&#160;static member ConvertToUtf32 : highSurrogate:char * lowSurrogate:char -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;static member GetNumericValue : c:char -&gt; float + 1 overload<br />&#160;&#160;&#160;&#160;...<br />&#160;&#160;end<br /><br />Full name: System.Char</div>
+<div class="tip" id="fs26">Char.IsLetter(c: char) : bool<br />Char.IsLetter(s: string, index: int) : bool</div>
+<div class="tip" id="fs27">Char.ToLowerInvariant(c: char) : char</div>
+<div class="tip" id="fs28">val getBookTitle : lines:string [] -&gt; string<br /><br />Full name: christmascarolandothereigenvectors.getBookTitle</div>
+<div class="tip" id="fs29">type Array =<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CopyTo : array:Array * index:int -&gt; unit + 1 overload<br />&#160;&#160;member GetEnumerator : unit -&gt; IEnumerator<br />&#160;&#160;member GetLength : dimension:int -&gt; int<br />&#160;&#160;member GetLongLength : dimension:int -&gt; int64<br />&#160;&#160;member GetLowerBound : dimension:int -&gt; int<br />&#160;&#160;member GetUpperBound : dimension:int -&gt; int<br />&#160;&#160;member GetValue : params indices:int[] -&gt; obj + 7 overloads<br />&#160;&#160;member Initialize : unit -&gt; unit<br />&#160;&#160;member IsFixedSize : bool<br />&#160;&#160;...<br /><br />Full name: System.Array</div>
+<div class="tip" id="fs30">val pick : chooser:(&#39;T -&gt; &#39;U option) -&gt; array:&#39;T [] -&gt; &#39;U<br /><br />Full name: Microsoft.FSharp.Collections.Array.pick</div>
+<div class="tip" id="fs31">String.StartsWith(value: string) : bool<br />String.StartsWith(value: string, comparisonType: StringComparison) : bool<br />String.StartsWith(value: string, ignoreCase: bool, culture: Globalization.CultureInfo) : bool</div>
+<div class="tip" id="fs32">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs33">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs34">val loadBook : filename:string -&gt; string * seq&lt;char&gt;<br /><br />Full name: christmascarolandothereigenvectors.loadBook</div>
+<div class="tip" id="fs35">val filename : string</div>
+<div class="tip" id="fs36">val fullContents : string []</div>
+<div class="tip" id="fs37">type File =<br />&#160;&#160;static member AppendAllLines : path:string * contents:IEnumerable&lt;string&gt; -&gt; unit + 1 overload<br />&#160;&#160;static member AppendAllText : path:string * contents:string -&gt; unit + 1 overload<br />&#160;&#160;static member AppendText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Copy : sourceFileName:string * destFileName:string -&gt; unit + 1 overload<br />&#160;&#160;static member Create : path:string -&gt; FileStream + 3 overloads<br />&#160;&#160;static member CreateText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Decrypt : path:string -&gt; unit<br />&#160;&#160;static member Delete : path:string -&gt; unit<br />&#160;&#160;static member Encrypt : path:string -&gt; unit<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;...<br /><br />Full name: System.IO.File</div>
+<div class="tip" id="fs38">File.ReadAllLines(path: string) : string []<br />File.ReadAllLines(path: string, encoding: Text.Encoding) : string []</div>
+<div class="tip" id="fs39">val title : string</div>
+<div class="tip" id="fs40">val text : seq&lt;char&gt;</div>
+<div class="tip" id="fs41">val alphabet : string<br /><br />Full name: christmascarolandothereigenvectors.alphabet</div>
+<div class="tip" id="fs42">val letterPairs : char [] []<br /><br />Full name: christmascarolandothereigenvectors.letterPairs</div>
+<div class="tip" id="fs43">val a : char</div>
+<div class="tip" id="fs44">val b : char</div>
+<div class="tip" id="fs45">val rawBigrams : seq&lt;obj [] * int&gt;<br /><br />Full name: christmascarolandothereigenvectors.rawBigrams</div>
+<div class="tip" id="fs46">val windowed : windowSize:int -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T []&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.windowed</div>
+<div class="tip" id="fs47">val countBy : projection:(&#39;T -&gt; &#39;Key) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;Key * int&gt; (requires equality)<br /><br />Full name: Microsoft.FSharp.Collections.Seq.countBy</div>
+<div class="tip" id="fs48">val id : x:&#39;T -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.id</div>
+<div class="tip" id="fs49">val bookBigrams : filename:string -&gt; string * int []<br /><br />Full name: christmascarolandothereigenvectors.bookBigrams</div>
+<div class="tip" id="fs50">val rawBigrams : Collections.Generic.IDictionary&lt;char [],int&gt;</div>
+<div class="tip" id="fs51">val dict : keyValuePairs:seq&lt;&#39;Key * &#39;Value&gt; -&gt; Collections.Generic.IDictionary&lt;&#39;Key,&#39;Value&gt; (requires equality)<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.dict</div>
+<div class="tip" id="fs52">val bigramCountVector : int []</div>
+<div class="tip" id="fs53">val map : mapping:(&#39;T -&gt; &#39;U) -&gt; array:&#39;T [] -&gt; &#39;U []<br /><br />Full name: Microsoft.FSharp.Collections.Array.map</div>
+<div class="tip" id="fs54">val pair : char []</div>
+<div class="tip" id="fs55">Collections.Generic.IDictionary.ContainsKey(key: char []) : bool</div>
+<div class="tip" id="fs56">val filename : string<br /><br />Full name: christmascarolandothereigenvectors.filename</div>
+<div class="tip" id="fs57">val title : string<br /><br />Full name: christmascarolandothereigenvectors.title</div>
+<div class="tip" id="fs58">val data : int []<br /><br />Full name: christmascarolandothereigenvectors.data</div>
+<div class="tip" id="fs59">val zip : array1:&#39;T1 [] -&gt; array2:&#39;T2 [] -&gt; (&#39;T1 * &#39;T2) []<br /><br />Full name: Microsoft.FSharp.Collections.Array.zip</div>
+<div class="tip" id="fs60">val sortBy : projection:(&#39;T -&gt; &#39;Key) -&gt; array:&#39;T [] -&gt; &#39;T [] (requires comparison)<br /><br />Full name: Microsoft.FSharp.Collections.Array.sortBy</div>
+<div class="tip" id="fs61">val x : char [] * int</div>
+<div class="tip" id="fs62">val snd : tuple:(&#39;T1 * &#39;T2) -&gt; &#39;T2<br /><br />Full name: Microsoft.FSharp.Core.Operators.snd</div>
+<div class="tip" id="fs63">val take : count:int -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.take</div>
+<div class="tip" id="fs64">Multiple items<br />val seq : sequence:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Core.Operators.seq<br /><br />--------------------<br />type seq&lt;&#39;T&gt; = Collections.Generic.IEnumerable&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.seq&lt;_&gt;</div>
+<div class="tip" id="fs65">Multiple items<br />val char : value:&#39;T -&gt; char (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.char<br /><br />--------------------<br />type char = Char<br /><br />Full name: Microsoft.FSharp.Core.char</div>
+<div class="tip" id="fs66">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
+<div class="tip" id="fs67">Multiple items<br />namespace System.Collections<br /><br />--------------------<br />namespace Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs68">type Directory =<br />&#160;&#160;static member CreateDirectory : path:string -&gt; DirectoryInfo + 1 overload<br />&#160;&#160;static member Delete : path:string -&gt; unit + 1 overload<br />&#160;&#160;static member EnumerateDirectories : path:string -&gt; IEnumerable&lt;string&gt; + 2 overloads<br />&#160;&#160;static member EnumerateFileSystemEntries : path:string -&gt; IEnumerable&lt;string&gt; + 2 overloads<br />&#160;&#160;static member EnumerateFiles : path:string -&gt; IEnumerable&lt;string&gt; + 2 overloads<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;static member GetAccessControl : path:string -&gt; DirectorySecurity + 1 overload<br />&#160;&#160;static member GetCreationTime : path:string -&gt; DateTime<br />&#160;&#160;static member GetCreationTimeUtc : path:string -&gt; DateTime<br />&#160;&#160;static member GetCurrentDirectory : unit -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Directory</div>
+<div class="tip" id="fs69">Directory.GetDirectories(path: string) : string []<br />Directory.GetDirectories(path: string, searchPattern: string) : string []<br />Directory.GetDirectories(path: string, searchPattern: string, searchOption: SearchOption) : string []</div>
+<div class="tip" id="fs70">Directory.GetFiles(path: string) : string []<br />Directory.GetFiles(path: string, searchPattern: string) : string []<br />Directory.GetFiles(path: string, searchPattern: string, searchOption: SearchOption) : string []</div>
+<div class="tip" id="fs71">let header = <br />&#160;&#160;&#160;&#160;&quot;Author,Book,&quot; <br />&#160;&#160;&#160;&#160;+ (letterPairs <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&gt; Array.map (fun cs -&gt; <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;cs |&gt; Array.map string |&gt; String.concat &quot;&quot;) <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&gt; String.concat &quot;,&quot;)<br /><br />let lines = <br />&#160;&#160;&#160;&#160;Array.zip authorDirs authorBigrams<br />&#160;&#160;&#160;&#160;|&gt; Array.map (fun (d, data) -&gt;<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;let author = Path.GetFileName(d)<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;data <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;|&gt; Array.map (fun (b, xs) -&gt;<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;author + &quot;,&quot; + b<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;+ &quot;,&quot; + (xs |&gt; Array.map string |&gt; String.concat &quot;,&quot;))<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;)<br />&#160;&#160;&#160;&#160;|&gt; Array.concat<br /><br />let file = &quot;C:/Temp/books/bigramValues.csv&quot;<br />File.WriteAllLines(file, Array.append [|header|] lines)</div>
+<div class="tip" id="fs72">#r &quot;packages/MathNet.Numerics/lib/net40/MathNet.Numerics.dll&quot;<br />#r &quot;packages/MathNet.Numerics.FSharp/lib/net40/MathNet.Numerics.FSharp.dll&quot;<br />#load &quot;packages/FSharp.Charting.0.90.9/FSharp.Charting.fsx&quot;<br /><br />open System<br />open System.IO<br />open FSharp.Charting<br /><br />// Load the full dataset<br />let dataFile = &quot;C:/Temp/books/bigramValues.csv&quot;<br /><br />let authors, titles, fullData = <br />&#160;&#160;&#160;&#160;(dataFile |&gt; File.ReadAllLines).[1..]<br />&#160;&#160;&#160;&#160;|&gt; Array.map (fun line -&gt; <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;let fullLine = line.Split [|&#39;,&#39;|]<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;fullLine.[0], fullLine.[1], <br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;fullLine.[2..] |&gt; Array.map (fun x -&gt; Double.Parse x))<br />&#160;&#160;&#160;&#160;|&gt; Array.unzip3</div>
+<div class="tip" id="fs73">property Array.Length: int</div>
+<div class="tip" id="fs74">val sumBy : projection:(&#39;T -&gt; &#39;U) -&gt; array:&#39;T [] -&gt; &#39;U (requires member ( + ) and member get_Zero)<br /><br />Full name: Microsoft.FSharp.Collections.Array.sumBy</div>
+<div class="tip" id="fs75">val fst : tuple:(&#39;T1 * &#39;T2) -&gt; &#39;T1<br /><br />Full name: Microsoft.FSharp.Core.Operators.fst</div>
+<div class="tip" id="fs76">val set : elements:seq&lt;&#39;T&gt; -&gt; Set&lt;&#39;T&gt; (requires comparison)<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.set</div>
+<div class="tip" id="fs77">val mapi : mapping:(int -&gt; &#39;T -&gt; &#39;U) -&gt; array:&#39;T [] -&gt; &#39;U []<br /><br />Full name: Microsoft.FSharp.Collections.Array.mapi</div>
+<div class="tip" id="fs78">val choose : chooser:(&#39;T -&gt; &#39;U option) -&gt; array:&#39;T [] -&gt; &#39;U []<br /><br />Full name: Microsoft.FSharp.Collections.Array.choose</div>
+<div class="tip" id="fs79">Multiple items<br />val float : value:&#39;T -&gt; float (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.float<br /><br />--------------------<br />type float = Double<br /><br />Full name: Microsoft.FSharp.Core.float<br /><br />--------------------<br />type float&lt;&#39;Measure&gt; = float<br /><br />Full name: Microsoft.FSharp.Core.float&lt;_&gt;</div>
+<div class="tip" id="fs80">val sum : array:&#39;T [] -&gt; &#39;T (requires member ( + ) and member get_Zero)<br /><br />Full name: Microsoft.FSharp.Collections.Array.sum</div>
+<div class="tip" id="fs81">namespace System.Numerics</div>
+<div class="tip" id="fs82">type Double =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Equals : obj:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member GetTypeCode : unit -&gt; TypeCode<br />&#160;&#160;&#160;&#160;member ToString : unit -&gt; string + 3 overloads<br />&#160;&#160;&#160;&#160;static val MinValue : float<br />&#160;&#160;&#160;&#160;static val MaxValue : float<br />&#160;&#160;&#160;&#160;static val Epsilon : float<br />&#160;&#160;&#160;&#160;static val NegativeInfinity : float<br />&#160;&#160;&#160;&#160;static val PositiveInfinity : float<br />&#160;&#160;&#160;&#160;...<br />&#160;&#160;end<br /><br />Full name: System.Double</div>
+<div class="tip" id="fs83">val init : count:int -&gt; initializer:(int -&gt; &#39;T) -&gt; &#39;T []<br /><br />Full name: Microsoft.FSharp.Collections.Array.init</div>
+<div class="tip" id="fs84">val sortBy : projection:(&#39;T -&gt; &#39;Key) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt; (requires comparison)<br /><br />Full name: Microsoft.FSharp.Collections.Seq.sortBy</div>
+<div class="tip" id="fs85">val ofSeq : source:seq&lt;&#39;T&gt; -&gt; &#39;T []<br /><br />Full name: Microsoft.FSharp.Collections.Array.ofSeq</div>
+
+</article>
+
+<p class="post-meta">
+    Published on Monday, 15 December 2014
+    <br />
+    By <a href="https://plus.google.com/+EvelinaGabasova?rel=author">Evelina Gabasova</a><br />
+</p>
+
+<!-- AddThis Button BEGIN -->
+<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+    <a class="addthis_button_twitter"></a>
+    <a class="addthis_button_reddit"></a>
+    <a class="addthis_button_google_plusone_share"></a>
+    <a class="addthis_button_facebook"></a>
+    <a class="addthis_button_compact"></a><a class="addthis_counter addthis_bubble_style"></a>
+</div>
+<br />
+
+<script type="text/javascript">var addthis_config = { "data_track_addressbar": true };</script>
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-531bbb5c0879f9d7"></script>
+<!-- AddThis Button END -->
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'evelinag'; 
+    var disqus_title = 'Christmas Carol and other eigenvectors';
+    var disqus_url = 'http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/index.html';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<!-- Disqus END -->
+
+        </div>
+        <!-- End Main Content -->
+
+        <!-- Sidebar -->
+        <aside class="large-3 medium-3 columns">
+            <div class="panel">
+                <h5>About me</h5>
+
+                <img src="http://evelinag.com/img/me_bw_square_small.jpg">
+                <p>
+                    Welcome to my blog! <br />
+                    I'll be writing about data science and machine learning using
+                    the F# programming language. <br />
+                    I'm Evelina Gabasova, currently a PhD student in statistical genomics
+                    at Cambridge University in
+                    <a href="http://www.mrc-bsu.cam.ac.uk/">MRC Biostatistics Unit</a>.
+                </p>
+
+                <h5>Contact me</h5>
+                <ul class="no-bullet">
+                    <li><div class="twittercontact"><a href="http://twitter.com/evelgab">@evelgab</a></div></li>
+                    <li><div class="emailcontact"><a href="mailto:evelina@evelinag.com">evelina@evelinag.com</a></div></li>
+                    <li><div class="githubcontact"><a href="http://github.com/evelinag">evelinag</a></div></li>
+                    <li><div class="linkedincontact"><a href="http://uk.linkedin.com/in/egabasova">egabasova</a></div></li>
+                </ul>
+                <br/>
+                <br/>
+                <br />
+                <br />
+            </div>
+        </aside>
+        <!-- End Sidebar -->
+    </div>
+    <!-- End Main Content and Sidebar -->
+
+    <!-- Footer -->
+    <footer class="row">
+        <div class="large-12 columns">
+            <hr />
+            <div class="row">
+                <div class="large-6 columns">
+                    <p>
+                        This site is generated using <a href="https://github.com/fsprojects/FsBlog">FsBlog</a> and hosted on <a href="http://github.com/evelinag">GitHub</a>.
+                        <br />By <a href="https://plus.google.com/+EvelinaGabasova?rel=author">Evelina Gabasova</a>, 2014
+                    </p>
+                </div>
+                <div class="large-6 columns">
+                    <ul class="inline-list right">
+                        <li><div class="contact">Contact </div></li>
+                        <li><div class="twittercontact"><a href="http://twitter.com/evelgab">@evelgab</a></div></li>
+                        <li><div class="emailcontact"><a href="mailto:evelina@evelinag.com">evelina@evelinag.com</a></div></li>
+                        <li><div class="githubcontact"><a href="http://github.com/evelinag">evelinag</a></div></li>
+                        <li><div class="linkedincontact"><a href="http://uk.linkedin.com/in/egabasova">egabasova</a></div></li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Footer -->
+
+    <!-- Foundation scripts -->
+    <script src="http://evelinag.com/javascripts/vendor/jquery.js"></script>
+    <script src="http://evelinag.com/javascripts/foundation.min.js"></script>
+    <script src="http://evelinag.com/javascripts/foundation/foundation.interchange.js"></script>
+    <script>
+        $(document).foundation();
+    </script>
+    <!-- End Foundation scripts -->
+
+</body>
+
+</html>
