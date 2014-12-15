@@ -257,29 +257,24 @@ use bigrams for simple language idenfication.</p>
 
 <p>Generally, other symbols than letters can be included into bigrams as well. 
 Pairs of letters and spaces show what are common characters at the beginning
-and the end of words. Here I define all possible bigrams that I'm interested in.</p>
+and the end of words. Here I define all possible bigrams that I'm interested in: 
+this piece of code generates simply all possible pairs of letters.</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
-<span class="l">5: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 84)" onmouseover="showTip(event, 'fs41', 84)" class="i">alphabet</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s"> </span><span class="s">abcdefghijklmnopqrstuvwxyz</span><span class="s">&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 84)" onmouseover="showTip(event, 'fs41', 84)" class="i">alphabet</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">abcdefghijklmnopqrstuvwxyz</span><span class="s">&quot;</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs42', 85)" onmouseover="showTip(event, 'fs42', 85)" class="i">letterPairs</span> <span class="o">=</span>
     [| <span class="k">for</span> <span onmouseout="hideTip(event, 'fs43', 86)" onmouseover="showTip(event, 'fs43', 86)" class="i">a</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs41', 87)" onmouseover="showTip(event, 'fs41', 87)" class="i">alphabet</span> <span class="k">do</span> 
-        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs44', 88)" onmouseover="showTip(event, 'fs44', 88)" class="i">b</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs41', 89)" onmouseover="showTip(event, 'fs41', 89)" class="i">alphabet</span> <span class="k">do</span>
-            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs43', 90)" onmouseover="showTip(event, 'fs43', 90)" class="i">a</span> <span class="o">&lt;&gt;</span> <span class="s">&#39; &#39;</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs44', 91)" onmouseover="showTip(event, 'fs44', 91)" class="i">b</span> <span class="o">&lt;&gt;</span> <span class="s">&#39; &#39;</span> <span class="k">then</span> <span class="k">yield</span> [|<span onmouseout="hideTip(event, 'fs43', 92)" onmouseover="showTip(event, 'fs43', 92)" class="i">a</span>; <span onmouseout="hideTip(event, 'fs44', 93)" onmouseover="showTip(event, 'fs44', 93)" class="i">b</span>|] |]</pre>
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs44', 88)" onmouseover="showTip(event, 'fs44', 88)" class="i">b</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs41', 89)" onmouseover="showTip(event, 'fs41', 89)" class="i">alphabet</span> <span class="k">-&gt;</span> [|<span onmouseout="hideTip(event, 'fs43', 90)" onmouseover="showTip(event, 'fs43', 90)" class="i">a</span>; <span onmouseout="hideTip(event, 'fs44', 91)" onmouseover="showTip(event, 'fs44', 91)" class="i">b</span>|] |]</pre>
 </td>
 </tr>
 </table>
-
-<p>This piece of code generates all possible pairs of letters (and spaces).
-I skip the bigram formed of two consecutive spaces because it does not carry
-information about the language.</p>
 
 <p>Finally, we can write a function that turns a book into a sequence
 of bigram counts. When we have sequence of letters in a book, it is 
@@ -296,10 +291,10 @@ of letters), we would only need to change the window size in <code>Seq.windowed<
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 94)" onmouseover="showTip(event, 'fs45', 94)" class="i">rawBigrams</span> <span class="o">=</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 92)" onmouseover="showTip(event, 'fs45', 92)" class="i">rawBigrams</span> <span class="o">=</span>
     <span class="i">text</span>
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 95)" onmouseover="showTip(event, 'fs16', 95)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 96)" onmouseover="showTip(event, 'fs46', 96)" class="i">windowed</span> <span class="n">2</span>
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 97)" onmouseover="showTip(event, 'fs16', 97)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 98)" onmouseover="showTip(event, 'fs47', 98)" class="i">countBy</span> <span onmouseout="hideTip(event, 'fs48', 99)" onmouseover="showTip(event, 'fs48', 99)" class="i">id</span></pre>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 93)" onmouseover="showTip(event, 'fs16', 93)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 94)" onmouseover="showTip(event, 'fs46', 94)" class="i">windowed</span> <span class="n">2</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 95)" onmouseover="showTip(event, 'fs16', 95)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 96)" onmouseover="showTip(event, 'fs47', 96)" class="i">countBy</span> <span onmouseout="hideTip(event, 'fs48', 97)" onmouseover="showTip(event, 'fs48', 97)" class="i">id</span></pre>
 </td>
 </tr>
 </table>
@@ -329,22 +324,22 @@ counts in a standard order defined by <code>letterPairs</code>.</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Extract title and bigram counts from a specific book</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 100)" onmouseover="showTip(event, 'fs49', 100)" class="i">bookBigrams</span> <span onmouseout="hideTip(event, 'fs35', 101)" onmouseover="showTip(event, 'fs35', 101)" class="i">filename</span> <span class="o">=</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 102)" onmouseover="showTip(event, 'fs39', 102)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs40', 103)" onmouseover="showTip(event, 'fs40', 103)" class="i">text</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 104)" onmouseover="showTip(event, 'fs34', 104)" class="i">loadBook</span> <span onmouseout="hideTip(event, 'fs35', 105)" onmouseover="showTip(event, 'fs35', 105)" class="i">filename</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 98)" onmouseover="showTip(event, 'fs49', 98)" class="i">bookBigrams</span> <span onmouseout="hideTip(event, 'fs35', 99)" onmouseover="showTip(event, 'fs35', 99)" class="i">filename</span> <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 100)" onmouseover="showTip(event, 'fs39', 100)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs40', 101)" onmouseover="showTip(event, 'fs40', 101)" class="i">text</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 102)" onmouseover="showTip(event, 'fs34', 102)" class="i">loadBook</span> <span onmouseout="hideTip(event, 'fs35', 103)" onmouseover="showTip(event, 'fs35', 103)" class="i">filename</span>
 
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs50', 106)" onmouseover="showTip(event, 'fs50', 106)" class="i">rawBigrams</span> <span class="o">=</span>
-        <span onmouseout="hideTip(event, 'fs40', 107)" onmouseover="showTip(event, 'fs40', 107)" class="i">text</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 108)" onmouseover="showTip(event, 'fs16', 108)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 109)" onmouseover="showTip(event, 'fs46', 109)" class="i">windowed</span> <span class="n">2</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 110)" onmouseover="showTip(event, 'fs16', 110)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 111)" onmouseover="showTip(event, 'fs47', 111)" class="i">countBy</span> <span onmouseout="hideTip(event, 'fs48', 112)" onmouseover="showTip(event, 'fs48', 112)" class="i">id</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 113)" onmouseover="showTip(event, 'fs51', 113)" class="i">dict</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs50', 104)" onmouseover="showTip(event, 'fs50', 104)" class="i">rawBigrams</span> <span class="o">=</span>
+        <span onmouseout="hideTip(event, 'fs40', 105)" onmouseover="showTip(event, 'fs40', 105)" class="i">text</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 106)" onmouseover="showTip(event, 'fs16', 106)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 107)" onmouseover="showTip(event, 'fs46', 107)" class="i">windowed</span> <span class="n">2</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 108)" onmouseover="showTip(event, 'fs16', 108)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 109)" onmouseover="showTip(event, 'fs47', 109)" class="i">countBy</span> <span onmouseout="hideTip(event, 'fs48', 110)" onmouseover="showTip(event, 'fs48', 110)" class="i">id</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs51', 111)" onmouseover="showTip(event, 'fs51', 111)" class="i">dict</span>
 
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs52', 114)" onmouseover="showTip(event, 'fs52', 114)" class="i">bigramCountVector</span> <span class="o">=</span>
-        <span onmouseout="hideTip(event, 'fs42', 115)" onmouseover="showTip(event, 'fs42', 115)" class="i">letterPairs</span> 
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 116)" onmouseover="showTip(event, 'fs29', 116)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 117)" onmouseover="showTip(event, 'fs53', 117)" class="i">map</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs54', 118)" onmouseover="showTip(event, 'fs54', 118)" class="i">pair</span> <span class="k">-&gt;</span> 
-            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs50', 119)" onmouseover="showTip(event, 'fs50', 119)" class="i">rawBigrams</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs55', 120)" onmouseover="showTip(event, 'fs55', 120)" class="i">ContainsKey</span> <span onmouseout="hideTip(event, 'fs54', 121)" onmouseover="showTip(event, 'fs54', 121)" class="i">pair</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs50', 122)" onmouseover="showTip(event, 'fs50', 122)" class="i">rawBigrams</span><span class="o">.</span>[<span onmouseout="hideTip(event, 'fs54', 123)" onmouseover="showTip(event, 'fs54', 123)" class="i">pair</span>]
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs52', 112)" onmouseover="showTip(event, 'fs52', 112)" class="i">bigramCountVector</span> <span class="o">=</span>
+        <span onmouseout="hideTip(event, 'fs42', 113)" onmouseover="showTip(event, 'fs42', 113)" class="i">letterPairs</span> 
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 114)" onmouseover="showTip(event, 'fs29', 114)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 115)" onmouseover="showTip(event, 'fs53', 115)" class="i">map</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs54', 116)" onmouseover="showTip(event, 'fs54', 116)" class="i">pair</span> <span class="k">-&gt;</span> 
+            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs50', 117)" onmouseover="showTip(event, 'fs50', 117)" class="i">rawBigrams</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs55', 118)" onmouseover="showTip(event, 'fs55', 118)" class="i">ContainsKey</span> <span onmouseout="hideTip(event, 'fs54', 119)" onmouseover="showTip(event, 'fs54', 119)" class="i">pair</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs50', 120)" onmouseover="showTip(event, 'fs50', 120)" class="i">rawBigrams</span><span class="o">.</span>[<span onmouseout="hideTip(event, 'fs54', 121)" onmouseover="showTip(event, 'fs54', 121)" class="i">pair</span>]
             <span class="k">else</span> <span class="n">0</span>)
 
-    <span onmouseout="hideTip(event, 'fs39', 124)" onmouseover="showTip(event, 'fs39', 124)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs52', 125)" onmouseover="showTip(event, 'fs52', 125)" class="i">bigramCountVector</span></pre>
+    <span onmouseout="hideTip(event, 'fs39', 122)" onmouseover="showTip(event, 'fs39', 122)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs52', 123)" onmouseover="showTip(event, 'fs52', 123)" class="i">bigramCountVector</span></pre>
 </td>
 </tr>
 </table>
@@ -362,13 +357,13 @@ counts in a standard order defined by <code>letterPairs</code>.</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 126)" onmouseover="showTip(event, 'fs56', 126)" class="i">filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">/</span><span class="s">Temp</span><span class="s">/</span><span class="s">books</span><span class="s">/</span><span class="s">Dickens</span><span class="s">/</span><span class="s">pg46</span><span class="s">.</span><span class="s">txt</span><span class="s">&quot;</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs57', 127)" onmouseover="showTip(event, 'fs57', 127)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs58', 128)" onmouseover="showTip(event, 'fs58', 128)" class="i">data</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs49', 129)" onmouseover="showTip(event, 'fs49', 129)" class="i">bookBigrams</span> <span onmouseout="hideTip(event, 'fs56', 130)" onmouseover="showTip(event, 'fs56', 130)" class="i">filename</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 124)" onmouseover="showTip(event, 'fs56', 124)" class="i">filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">/</span><span class="s">Temp</span><span class="s">/</span><span class="s">books</span><span class="s">/</span><span class="s">Dickens</span><span class="s">/</span><span class="s">pg46</span><span class="s">.</span><span class="s">txt</span><span class="s">&quot;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs57', 125)" onmouseover="showTip(event, 'fs57', 125)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs58', 126)" onmouseover="showTip(event, 'fs58', 126)" class="i">data</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs49', 127)" onmouseover="showTip(event, 'fs49', 127)" class="i">bookBigrams</span> <span onmouseout="hideTip(event, 'fs56', 128)" onmouseover="showTip(event, 'fs56', 128)" class="i">filename</span>
 
 <span class="c">// most common bigrams</span>
-<span onmouseout="hideTip(event, 'fs29', 131)" onmouseover="showTip(event, 'fs29', 131)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 132)" onmouseover="showTip(event, 'fs59', 132)" class="i">zip</span> <span onmouseout="hideTip(event, 'fs42', 133)" onmouseover="showTip(event, 'fs42', 133)" class="i">letterPairs</span> <span onmouseout="hideTip(event, 'fs58', 134)" onmouseover="showTip(event, 'fs58', 134)" class="i">data</span>
-<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 135)" onmouseover="showTip(event, 'fs29', 135)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 136)" onmouseover="showTip(event, 'fs60', 136)" class="i">sortBy</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs61', 137)" onmouseover="showTip(event, 'fs61', 137)" class="i">x</span> <span class="k">-&gt;</span> <span class="o">-</span> <span onmouseout="hideTip(event, 'fs62', 138)" onmouseover="showTip(event, 'fs62', 138)" class="i">snd</span> <span onmouseout="hideTip(event, 'fs61', 139)" onmouseover="showTip(event, 'fs61', 139)" class="i">x</span>)
-<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 140)" onmouseover="showTip(event, 'fs16', 140)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 141)" onmouseover="showTip(event, 'fs63', 141)" class="i">take</span> <span class="n">3</span></pre>
+<span onmouseout="hideTip(event, 'fs29', 129)" onmouseover="showTip(event, 'fs29', 129)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 130)" onmouseover="showTip(event, 'fs59', 130)" class="i">zip</span> <span onmouseout="hideTip(event, 'fs42', 131)" onmouseover="showTip(event, 'fs42', 131)" class="i">letterPairs</span> <span onmouseout="hideTip(event, 'fs58', 132)" onmouseover="showTip(event, 'fs58', 132)" class="i">data</span>
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 133)" onmouseover="showTip(event, 'fs29', 133)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 134)" onmouseover="showTip(event, 'fs60', 134)" class="i">sortBy</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs61', 135)" onmouseover="showTip(event, 'fs61', 135)" class="i">x</span> <span class="k">-&gt;</span> <span class="o">-</span> <span onmouseout="hideTip(event, 'fs62', 136)" onmouseover="showTip(event, 'fs62', 136)" class="i">snd</span> <span onmouseout="hideTip(event, 'fs61', 137)" onmouseover="showTip(event, 'fs61', 137)" class="i">x</span>)
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 138)" onmouseover="showTip(event, 'fs16', 138)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 139)" onmouseover="showTip(event, 'fs63', 139)" class="i">take</span> <span class="n">3</span></pre>
 </td>
 </tr>
 </table>
@@ -382,8 +377,8 @@ It seems that the most frequent word in the book is 'the'!</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">val</span> <span class="i">it</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs64', 142)" onmouseover="showTip(event, 'fs64', 142)" class="i">seq</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs65', 143)" onmouseover="showTip(event, 'fs65', 143)" class="i">char</span> [] <span class="o">*</span> <span onmouseout="hideTip(event, 'fs66', 144)" onmouseover="showTip(event, 'fs66', 144)" class="i">int</span><span class="o">&gt;</span> <span class="o">=</span>
-<span onmouseout="hideTip(event, 'fs64', 145)" onmouseover="showTip(event, 'fs64', 145)" class="i">seq</span> [([|<span class="s">&#39;t&#39;</span>; <span class="s">&#39;h&#39;</span>|], <span class="n">3650</span>); ([|<span class="s">&#39;h&#39;</span>; <span class="s">&#39;e&#39;</span>|], <span class="n">3532</span>); ([|<span class="s">&#39;i&#39;</span>; <span class="s">&#39;n&#39;</span>|], <span class="n">2155</span>)]</pre>
+<span class="k">val</span> <span class="i">it</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs64', 140)" onmouseover="showTip(event, 'fs64', 140)" class="i">seq</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs65', 141)" onmouseover="showTip(event, 'fs65', 141)" class="i">char</span> [] <span class="o">*</span> <span onmouseout="hideTip(event, 'fs66', 142)" onmouseover="showTip(event, 'fs66', 142)" class="i">int</span><span class="o">&gt;</span> <span class="o">=</span>
+<span onmouseout="hideTip(event, 'fs64', 143)" onmouseover="showTip(event, 'fs64', 143)" class="i">seq</span> [([|<span class="s">&#39;t&#39;</span>; <span class="s">&#39;h&#39;</span>|], <span class="n">3650</span>); ([|<span class="s">&#39;h&#39;</span>; <span class="s">&#39;e&#39;</span>|], <span class="n">3532</span>); ([|<span class="s">&#39;i&#39;</span>; <span class="s">&#39;n&#39;</span>|], <span class="n">2155</span>)]</pre>
 </td>
 </tr>
 </table>
@@ -416,20 +411,20 @@ resulting <code>csv</code> file in the source-code.</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="prep">#r</span> <span class="s">&quot;</span><span class="s">packages</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Collections</span><span class="s">.</span><span class="s">ParallelSeq</span><span class="s">/</span><span class="s">lib</span><span class="s">/</span><span class="s">net40</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Collections</span><span class="s">.</span><span class="s">ParallelSeq</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
-<span class="k">open</span> <span class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs67', 146)" onmouseover="showTip(event, 'fs67', 146)" class="i">Collections</span><span class="o">.</span><span class="i">ParallelSeq</span>
+<span class="k">open</span> <span class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs67', 144)" onmouseover="showTip(event, 'fs67', 144)" class="i">Collections</span><span class="o">.</span><span class="i">ParallelSeq</span>
 
 <span class="k">let</span> <span class="i">booksDir</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">/</span><span class="s">Temp</span><span class="s">/</span><span class="s">books</span><span class="s">&quot;</span>
-<span class="k">let</span> <span class="i">authorDirs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs68', 147)" onmouseover="showTip(event, 'fs68', 147)" class="i">Directory</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 148)" onmouseover="showTip(event, 'fs69', 148)" class="i">GetDirectories</span>(<span class="i">booksDir</span>)
+<span class="k">let</span> <span class="i">authorDirs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs68', 145)" onmouseover="showTip(event, 'fs68', 145)" class="i">Directory</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs69', 146)" onmouseover="showTip(event, 'fs69', 146)" class="i">GetDirectories</span>(<span class="i">booksDir</span>)
 
 <span class="c">// Compute bigram counts for all books</span>
 <span class="k">let</span> <span class="i">authorBigrams</span> <span class="o">=</span>
     <span class="i">authorDirs</span>
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 149)" onmouseover="showTip(event, 'fs29', 149)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 150)" onmouseover="showTip(event, 'fs53', 150)" class="i">map</span> (<span class="k">fun</span> <span class="i">d</span> <span class="k">-&gt;</span> 
-        <span onmouseout="hideTip(event, 'fs68', 151)" onmouseover="showTip(event, 'fs68', 151)" class="i">Directory</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 152)" onmouseover="showTip(event, 'fs70', 152)" class="i">GetFiles</span>(<span class="i">d</span>)
-        <span class="o">|&gt;</span> <span class="i">PSeq</span><span class="o">.</span><span class="i">map</span> (<span class="k">fun</span> <span class="i">file</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs49', 153)" onmouseover="showTip(event, 'fs49', 153)" class="i">bookBigrams</span> <span class="i">file</span>)
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 147)" onmouseover="showTip(event, 'fs29', 147)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 148)" onmouseover="showTip(event, 'fs53', 148)" class="i">map</span> (<span class="k">fun</span> <span class="i">d</span> <span class="k">-&gt;</span> 
+        <span onmouseout="hideTip(event, 'fs68', 149)" onmouseover="showTip(event, 'fs68', 149)" class="i">Directory</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs70', 150)" onmouseover="showTip(event, 'fs70', 150)" class="i">GetFiles</span>(<span class="i">d</span>)
+        <span class="o">|&gt;</span> <span class="i">PSeq</span><span class="o">.</span><span class="i">map</span> (<span class="k">fun</span> <span class="i">file</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs49', 151)" onmouseover="showTip(event, 'fs49', 151)" class="i">bookBigrams</span> <span class="i">file</span>)
         <span class="o">|&gt;</span> <span class="i">PSeq</span><span class="o">.</span><span class="i">toArray</span>)
 
-<span id="fst71" onmouseout="hideTip(event, 'fs71', 154)" onmouseover="showTip(event, 'fs71', 154, document.getElementById('fst71'))" class="omitted">(Save computed results into a csv file.)</span></pre>
+<span id="fst71" onmouseout="hideTip(event, 'fs71', 152)" onmouseover="showTip(event, 'fs71', 152, document.getElementById('fst71'))" class="omitted">(Save computed results into a csv file.)</span></pre>
 </td>
 </tr>
 </table>
@@ -472,25 +467,25 @@ We can safely discard many of the bigrams that are only rarely used.</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// read csv file and extract data</span>
-<span id="fst72" onmouseout="hideTip(event, 'fs72', 155)" onmouseover="showTip(event, 'fs72', 155, document.getElementById('fst72'))" class="omitted">(Read csv file and extract data.)</span>
+<span id="fst72" onmouseout="hideTip(event, 'fs72', 153)" onmouseover="showTip(event, 'fs72', 153, document.getElementById('fst72'))" class="omitted">(Read csv file and extract data.)</span>
 
 <span class="c">// Sort bigrams by frequency</span>
 <span class="k">let</span> <span class="i">sortedBigrams</span> <span class="o">=</span> 
-    [| <span class="k">for</span> <span class="i">idx</span> <span class="k">in</span> <span class="n">0..</span><span onmouseout="hideTip(event, 'fs42', 156)" onmouseover="showTip(event, 'fs42', 156)" class="i">letterPairs</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs73', 157)" onmouseover="showTip(event, 'fs73', 157)" class="i">Length</span> <span class="o">-</span> <span class="n">1</span> <span class="k">-&gt;</span>
-        <span class="k">let</span> <span class="i">sum</span> <span class="o">=</span> <span class="i">fullData</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 158)" onmouseover="showTip(event, 'fs29', 158)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs74', 159)" onmouseover="showTip(event, 'fs74', 159)" class="i">sumBy</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">xs</span><span class="o">.</span>[<span class="i">idx</span>])
+    [| <span class="k">for</span> <span class="i">idx</span> <span class="k">in</span> <span class="n">0..</span><span onmouseout="hideTip(event, 'fs42', 154)" onmouseover="showTip(event, 'fs42', 154)" class="i">letterPairs</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs73', 155)" onmouseover="showTip(event, 'fs73', 155)" class="i">Length</span> <span class="o">-</span> <span class="n">1</span> <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="i">sum</span> <span class="o">=</span> <span class="i">fullData</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 156)" onmouseover="showTip(event, 'fs29', 156)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs74', 157)" onmouseover="showTip(event, 'fs74', 157)" class="i">sumBy</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">xs</span><span class="o">.</span>[<span class="i">idx</span>])
         <span class="i">idx</span>, <span class="i">sum</span> |]
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 160)" onmouseover="showTip(event, 'fs29', 160)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 161)" onmouseover="showTip(event, 'fs60', 161)" class="i">sortBy</span> (<span class="k">fun</span> (<span class="i">idx</span>, <span class="i">sum</span>) <span class="k">-&gt;</span> <span class="o">-</span><span class="i">sum</span>)
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 162)" onmouseover="showTip(event, 'fs29', 162)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 163)" onmouseover="showTip(event, 'fs53', 163)" class="i">map</span> <span onmouseout="hideTip(event, 'fs75', 164)" onmouseover="showTip(event, 'fs75', 164)" class="i">fst</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 158)" onmouseover="showTip(event, 'fs29', 158)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 159)" onmouseover="showTip(event, 'fs60', 159)" class="i">sortBy</span> (<span class="k">fun</span> (<span class="i">idx</span>, <span class="i">sum</span>) <span class="k">-&gt;</span> <span class="o">-</span><span class="i">sum</span>)
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 160)" onmouseover="showTip(event, 'fs29', 160)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 161)" onmouseover="showTip(event, 'fs53', 161)" class="i">map</span> <span onmouseout="hideTip(event, 'fs75', 162)" onmouseover="showTip(event, 'fs75', 162)" class="i">fst</span>
 
 <span class="c">// How many bigrams to keep</span>
 <span class="k">let</span> <span class="i">bigramCount</span> <span class="o">=</span> <span class="n">400</span>
-<span class="k">let</span> <span class="i">mostUsedBigrams</span> <span class="o">=</span> <span class="i">sortedBigrams</span><span class="o">.</span>[<span class="n">0..</span><span class="i">bigramCount</span><span class="o">-</span><span class="n">1</span>] <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs76', 165)" onmouseover="showTip(event, 'fs76', 165)" class="i">set</span>
+<span class="k">let</span> <span class="i">mostUsedBigrams</span> <span class="o">=</span> <span class="i">sortedBigrams</span><span class="o">.</span>[<span class="n">0..</span><span class="i">bigramCount</span><span class="o">-</span><span class="n">1</span>] <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs76', 163)" onmouseover="showTip(event, 'fs76', 163)" class="i">set</span>
 
 <span class="k">let</span> <span class="i">chooseBigrams</span> <span class="i">bigramValues</span> <span class="o">=</span>
     <span class="i">bigramValues</span> 
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 166)" onmouseover="showTip(event, 'fs29', 166)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs77', 167)" onmouseover="showTip(event, 'fs77', 167)" class="i">mapi</span> (<span class="k">fun</span> <span class="i">i</span> <span class="i">x</span> <span class="k">-&gt;</span> 
-        <span class="k">if</span> <span class="i">mostUsedBigrams</span><span class="o">.</span><span class="i">Contains</span> <span class="i">i</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs32', 168)" onmouseover="showTip(event, 'fs32', 168)" class="i">Some</span>(<span class="i">x</span>) <span class="k">else</span> <span onmouseout="hideTip(event, 'fs33', 169)" onmouseover="showTip(event, 'fs33', 169)" class="i">None</span>) 
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 170)" onmouseover="showTip(event, 'fs29', 170)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs78', 171)" onmouseover="showTip(event, 'fs78', 171)" class="i">choose</span> <span onmouseout="hideTip(event, 'fs48', 172)" onmouseover="showTip(event, 'fs48', 172)" class="i">id</span>    </pre>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 164)" onmouseover="showTip(event, 'fs29', 164)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs77', 165)" onmouseover="showTip(event, 'fs77', 165)" class="i">mapi</span> (<span class="k">fun</span> <span class="i">i</span> <span class="i">x</span> <span class="k">-&gt;</span> 
+        <span class="k">if</span> <span class="i">mostUsedBigrams</span><span class="o">.</span><span class="i">Contains</span> <span class="i">i</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs32', 166)" onmouseover="showTip(event, 'fs32', 166)" class="i">Some</span>(<span class="i">x</span>) <span class="k">else</span> <span onmouseout="hideTip(event, 'fs33', 167)" onmouseover="showTip(event, 'fs33', 167)" class="i">None</span>) 
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 168)" onmouseover="showTip(event, 'fs29', 168)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs78', 169)" onmouseover="showTip(event, 'fs78', 169)" class="i">choose</span> <span onmouseout="hideTip(event, 'fs48', 170)" onmouseover="showTip(event, 'fs48', 170)" class="i">id</span>    </pre>
 </td>
 </tr>
 </table>
@@ -508,9 +503,9 @@ bigram to relative frequencies within each document.</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Normalize counts to relative frequencies</span>
-<span class="k">let</span> <span class="i">normalize</span> (<span class="i">xs</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs79', 173)" onmouseover="showTip(event, 'fs79', 173)" class="i">float</span>[]) <span class="o">=</span>
-    <span class="k">let</span> <span class="i">total</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 174)" onmouseover="showTip(event, 'fs29', 174)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs80', 175)" onmouseover="showTip(event, 'fs80', 175)" class="i">sum</span> <span class="i">xs</span>
-    <span class="i">xs</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 176)" onmouseover="showTip(event, 'fs29', 176)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 177)" onmouseover="showTip(event, 'fs53', 177)" class="i">map</span> (<span class="k">fun</span> <span class="i">x</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">/</span><span class="i">total</span>)</pre>
+<span class="k">let</span> <span class="i">normalize</span> (<span class="i">xs</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs79', 171)" onmouseover="showTip(event, 'fs79', 171)" class="i">float</span>[]) <span class="o">=</span>
+    <span class="k">let</span> <span class="i">total</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 172)" onmouseover="showTip(event, 'fs29', 172)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs80', 173)" onmouseover="showTip(event, 'fs80', 173)" class="i">sum</span> <span class="i">xs</span>
+    <span class="i">xs</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 174)" onmouseover="showTip(event, 'fs29', 174)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 175)" onmouseover="showTip(event, 'fs53', 175)" class="i">map</span> (<span class="k">fun</span> <span class="i">x</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">/</span><span class="i">total</span>)</pre>
 </td>
 </tr>
 </table>
@@ -531,14 +526,14 @@ The following piece of code turns the data into a matrix.</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 178)" onmouseover="showTip(event, 'fs81', 178)" class="i">Numerics</span>
-<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 179)" onmouseover="showTip(event, 'fs81', 179)" class="i">Numerics</span><span class="o">.</span><span class="i">LinearAlgebra</span>
-<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 180)" onmouseover="showTip(event, 'fs81', 180)" class="i">Numerics</span><span class="o">.</span><span class="i">LinearAlgebra</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs82', 181)" onmouseover="showTip(event, 'fs82', 181)" class="i">Double</span>       
+<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 176)" onmouseover="showTip(event, 'fs81', 176)" class="i">Numerics</span>
+<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 177)" onmouseover="showTip(event, 'fs81', 177)" class="i">Numerics</span><span class="o">.</span><span class="i">LinearAlgebra</span>
+<span class="k">open</span> <span class="i">MathNet</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs81', 178)" onmouseover="showTip(event, 'fs81', 178)" class="i">Numerics</span><span class="o">.</span><span class="i">LinearAlgebra</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs82', 179)" onmouseover="showTip(event, 'fs82', 179)" class="i">Double</span>       
 
 <span class="k">let</span> <span class="i">dataMatrix</span> <span class="o">=</span> 
     <span class="i">fullData</span>
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 182)" onmouseover="showTip(event, 'fs29', 182)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 183)" onmouseover="showTip(event, 'fs53', 183)" class="i">map</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">chooseBigrams</span> <span class="i">xs</span>)    
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 184)" onmouseover="showTip(event, 'fs29', 184)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 185)" onmouseover="showTip(event, 'fs53', 185)" class="i">map</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">normalize</span> <span class="i">xs</span>)
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 180)" onmouseover="showTip(event, 'fs29', 180)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 181)" onmouseover="showTip(event, 'fs53', 181)" class="i">map</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">chooseBigrams</span> <span class="i">xs</span>)    
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 182)" onmouseover="showTip(event, 'fs29', 182)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 183)" onmouseover="showTip(event, 'fs53', 183)" class="i">map</span> (<span class="k">fun</span> <span class="i">xs</span> <span class="k">-&gt;</span> <span class="i">normalize</span> <span class="i">xs</span>)
     <span class="o">|&gt;</span> <span class="i">DenseMatrix</span><span class="o">.</span><span class="i">ofColumnArrays</span>   </pre>
 </td>
 </tr>
@@ -592,12 +587,12 @@ center data such that their mean is at zero.</p>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Mean vector of the whole dataset</span>
 <span class="k">let</span> <span class="i">center</span> <span class="o">=</span> 
-    <span class="k">let</span> <span class="i">n</span> <span class="o">=</span> <span class="i">dataMatrix</span><span class="o">.</span><span class="i">ColumnCount</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs79', 186)" onmouseover="showTip(event, 'fs79', 186)" class="i">float</span>
+    <span class="k">let</span> <span class="i">n</span> <span class="o">=</span> <span class="i">dataMatrix</span><span class="o">.</span><span class="i">ColumnCount</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs79', 184)" onmouseover="showTip(event, 'fs79', 184)" class="i">float</span>
     <span class="i">dataMatrix</span><span class="o">.</span><span class="i">RowSums</span>() <span class="o">/</span> <span class="i">n</span>
 
 <span class="c">// Normalize data to zero mean</span>
 <span class="k">let</span> <span class="i">centeredMatrix</span> <span class="o">=</span> 
-    <span class="k">let</span> <span class="i">sumMatrix</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 187)" onmouseover="showTip(event, 'fs29', 187)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs83', 188)" onmouseover="showTip(event, 'fs83', 188)" class="i">init</span> <span class="i">dataMatrix</span><span class="o">.</span><span class="i">ColumnCount</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="i">center</span>)
+    <span class="k">let</span> <span class="i">sumMatrix</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 185)" onmouseover="showTip(event, 'fs29', 185)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs83', 186)" onmouseover="showTip(event, 'fs83', 186)" class="i">init</span> <span class="i">dataMatrix</span><span class="o">.</span><span class="i">ColumnCount</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span> <span class="i">center</span>)
                    <span class="o">|&gt;</span> <span class="i">DenseMatrix</span><span class="o">.</span><span class="i">OfColumnVectors</span>
     <span class="i">dataMatrix</span> <span class="o">-</span> <span class="i">sumMatrix</span></pre>
 </td>
@@ -755,9 +750,9 @@ based on Euclidean distance:</p>
         <span class="k">if</span> <span class="i">idx</span> <span class="o">&lt;&gt;</span> <span class="i">christmasCarolIdx</span> <span class="k">then</span>
             <span class="k">let</span> <span class="i">distance</span> <span class="o">=</span> (<span class="i">v</span> <span class="o">-</span> <span class="i">christmasCarol</span>)<span class="o">*</span>(<span class="i">v</span> <span class="o">-</span> <span class="i">christmasCarol</span>)
             <span class="k">yield</span> <span class="i">titles</span><span class="o">.</span>[<span class="i">idx</span>], <span class="i">distance</span> |]
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 189)" onmouseover="showTip(event, 'fs16', 189)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs84', 190)" onmouseover="showTip(event, 'fs84', 190)" class="i">sortBy</span> <span onmouseout="hideTip(event, 'fs62', 191)" onmouseover="showTip(event, 'fs62', 191)" class="i">snd</span>
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 192)" onmouseover="showTip(event, 'fs16', 192)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 193)" onmouseover="showTip(event, 'fs63', 193)" class="i">take</span> <span class="i">k</span>
-    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 194)" onmouseover="showTip(event, 'fs29', 194)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 195)" onmouseover="showTip(event, 'fs85', 195)" class="i">ofSeq</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 187)" onmouseover="showTip(event, 'fs16', 187)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs84', 188)" onmouseover="showTip(event, 'fs84', 188)" class="i">sortBy</span> <span onmouseout="hideTip(event, 'fs62', 189)" onmouseover="showTip(event, 'fs62', 189)" class="i">snd</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs16', 190)" onmouseover="showTip(event, 'fs16', 190)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 191)" onmouseover="showTip(event, 'fs63', 191)" class="i">take</span> <span class="i">k</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 192)" onmouseover="showTip(event, 'fs29', 192)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 193)" onmouseover="showTip(event, 'fs85', 193)" class="i">ofSeq</span>
 
 <span class="i">kNearest</span> <span class="n">3</span></pre>
 </td>
@@ -774,7 +769,7 @@ based on Euclidean distance:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">val</span> <span class="i">it</span> <span class="o">:</span> (<span onmouseout="hideTip(event, 'fs9', 196)" onmouseover="showTip(event, 'fs9', 196)" class="i">string</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs79', 197)" onmouseover="showTip(event, 'fs79', 197)" class="i">float</span>) [] <span class="o">=</span>
+<span class="k">val</span> <span class="i">it</span> <span class="o">:</span> (<span onmouseout="hideTip(event, 'fs9', 194)" onmouseover="showTip(event, 'fs9', 194)" class="i">string</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs79', 195)" onmouseover="showTip(event, 'fs79', 195)" class="i">float</span>) [] <span class="o">=</span>
   [|(<span class="s">&quot;</span><span class="s">Oliver</span><span class="s"> </span><span class="s">Twist</span><span class="s">&quot;</span>, <span class="n">0.0001679233456</span>);
     (<span class="s">&quot;</span><span class="s">A</span><span class="s"> </span><span class="s">Tale</span><span class="s"> </span><span class="s">of</span><span class="s"> </span><span class="s">Two</span><span class="s"> </span><span class="s">Cities</span><span class="s">&quot;</span>, <span class="n">0.0001827125101</span>);
     (<span class="s">&quot;</span><span class="s">The</span><span class="s"> </span><span class="s">Sign</span><span class="s"> </span><span class="s">of</span><span class="s"> </span><span class="s">the</span><span class="s"> </span><span class="s">Four</span><span class="s">&quot;</span>, <span class="n">0.0002067513054</span>)|]</pre>
