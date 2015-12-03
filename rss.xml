@@ -5,6 +5,38 @@
     <description>Evelina Gabasova's personal blog. I'll be writing about machine learning and data science in F#. 
 </description>
     <item>
+      <title>Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)</title>
+      <guid>http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f</guid>
+      <link>http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/index.html</link>
+      <pubDate>Thu, 03 Dec 2015 00:00:00 GMT</pubDate>
+      <description>&lt;div class="row"&gt;
+&lt;div class="medium-6 columns"&gt;
+
+&lt;p&gt;In my previous &lt;a href="http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/index.html"&gt;blog post&lt;/a&gt;
+I visualized data on James Bond films both with Google Charts and with ggplot2.
+Because I skipped the code relating to ggplot2, here I'd like to 
+look in detail at how to use ggplot2 from F#.&lt;/p&gt;
+
+&lt;p&gt;Currently
+&lt;a href="http://ggplot2.org/"&gt;ggplot2&lt;/a&gt; is my go-to visualization library (unless
+I need to embed a plot - check out the James Bond bubble chart!). 
+Here I summarize some of my experiences with using ggplot2 from F# through the RProvider. 
+I also put together
+a &lt;a href="(https://github.com/evelinag/ffplot)"&gt;simple wrapper&lt;/a&gt; around the most common 
+ggplot2 functions to simplify the usage.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;div class="medium-6 columns"&gt;
+
+&lt;p&gt;&lt;img src="http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/ggplot-sample.png" alt="ggplot2 bar plot" /&gt;&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>F# tackles James Bond</title>
       <guid>http://evelinag.com/blog/2015/11-18-f-tackles-james-bond</guid>
       <link>http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/index.html</link>
