@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>The Star Wars social network</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="I extracted the social networks from all the Star Wars movies and analyzed their structure."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="The Star Wars social network"/>
+  <meta itemprop="description"
+        content="I extracted the social networks from all the Star Wars movies and analyzed their structure."/>
+  <meta itemprop="image"
+        content="episode4.png"/>
+
+  
+  <meta property="og:title" content="The Star Wars social network"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2015/12-15-star-wars-social-network/"/>
+  <meta property="og:image"
+        content="episode4.png"/>
+  <meta property="og:description"
+        content="I extracted the social networks from all the Star Wars movies and analyzed their structure."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2015-12-15T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="The Star Wars social network"/>
+  <meta name="twitter:description"
+        content="I extracted the social networks from all the Star Wars movies and analyzed their structure."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="episode4.png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">The Star Wars social network</p>
+        <p class="subtitle">15 December 2015</p>
+
+        
+
+        
+        <div class="content">
+          
+
+<p>Some of us are looking forward to Christmas, and some of us are looking forward to the
+new film in the Star Wars franchise, The Force Awakens. Meanwhile, I decided to look at the
+whole 6-movie cycle from a quantitative point of view and extract the Star Wars social networks,
+both within each film and across the whole Star Wars universe.
+Looking at the social network structure reveals some surprising differences between the
+original trilogy and the prequels.</p>
+
+<!-- more -->
+
+<figure class="image container is-fluid">
+<img style="max-width:300px" alt="Star Wars logo" src="star-wars-logo.png" />
+</figure>
+
+<p>*<a href="http://evelinag.com/blog/2016/01-25-social-network-force-awakens/">Update: Read my analysis of Episode VII, Star Wars: The Force Awakens.</a></p>
+
+<p>If you&rsquo;re interested in technical details of how I extracted the data, head down
+to the <a href="#how">How I did the analysis</a> section. But let&rsquo;s start with some visualizations.</p>
+
+<p>This is the social network from all the 6 movies combined together:</p>
+
+<p><img src="starwars.png" alt="Star Wars social network" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/interactions.html">Open network</a></p>
+
+<p>You can open the network in a full window which will show an interactive visualization of the network
+where you can drag individual nodes around. If you hover over the individual nodes, you&rsquo;ll see
+the name of the corresponding character.</p>
+
+<p>Here the nodes represent characters in the movies. The characters are connected by a link if
+they both speak in the same scene. And the more the characters speak together, the
+thicker the link between them. The size of each node corresponds to the total number of scenes
+the character appears in. I made a few arguable decisions though: Anakin and Darth Vader
+are represented by two separate nodes, because this distinction is important to the story.
+On the other hand, the Emperor node also jointly represents Palpatine and Darth Sidious. I also
+merged Amidala with Padme.</p>
+
+<p>The original trilogy (episodes IV, V and VI) on the right is mostly separated in the network from
+the prequel trilogy on the left because most characters appear only in one of the trilogies.
+The crucial nodes that are connecting the two networks
+are Obi-Wan Kenobi, R2-D2 and C-3PO. Especially the robots seem to play an important social function
+because they appear frequently across all the movies.
+The structures of the two sub-networks are also different. s
+The original trilogy has fewer important nodes (Luke, Han, Leia,
+Chewbacca, Darth Vader) and they are densely interconnected between themselves. The prequel trilogy
+has more nodes overall, with many more connections.
+I&rsquo;ll look at individual films in more detail later in the post.</p>
+
+<h2 id="character-timelines">Character timelines</h2>
+
+<p>Many of the characters feature in multiple movies, so I also created a comparison of their
+timelines across the individual episodes. The following graphics shows where the individual
+characters are mentioned in the film scripts. In order of appearance, these are the timelines
+of some of the main characters:</p>
+
+<p><img src="timelines.png" alt="timelines" /></p>
+
+<p>Here I included all mentions of each character, which includes other characters discussing
+their name. It is interesting to see how Anakin appears simultaneously with Darth Vader during Episode III,
+and then Darth Vader takes over. Anakin again reappears towards the end of Episode VI when
+Darth Vader turns away from the Dark side.</p>
+
+<p>The characters that appear most consistently across all the films are the same ones that are
+in the centre of the social network - Obi-Wan, C-3PO and R2-D2. Yoda and the Emperor also appear
+across all of the films but they don&rsquo;t talk directly with many people in the original trilogy, which moves
+them off the centre in the social network.</p>
+
+<h2 id="networks-in-individual-films">Networks in individual films</h2>
+
+<p>Now let&rsquo;s look at the networks in individual films. Notice how the number of nodes and
+ complexity of the networks change between the prequels and the original movies. Again, a link
+ appears between characters if they speak within the same scene.</p>
+
+<div class="columns">
+<div class="column is-6">
+
+<h4> Episode I: The Phantom Menace </h4>
+
+<img alt="Episode 1 network" src="episode1.png" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/episode1-interactions.html">Open network</a>
+
+</div>
+<div class="column is-6">
+
+<h4> Episode II: Attack of the Clones </h4>
+
+<img alt="Episode 2 network" src="episode2.png" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/episode2-interactions.html">Open network</a>
+
+</div>
+</div>
+<div class="columns">
+<div class="column is-6">
+
+<h4> Episode III: Revenge of the Sith </h4>
+
+<img alt="Episode 3 network" src="episode3.png" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/episode3-interactions.html">Open network</a>
+
+</div>
+<div class="column is-6">
+
+<h4> Episode IV: A New Hope </h4>
+
+<img alt="Episode 4 network" src="episode4.png" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/episode4-interactions.html">Open network</a>
+
+</div>
+</div>
+<div class="columns">
+<div class="column is-6">
+
+<h4> Episode V: The Empire Strikes Back </h4>
+
+<img alt="Episode 5 network" src="episode5.png" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/episode5-interactions.html">Open network</a>
+
+</div>
+<div class="column is-6">
+
+<h4> Episode VI: Return of the Jedi </h4>
+
+<img alt="Episode 6 network" src="episode6.png" />
+<a href="http://evelinag.com/data/2015/star-wars-social-network/episode6-interactions.html">Open network</a>
+
+</div>
+</div>
+
+<h3 id="centrality"> Importance of characters </h3>
+
+<p>The individual networks again show that the prequel trilogy has more characters and more interactions
+overall. The original episodes have less characters, but they interact more with each other.</p>
+
+<p>George Lucas said:</p>
+
+<blockquote>
+<p>It really is the story of the tragedy of Darth Vader,
+and it starts when he&rsquo;s nine, and it ends when he&rsquo;s dead.
+<a href="http://www.theguardian.com/commentisfree/2015/dec/14/myth-star-wars-force-awakens-heroic-legends">(source)</a></p>
+</blockquote>
+
+<p>But is Darth Vader/Anakin really the central character? Let&rsquo;s use some methods from network analysis to
+see who is really important in the stories and their social structures.
+I computed two measures of importance in the networks for each of
+the films:</p>
+
+<ul>
+<li><p><em>Degree centrality</em> - this is simply the number of connections the node has in the network.
+In the Star Wars movies, this corresponds to the total number of scenes where each character
+speaks.</p></li>
+
+<li><p><em>Betweenness</em> - this measure looks at how many shortest paths in the network lead through the node.
+For example, imagine you are Leia and you want to send a message to Greedo - the shortest
+path how to send it is via Han Solo, because he interacted both with Leia and with Greedo. On
+the other hand if you want to send a message to Luke, you don&rsquo;t have to go through Han
+because Leia knows Luke directly.
+The betweenness centrality
+for Han is computed using the number of shortest paths between all other characters that pass through him.</p></li>
+</ul>
+
+<p>The two measures both show how important is a character in the network. The degree centrality shows how
+many people does each character interact with directly.
+The betweenness relates more to how integral each of the characters is to
+the story. Characters with high betweenness connect different areas of the social network.</p>
+
+<p>For both measures, higher values mean more importance.
+Here are the top 5 characters for each movie:</p>
+
+<p><br/>
+<div class="columns">
+<div class="column is-6">
+<h4> Episode I </h4></p>
+
+<table class="table is-hoverable is-narrow">
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>QUI-GON</p></td>
+<td><p>26</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>ANAKIN</p></td>
+<td><p>23</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>JAR JAR</p></td>
+<td><p>19</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>19</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>PADME</p></td>
+<td><p>18</p></td>
+</tr>
+</tbody>
+</table>
+
+<table class="table is-hoverable is-narrow">
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>QUI-GON</p></td>
+<td><p>91.7</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>JAR JAR</p></td>
+<td><p>46.6</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>EMPEROR</p></td>
+<td><p>41.8</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>30.9</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>NUTE GUNRAY</p></td>
+<td><p>27.2</p></td>
+</tr>
+</tbody>
+</table>
+
+<p></div></p>
+
+<div class="column is-6">
+<h4> Episode II </h4>
+
+<table class="table is-hoverable is-narrow">
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>ANAKIN</p></td>
+<td><p>21</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>19</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>PADME</p></td>
+<td><p>17</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>YODA</p></td>
+<td><p>10</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>MACE WINDU</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="table is-hoverable is-narrow">
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>64.7</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>PADME</p></td>
+<td><p>56.5</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>MACE WINDU</p></td>
+<td><p>12.7</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>JAR JAR</p></td>
+<td><p>8.3</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>EMPEROR</p></td>
+<td><p>6.8</p></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="columns">
+<div class="column is-6">
+<h4> Episode III </h4>
+
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>ANAKIN</p></td>
+<td><p>14</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>13</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>BAIL ORGANA</p></td>
+<td><p>12</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>EMPEROR</p></td>
+<td><p>11</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>PADME</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="table is-narrow">
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>22.7</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>EMPEROR</p></td>
+<td><p>19.0</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>PADME</p></td>
+<td><p>8.0</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>6.7</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>BAIL ORGANA</p></td>
+<td><p>4.5</p></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+</div>
+</div>
+
+<p>It seems that Anakin is overall the most connected character in the first three films, based on
+his degree. He is however not very integral to the relations in the films! His betweenness score
+is so small he never makes it to the top-5 characters. This means that all the other characters
+interact directly between themselves rather than through Anakin. How do the same measures look
+for the original trilogy?</p>
+
+<div class="columns">
+<div class="column is-6">
+
+<h4>Episode IV</h4>
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>LUKE</p></td>
+<td><p>15</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>LEIA</p></td>
+<td><p>12</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>10</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>CHEWBACCA</p></td>
+<td><p>9</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>HAN</p></td>
+<td><p>8</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>LUKE</p></td>
+<td><p>32.7</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>LEIA</p></td>
+<td><p>19.7</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>HAN</p></td>
+<td><p>15.0</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>13.2</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>CHEWBACCA</p></td>
+<td><p>8.0</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<div class="column is-6">
+
+<h4>Episode V</h4>
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>LUKE</p></td>
+<td><p>12</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>DARTH VADER</p></td>
+<td><p>12</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>HAN</p></td>
+<td><p>11</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>11</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>LUKE</p></td>
+<td><p>25.2</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>DARTH VADER</p></td>
+<td><p>11.3</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>LEIA</p></td>
+<td><p>9.7</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>HAN</p></td>
+<td><p>6.7</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>4.5</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<div class=columns">
+<div class="column is-6">
+
+<h4>Episode VI</h4>
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>LUKE</p></td>
+<td><p>15</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>12</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>11</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>LEIA</p></td>
+<td><p>9</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>HAN</p></td>
+<td><p>9</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>1.</p></td>
+<td><p>LUKE</p></td>
+<td><p>24.3</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>23.0</p></td>
+</tr>
+<tr>
+<td><p>3.</p></td>
+<td><p>DARTH VADER</p></td>
+<td><p>18.5</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>CHEWBACCA</p></td>
+<td><p>16.0</p></td>
+</tr>
+<tr>
+<td><p>5.</p></td>
+<td><p>LANDO</p></td>
+<td><p>5.5</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+
+<p>Here both the centrality measures show very similar results - Luke is the most central character
+across all the films, and using both measures. The order of characters based on the two measures
+is almost the same.</p>
+
+<p>The centrality analysis quantifies some of the things we could see from the social networks. The prequel
+trilogy has more complex social structures, with more interconnected characters. This also leads to the
+fact that Anakin is not that central to the story - some of the storylines happen alongside Anakin&rsquo;s story,
+or involve Anakin only on the side. On the other hand, the original trilogy has a more tight-knit structure.
+There is a smaller number of central characters and they bind the story together - this results into the
+agreement between the degree and betweenness centrality measures.</p>
+
+<p>Perhaps this is part of the reason why the original trilogy is more popular - the plots
+are more consistent and driven by the main characters. The prequels have a more decentralized structure
+and no clear hero. Although the stories are linked by Anakin, he is not binding the other characters
+together.</p>
+
+<p>How do the measures look when we look at the full social network from all the episodes together? I looked
+at two variants of the network. In the first one Anakin and Darth Vader appear as two separate individuals,
+in the second I merged them together into a single person.</p>
+
+<div class="columns">
+<div class="column is-6">
+
+<h4>Joint network 1</h4>
+
+<p>Anakin and Darth Vader separated</p>
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>1.</p></td>
+<td><p>ANAKIN</p></td>
+<td><p>42</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>41</p></td>
+</tr>
+<tr class="odd">
+<td><p>3.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>37</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>PADME</p></td>
+<td><p>34</p></td>
+</tr>
+<tr class="odd">
+<td><p>5.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>31</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>1.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>370.4</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>PADME</p></td>
+<td><p>237.3</p></td>
+</tr>
+<tr class="odd">
+<td><p>3.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>236.7</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>222.9</p></td>
+</tr>
+<tr class="odd">
+<td><p>5.</p></td>
+<td><p>LUKE</p></td>
+<td><p>194.4</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+
+<div class="column is-6">
+
+<h4>Joint network 2</h4>
+
+<p>Anakin and Darth Vader fused</p>
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Degree</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>1.</p></td>
+<td><p>DARTH VADER</p></td>
+<td><p>59</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>41</p></td>
+</tr>
+<tr class="odd">
+<td><p>3.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>37</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>PADME</p></td>
+<td><p>34</p></td>
+</tr>
+<tr class="odd">
+<td><p>5.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>31</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th><p>Name</p></th>
+<th><p>Betweenness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>1.</p></td>
+<td><p>OBI-WAN</p></td>
+<td><p>348.7</p></td>
+</tr>
+<tr>
+<td><p>2.</p></td>
+<td><p>C-3PO</p></td>
+<td><p>303.1</p></td>
+</tr>
+<tr class="odd">
+<td><p>3.</p></td>
+<td><p>DARTH VADER</p></td>
+<td><p>241.5</p></td>
+</tr>
+<tr>
+<td><p>4.</p></td>
+<td><p>R2-D2</p></td>
+<td><p>227.6</p></td>
+</tr>
+<tr class="odd">
+<td><p>5.</p></td>
+<td><p>PADME</p></td>
+<td><p>226.2</p></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+
+<p>If we look at Anakin and Darth Vader separately, Anakin is still the most connected character but
+he&rsquo;s not central to the network. If we merge them together, things improve a bit. Now Darth Vader/Anakin
+is the third most important character in terms of betweenness. Overall, the social networks seem to show
+that the Star Wars movies are actually linked together by Obi-Wan Kenobi rather than Darth Vader.</p>
+
+<p>
+<img src="star-wars-obi-vs-darth.jpg" width="70%"></img>
+</p>
+
+<hr />
+
+<h1 id="how">How I did the analysis</h1>
+
+<p>As this is part of the <a href="https://sergeytihon.wordpress.com/2015/10/25/f-advent-calendar-in-english-2015/">F# Advent calendar</a>,
+I used <a href="http://fsharp.org/">F#</a> for most of the analysis. I combined it together with <a href="http://d3js.org/">D3.js</a> for
+the social network visualizations, and with <a href="https://www.r-project.org/">R</a> for the network centrality analysis.
+You can find all the source code <a href="https://github.com/evelinag/StarWars-social-network">on my GitHub</a>. Because
+the whole code turned out to be relatively long, here I look only at some of the more interesting
+parts.</p>
+
+<h2 id="parsing-the-screenplays">Parsing the screenplays</h2>
+
+<p>I started by downloading all the scripts for the 6 Star Wars movies. They are freely available from
+<a href="http://www.imsdb.com/">The Internet Movie Script Database (IMSDb)</a>, for example <a href="http://www.imsdb.com/scripts/Star-Wars-A-New-Hope.html">here&rsquo;s the script for
+Episode IV: The New Hope</a>. The screenplays are only
+in the form of drafts that sometimes differ from the actual films - the differences are
+however not very big.</p>
+
+<p>The first step was to parse the screenplays.
+To complicate things, each of
+them used a slightly different format. The screenplays themselves were in HTML, either within the
+<code>&lt;td class=&quot;srctext&quot;&gt;&lt;/td&gt;</code> tags, or within the <code>&lt;pre&gt;&lt;/pre&gt;</code> tags.
+To extract the contents of each script,
+I used the <a href="http://fsharp.github.io/FSharp.Data/library/HtmlParser.html">Html Parser from F# Data library</a>
+which allows accessing individual tags in a HTML document using statements like</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">open</span> FSharp.Data
+<span style="color:#66d9ef">let</span> url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://www.imsdb.com/scripts/Star-Wars-A-New-Hope.html&#34;</span>
+HtmlDocument.Load<span style="color:#f92672">(</span>url<span style="color:#f92672">).</span>Descendants<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;pre&#34;</span><span style="color:#f92672">)</span></code></pre></div>
+
+<p>The full code for this part is available in the <a href="https://github.com/evelinag/StarWars-social-network/blob/master/parseScripts.fs">parseScripts.fs file</a>.</p>
+
+<p>The next step was to extract relevant information from the scripts.
+In general, a script looks like this:</p>
+
+<pre><code>INT. GANTRY - OUTSIDE CONTROL ROOM - REACTOR SHAFT
+
+Luke moves along the railing and up to the control room.
+
+[...]
+                LUKE
+        He told me enough!  It was you 
+        who killed him.
+
+                VADER
+        No.  I am your father.
+
+    Shocked, Luke looks at Vader in utter disbelief.
+
+                LUKE
+        No.  No.  That's not true!  
+        That's impossible!
+</code></pre>
+
+<p>Each scene starts with its setting: <code>INT.</code> (interior) or <code>EXT.</code> (exterior) and the location of the scene.
+Then there can be some free text describing what is happening and how does the
+scene look. In the dialogues, the names of characters are written
+in capital letters (sometimes also in bold), followed by what they are saying.</p>
+
+<p>The main signposts in the screenplay are the <code>INT.</code> and <code>EXT.</code> statements which
+serve as scene separators. These were written
+consistently in bold in all the 6 scripts and I used them to split them into
+individual scenes:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// split the script by scene
+</span><span style="color:#75715e">// each scene starts with either INT. or EXT. 
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> rec splitByScene <span style="color:#f92672">(</span>script <span style="color:#f92672">:</span> <span style="color:#66d9ef">string</span>[]<span style="color:#f92672">)</span> scenes <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> scenePattern <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&lt;b&gt;[ 0-9]*(INT.|EXT.)&#34;</span>
+	<span style="color:#66d9ef">let</span> idx <span style="color:#f92672">=</span> 
+		script 
+		<span style="color:#f92672">|&gt;</span> Seq.tryFindIndex <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> line <span style="color:#f92672">-&gt;</span> Regex.Match<span style="color:#f92672">(</span>line<span style="color:#f92672">,</span> scenePattern<span style="color:#f92672">).</span>Success<span style="color:#f92672">)</span>
+	<span style="color:#66d9ef">match</span> idx <span style="color:#66d9ef">with</span>
+	<span style="color:#f92672">|</span> Some i <span style="color:#f92672">-&gt;</span>
+		<span style="color:#66d9ef">let</span> remainingScenes <span style="color:#f92672">=</span> script<span style="color:#f92672">.[</span>i<span style="color:#f92672">+</span>1 <span style="color:#f92672">..]</span>
+		<span style="color:#66d9ef">let</span> currentScene <span style="color:#f92672">=</span> script<span style="color:#f92672">.[</span>0<span style="color:#f92672">..</span>i<span style="color:#f92672">-</span>1<span style="color:#f92672">]</span>
+		splitByScene remainingScenes <span style="color:#f92672">(</span>currentScene <span style="color:#f92672">::</span> scenes<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|</span> None <span style="color:#f92672">-&gt;</span> script <span style="color:#f92672">::</span> scenes </code></pre></div>
+
+<p>This is a recursive function that takes the full screenplay and looks for the
+specific pattern, which is <code>EXT.</code> or <code>INT.</code>  in bold, optionally preceded by a scene number.
+The function goes through the string and when it
+encounters the scene break, it splits the string into the current scene and the remaining text. Then it
+runs recursively until all the scenes are extracted, using the <code>scenes</code> variable as an accumulator.</p>
+
+<h2 id="getting-list-of-characters">Getting list of characters</h2>
+
+<p>The previous function gave me a list of scenes for each of the movies. Extracting the characters
+out of them turned out to be more difficult.
+Some of the scenes followed the format that I showed in the example above, some of the
+scenes only used character names followed by a colon and their dialogue,
+all within the same line in the text. The only common property between the different
+formats was that the names were always written in capital letters.</p>
+
+<p>I resorted to regular expressions, one for each screenplay format:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// Extract names of characters that speak in scenes. 
+</span><span style="color:#75715e">// A) Extract names of characters in the format &#34;[name]:&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> getFormat1Names text <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> matches <span style="color:#f92672">=</span> Regex.Matches<span style="color:#f92672">(</span>text<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;[/A-Z0-9 -]+ *:&#34;</span><span style="color:#f92672">)</span>
+	<span style="color:#66d9ef">let</span> names <span style="color:#f92672">=</span> 
+		seq <span style="color:#f92672">{</span> <span style="color:#66d9ef">for</span> m <span style="color:#66d9ef">in</span> matches <span style="color:#f92672">-&gt;</span> m<span style="color:#f92672">.</span>Value <span style="color:#f92672">}</span>
+		<span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> name <span style="color:#f92672">-&gt;</span> name<span style="color:#f92672">.</span>Trim<span style="color:#f92672">([|</span><span style="color:#e6db74">&#39; &#39;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#39;:&#39;</span><span style="color:#f92672">|]))</span>
+		<span style="color:#f92672">|&gt;</span> Array.ofSeq
+	names
+
+<span style="color:#75715e">// B) Extract names of characters in the format &#34;&lt;b&gt; [name] &lt;/b&gt;&#34;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> getFormat2Names text <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> m <span style="color:#f92672">=</span> Regex.Match<span style="color:#f92672">(</span>text<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&lt;b&gt;[ ]*[/A-Z0-9 -]+[ ]*&lt;/b&gt;&#34;</span><span style="color:#f92672">)</span>
+	<span style="color:#66d9ef">if</span> m<span style="color:#f92672">.</span>Success <span style="color:#66d9ef">then</span>
+		<span style="color:#66d9ef">let</span> name <span style="color:#f92672">=</span> m<span style="color:#f92672">.</span>Value.Replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&lt;b&gt;&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">).</span>Replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&lt;/b&gt;&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">).</span>Trim()
+		<span style="color:#f92672">[|</span> name <span style="color:#f92672">|]</span>
+	<span style="color:#66d9ef">else</span> <span style="color:#f92672">[||]</span></code></pre></div>
+
+<p>Each of the regular expressions matches not only capital letters, but also numbers, hypens, spaces and slashes.
+All because the characters in Star Wars use names like &ldquo;R2-D2&rdquo; or even &ldquo;FODE/BEED&rdquo;.</p>
+
+<p>To actually extract the list of characters that appear across the films, I also had to take
+into account the fact that many characters use multiple names. Senator Palpatine turns into
+Darth Sidious and then into The Emperor, Amidala disguises herself as Padme (or the other way around?).
+Because of this I manually put together a simple file <a href="https://github.com/evelinag/StarWars-social-network/blob/master/data/aliases.csv">aliases.csv</a>
+where I specified which names I consider to be the same. I used these as a mapping onto a unique
+name for each character (except for Anakin and Darth Vader).</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#f92672">[&lt;</span>Literal<span style="color:#f92672">&gt;]</span>
+<span style="color:#66d9ef">let</span> aliasFile <span style="color:#f92672">=</span> <span style="color:#f92672">__</span>SOURCE_DIRECTORY__ <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;/data/aliases.csv&#34;</span>
+<span style="color:#75715e">// Use csv type provider to access the csv file with aliases
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Aliases</span> <span style="color:#f92672">=</span> CsvProvider<span style="color:#f92672">&lt;</span>aliasFile<span style="color:#f92672">&gt;</span>
+
+<span style="color:#e6db74">/// Dictionary for translating character names between aliases
+</span><span style="color:#e6db74"></span><span style="color:#66d9ef">let</span> aliasDict <span style="color:#f92672">=</span> 
+	Aliases.Load<span style="color:#f92672">(</span>aliasFile<span style="color:#f92672">).</span>Rows 
+	<span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> row <span style="color:#f92672">-&gt;</span> row<span style="color:#f92672">.</span>Alias<span style="color:#f92672">,</span> row<span style="color:#f92672">.</span>Name<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> dict
+
+<span style="color:#e6db74">/// Map character names onto unique set of names
+</span><span style="color:#e6db74"></span><span style="color:#66d9ef">let</span> mapName name <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> aliasDict<span style="color:#f92672">.</span>ContainsKey<span style="color:#f92672">(</span>name<span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> aliasDict<span style="color:#f92672">.[</span>name<span style="color:#f92672">]</span> <span style="color:#66d9ef">else</span> name
+
+<span style="color:#e6db74">/// Extract character names from the given scene
+</span><span style="color:#e6db74"></span><span style="color:#66d9ef">let</span> getCharacterNames <span style="color:#f92672">(</span>scene<span style="color:#f92672">:</span> <span style="color:#66d9ef">string</span> []<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> names1 <span style="color:#f92672">=</span> scene <span style="color:#f92672">|&gt;</span> Seq.collect getFormat1Names 
+	<span style="color:#66d9ef">let</span> names2 <span style="color:#f92672">=</span> scene <span style="color:#f92672">|&gt;</span> Seq.collect getFormat2Names 
+	Seq.append names1 names2
+	<span style="color:#f92672">|&gt;</span> Seq.map mapName
+	<span style="color:#f92672">|&gt;</span> Seq.distinct</code></pre></div>
+
+<p>Now I could finally extract names of characters from the individual scenes! The following
+function extracts all the names of characters from all the screenplay urls.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> allNames <span style="color:#f92672">=</span>
+	scriptUrls
+	<span style="color:#f92672">|&gt;</span> List.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>episode<span style="color:#f92672">,</span> url<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span>
+	<span style="color:#66d9ef">let</span> script <span style="color:#f92672">=</span> getScript url
+	<span style="color:#66d9ef">let</span> scriptParts <span style="color:#f92672">=</span> script<span style="color:#f92672">.</span>Elements()
+
+	<span style="color:#66d9ef">let</span> mainScript <span style="color:#f92672">=</span> 
+		scriptParts
+		<span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> element <span style="color:#f92672">-&gt;</span> element<span style="color:#f92672">.</span>ToString()<span style="color:#f92672">)</span>
+		<span style="color:#f92672">|&gt;</span> Seq.toArray
+
+	<span style="color:#75715e">// Now every element of the list is a single scene
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">let</span> scenes <span style="color:#f92672">=</span> splitByScene mainScript [] 
+
+	<span style="color:#75715e">// Extract names appearing in each scene
+</span><span style="color:#75715e"></span>	scenes <span style="color:#f92672">|&gt;</span> List.map getCharacterNames <span style="color:#f92672">|&gt;</span> Array.concat <span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> Array.concat
+	<span style="color:#f92672">|&gt;</span> Seq.countBy id
+	<span style="color:#f92672">|&gt;</span> Seq.filter <span style="color:#f92672">(</span>snd <span style="color:#f92672">&gt;&gt;</span> <span style="color:#f92672">(&lt;)</span> 1<span style="color:#f92672">)</span>  <span style="color:#f92672">//</span> filter out characters that speak <span style="color:#66d9ef">in</span> only one scene</code></pre></div>
+
+<p>The only remaining problem was that many of the names were not actual names. The list was full
+of people called &ldquo;PILOT&rdquo; or &ldquo;OFFICER&rdquo; or &ldquo;CAPTAIN&rdquo;. After this I manually went through the
+results and filtered out the names that were actual names. This resulted in the <a href="https://github.com/evelinag/StarWars-social-network/blob/master/data/characters.csv">characters.csv</a> file.</p>
+
+<h2 id="interactions-between-characters">Interactions between characters</h2>
+
+<p>To construct the social networks, I wanted to extract all the occasions when two characters talk to each other.
+This happens if two characters speak within the same scene (I decided to ignore situations when people
+talk with each other over a transmitter, and therefore across scenes). Extracting characters that are
+part of the same dialogue was now simplified because I could just look at the list of characters I put together
+in the previous step.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> characters <span style="color:#f92672">=</span> 
+	File.ReadAllLines<span style="color:#f92672">(__</span>SOURCE_DIRECTORY__ <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;/data/characters.csv&#34;</span><span style="color:#f92672">)</span> 
+	<span style="color:#f92672">|&gt;</span> Array.append <span style="color:#f92672">(</span>Seq.append aliasDict<span style="color:#f92672">.</span>Keys aliasDict<span style="color:#f92672">.</span>Values <span style="color:#f92672">|&gt;</span> Array.ofSeq<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> set</code></pre></div>
+
+<p>Here I created a set of all character names and their aliases to use for lookup and filtering.
+Then I used it to search through the characters appearing in each scene:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> scenes <span style="color:#f92672">=</span> splitByScene mainScript [] <span style="color:#f92672">|&gt;</span> List.rev
+
+<span style="color:#66d9ef">let</span> namesInScenes <span style="color:#f92672">=</span> 
+	scenes 
+	<span style="color:#f92672">|&gt;</span> List.map getCharacterNames
+	<span style="color:#f92672">|&gt;</span> List.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> names <span style="color:#f92672">-&gt;</span> names <span style="color:#f92672">|&gt;</span> Array.filter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> n <span style="color:#f92672">-&gt;</span> characters<span style="color:#f92672">.</span>Contains n<span style="color:#f92672">))</span>   </code></pre></div>
+
+<p>Then I used the filtered list of characters to define the social network:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// Create weighted network
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> nodes <span style="color:#f92672">=</span> 
+	namesInScenes 
+	<span style="color:#f92672">|&gt;</span> Seq.collect id
+	<span style="color:#f92672">|&gt;</span> Seq.countBy id        
+	<span style="color:#75715e">// optional threshold on minimum number of mentions
+</span><span style="color:#75715e"></span>	<span style="color:#f92672">|&gt;</span> Seq.filter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>name<span style="color:#f92672">,</span> count<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> count <span style="color:#f92672">&gt;=</span> countThreshold<span style="color:#f92672">)</span>
+
+<span style="color:#66d9ef">let</span> nodeLookup <span style="color:#f92672">=</span> nodes <span style="color:#f92672">|&gt;</span> Seq.map fst <span style="color:#f92672">|&gt;</span> set
+
+<span style="color:#66d9ef">let</span> links <span style="color:#f92672">=</span> 
+	namesInScenes 
+	<span style="color:#f92672">|&gt;</span> List.collect <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> names <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#f92672">[</span> <span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> 0<span style="color:#f92672">..</span>names<span style="color:#f92672">.</span>Length <span style="color:#f92672">-</span> 1 <span style="color:#66d9ef">do</span> 
+			<span style="color:#66d9ef">for</span> j <span style="color:#66d9ef">in</span> i<span style="color:#f92672">+</span>1<span style="color:#f92672">..</span>names<span style="color:#f92672">.</span>Length <span style="color:#f92672">-</span> 1 <span style="color:#66d9ef">do</span>
+				<span style="color:#66d9ef">let</span> n1 <span style="color:#f92672">=</span> names<span style="color:#f92672">.[</span>i<span style="color:#f92672">]</span>
+				<span style="color:#66d9ef">let</span> n2 <span style="color:#f92672">=</span> names<span style="color:#f92672">.[</span>j<span style="color:#f92672">]</span>
+				<span style="color:#66d9ef">if</span> nodeLookup<span style="color:#f92672">.</span>Contains<span style="color:#f92672">(</span>n1<span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> nodeLookup<span style="color:#f92672">.</span>Contains<span style="color:#f92672">(</span>n2<span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span>
+					<span style="color:#75715e">// order nodes alphabetically
+</span><span style="color:#75715e"></span>					<span style="color:#66d9ef">yield</span> min n1 n2<span style="color:#f92672">,</span> max n1 n2 <span style="color:#f92672">])</span>
+	<span style="color:#f92672">|&gt;</span> Seq.countBy id</code></pre></div>
+
+<p>This gave me a list of nodes with the number of times they spoke across the whole script, which I used to
+specify the size of nodes in the visualizations. Then I created a link for each time two
+characters spoke within the same scene, and counted them to get the strength of each relationship.
+Together, the <code>nodes</code> and <code>links</code> defined the full social network.</p>
+
+<p>Finally, I exported the data into the JSON format. You can find all the networks, both the global
+one and the individual episodes&rsquo; networks, on <a href="https://github.com/evelinag/StarWars-social-network/tree/master/networks">my Github</a>.
+The full code for this step is in the <a href="https://github.com/evelinag/StarWars-social-network/blob/master/getInteractions.fsx">getInteractions.fsx</a>
+script.</p>
+
+<h2 id="character-mentions-in-the-script">Character mentions in the script</h2>
+
+<p>I also decided to look at where each of the characters appears throughout the six movie cycle, resulting
+in the timelines chart. For this I looked at all the times the name of the character was
+mentioned in the scripts, not limited to the number of times the character actually spoke.
+The code for this was largerly similar to extracting the interactions in the previous section,
+only here I was looking for all the mentions and not only for the dialogues.
+To get the actual timelines, I also kept track of the scene numbers. The following code snippet
+returns a list of scene numbers and characters that are mentioned in them.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> scenes <span style="color:#f92672">=</span> 
+	splitByScene mainScript [] <span style="color:#f92672">|&gt;</span> List.rev
+<span style="color:#66d9ef">let</span> totalScenes <span style="color:#f92672">=</span> scenes<span style="color:#f92672">.</span>Length
+
+scenes
+<span style="color:#f92672">|&gt;</span> List.mapi <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> sceneIdx scene <span style="color:#f92672">-&gt;</span> 
+	<span style="color:#75715e">// some names contain typos with lower-case characters
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">let</span> lscene <span style="color:#f92672">=</span> scene <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> s <span style="color:#f92672">-&gt;</span> s<span style="color:#f92672">.</span>ToLower()<span style="color:#f92672">)</span> 
+
+	characters
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> name <span style="color:#f92672">-&gt;</span> 
+		lscene 
+		<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> contents <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">if</span> containsName contents name <span style="color:#66d9ef">then</span> Some name <span style="color:#66d9ef">else</span> None <span style="color:#f92672">)</span>
+		<span style="color:#f92672">|&gt;</span> Array.choose id<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> Array.concat
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> name <span style="color:#f92672">-&gt;</span> mapName <span style="color:#f92672">(</span>name<span style="color:#f92672">.</span>ToUpper()<span style="color:#f92672">))</span>
+	<span style="color:#f92672">|&gt;</span> Seq.distinct 
+	<span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> name <span style="color:#f92672">-&gt;</span> sceneIdx<span style="color:#f92672">,</span> name<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> List.ofSeq<span style="color:#f92672">)</span>
+<span style="color:#f92672">|&gt;</span> List.collect id<span style="color:#f92672">,</span>
+totalScenes</code></pre></div>
+
+<p>To get the full timeline, I used the scene numbers to map each episode into a
+$ [ \text{episode index} - 1,\text{episode index}] $
+interval, giving me a relative scale of where in the episode the character appeared.
+The scene times in intervals [0,1] are from Episode I, in [1,2] correspond to Episode II etc.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// extract timelines
+</span><span style="color:#75715e"></span><span style="color:#f92672">[</span>0 <span style="color:#f92672">..</span> 5<span style="color:#f92672">]</span>
+<span style="color:#f92672">|&gt;</span> List.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> episodeIdx <span style="color:#f92672">-&gt;</span> getSceneAppearances episodeIdx<span style="color:#f92672">)</span>
+<span style="color:#f92672">|&gt;</span> List.mapi <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> episodeIdx <span style="color:#f92672">(</span>sceneAppearances<span style="color:#f92672">,</span> total<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span>
+	sceneAppearances 
+	<span style="color:#f92672">|&gt;</span> List.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>scene<span style="color:#f92672">,</span> name<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#66d9ef">float</span> episodeIdx <span style="color:#f92672">+</span> <span style="color:#66d9ef">float</span> scene <span style="color:#f92672">/</span> <span style="color:#66d9ef">float</span> total<span style="color:#f92672">,</span> name<span style="color:#f92672">))</span>      </code></pre></div>
+
+<p>I saved this data into an <a href="https://github.com/evelinag/StarWars-social-network/blob/master/data/charactersPerScene.csv">ill-formated pseudo-csv file</a>,
+where each row contains a character name and the relative times the character appeared across the 6 films,
+separated by commas.<br />
+The full code is in the
+<a href="https://github.com/evelinag/StarWars-social-network/blob/master/getMentions.fsx">getMentions.fsx</a> file.</p>
+
+<h2 id="adding-non-speaking-characters">Adding non-speaking characters</h2>
+
+<p>When I compared the interactions and the characters that were mentioned in the scripts,
+I noticed that something was different: there was no R2-D2 and no Chewbacca. Not only
+the poor Wookiee didn&rsquo;t receive any medal at the end of Episode IV (like the human heroes did),
+but he was missing from all the dialogues in the screenplays! Actually, both Chewbacca and
+R2-D2 appear throughout the scripts as non-speaking characters. They are mentioned in lines like</p>
+
+<blockquote>
+<p>Artoo finds something that makes him whistle wildly.</p>
+</blockquote>
+
+<p>or</p>
+
+<blockquote>
+<p>A sudden frown crosses Chewbacca&rsquo;s face and he begins yelling gibberish at the tiny robot.</p>
+</blockquote>
+
+<p>It wouldn&rsquo;t be a proper Star Wars social network if we ignored these two important characters. To
+correct for the racial discrimination against Wookiees and astromech droids, I decided to insert them
+into the social network defined by dialogues.</p>
+
+<p>I looked again at all the times these
+characters got mentioned in the screenplay. The mentions also define a social network where two
+characters are linked together if they are mentioned in the same scene. Because the characters
+are included in the scene descriptions and they also talk about each other more than they actually
+appear on screen, the network defined by all mentions is much messier than the network defined
+by direct interactions. Because of this, I couldn&rsquo;t use the Chewbacca&rsquo;s and R2-D2&rsquo;s connections
+directly in the social network. I could however use it as an approximation.</p>
+
+<p>I extracted the node sizes and links for the two missing characters from the network
+defined by mentions. To transform them into connections from the social network,
+I decided to scale all their values by
+comparing them with similar characters. For this, I chose C-3PO as a proxy for R2-D2, and Han
+as a proxy for Chewie, assuming their interactions were largely similar.
+Then I applied the following formula to compute the link strengths in the
+dialogue social network (this example uses Chewbacca and Han):</p>
+
+<div style="overflow-x: auto">
+$$
+w_{\text{Han}} = \frac{1}{N} \sum_x \frac{\text{link weight}\_{\text{dialogues}}(\text{Han}, x)}{\text{link weight}\_{\text{mentions}}(\text{Han}, x)} 
+$$
+
+$$
+\text{link weight}\_{\text{dialogues}}(\text{Chewie}, x) = w\_{\text{Han}} \times \text{link weight}\_{\text{mentions}}(\text{Chewie}, x)
+$$
+</div>
+
+<p>I used this highly scientific equation to recompute all the link strenghts and also the node
+sizes. The weight factor was around 0.5 both for Han and C-3PO, which means the characters
+were on average mentioned two times more than they actually spoke in the films. After this, I discarded
+all the links that had their weight smaller than one.
+The <a href="https://github.com/evelinag/StarWars-social-network/blob/master/getInteractions.fsx">code for this step</a>
+is relatively long but not very interesting.</p>
+
+<h2 id="visualizations">Visualizations</h2>
+
+<p>After manually adding back Chewbacca and R2-D2, I finally had the full set of social networks both for the
+individual movies and for the full franchise. I used the <em>Force</em> to visualize the networks&hellip; well, I
+actually used the <a href="http://bl.ocks.org/mbostock/4062045"><em>force</em>-directed network layout</a>
+from the <a href="http://d3js.org/">D3.js</a> library.
+This visualization method
+uses a physical simulation of charged particles to generate a network layout. The most important part
+of the D3 JavaScript file is the following part:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Javascript" data-lang="Javascript"><span style="color:#a6e22e">d3</span>.<span style="color:#a6e22e">json</span>(<span style="color:#e6db74">&#34;starwars-episode-1-interactions-allCharacters.json&#34;</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">error</span>, <span style="color:#a6e22e">graph</span>) {
+	<span style="color:#75715e">/* More code here */</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">link</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">svg</span>.<span style="color:#a6e22e">selectAll</span>(<span style="color:#e6db74">&#34;.link&#34;</span>)
+		.<span style="color:#a6e22e">data</span>(<span style="color:#a6e22e">graph</span>.<span style="color:#a6e22e">links</span>)
+	.<span style="color:#a6e22e">enter</span>().<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;line&#34;</span>)
+		.<span style="color:#a6e22e">attr</span>(<span style="color:#e6db74">&#34;class&#34;</span>, <span style="color:#e6db74">&#34;link&#34;</span>)
+		.<span style="color:#a6e22e">style</span>(<span style="color:#e6db74">&#34;stroke-width&#34;</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">d</span>) { <span style="color:#66d9ef">return</span> Math.<span style="color:#a6e22e">sqrt</span>(<span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">value</span>); });
+	
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">node</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">svg</span>.<span style="color:#a6e22e">selectAll</span>(<span style="color:#e6db74">&#34;.node&#34;</span>)
+		.<span style="color:#a6e22e">data</span>(<span style="color:#a6e22e">graph</span>.<span style="color:#a6e22e">nodes</span>)
+	.<span style="color:#a6e22e">enter</span>().<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;circle&#34;</span>)
+		.<span style="color:#a6e22e">attr</span>(<span style="color:#e6db74">&#34;class&#34;</span>, <span style="color:#e6db74">&#34;node&#34;</span>)
+		.<span style="color:#a6e22e">attr</span>(<span style="color:#e6db74">&#34;r&#34;</span>, <span style="color:#ae81ff">5</span>)
+		.<span style="color:#a6e22e">style</span>(<span style="color:#e6db74">&#34;fill&#34;</span>, <span style="color:#66d9ef">function</span> (<span style="color:#a6e22e">d</span>) { <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">colour</span>; })
+		.<span style="color:#a6e22e">attr</span>(<span style="color:#e6db74">&#34;r&#34;</span>, <span style="color:#66d9ef">function</span> (<span style="color:#a6e22e">d</span>) { <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">*</span>Math.<span style="color:#a6e22e">sqrt</span>(<span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">value</span>) <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>; })
+		.<span style="color:#a6e22e">call</span>(<span style="color:#a6e22e">force</span>.<span style="color:#a6e22e">drag</span>);
+		<span style="color:#75715e">/* More code here */</span>
+});
+</code></pre></div>
+
+<p>In the previous steps I saved all the networks in JSON. Here I loaded them and defined the nodes and
+links using the data from the JSON. For each node, I also added a colour for each node, and a <code>value</code> specifying
+the importance (given by the number of times the character spoke in the script). This defines
+the radius <code>r</code> attribute for the node object, scaling each node relative to its importance in the network.
+Similarly for the links, I also stored the strength of each link in the JSON file, and here I used it to
+define the <code>stroke-width</code> of each link.</p>
+
+<h2 id="centrality-analysis">Centrality analysis</h2>
+
+<p>As the final step, the analysis of centrality of individual characters was probably the simplest one.
+I used the <a href="http://bluemountaincapital.github.io/FSharpRProvider/">RProvider</a> together with the
+<a href="http://igraph.org/r/">igraph R package</a> to analyse the networks from F#. First I loaded the network
+using the JSON type provider from FSharp.Data:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">open</span> RProvider.igraph
+
+<span style="color:#66d9ef">let</span> <span style="color:#f92672">[&lt;</span>Literal<span style="color:#f92672">&gt;]</span> linkFile <span style="color:#f92672">=</span> <span style="color:#f92672">__</span>SOURCE_DIRECTORY__ <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;/networks/starwars-episode-1-interactions.json&#34;</span>
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Network</span> <span style="color:#f92672">=</span> JsonProvider<span style="color:#f92672">&lt;</span>linkFile<span style="color:#f92672">&gt;</span>
+
+<span style="color:#66d9ef">let</span> file <span style="color:#f92672">=</span> <span style="color:#f92672">__</span>SOURCE_DIRECTORY__ <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;/networks/starwars-full-interactions-allCharacters.json&#34;</span>
+<span style="color:#66d9ef">let</span> nodes <span style="color:#f92672">=</span> Network.Load<span style="color:#f92672">(</span>file<span style="color:#f92672">).</span>Nodes <span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> node <span style="color:#f92672">-&gt;</span> node<span style="color:#f92672">.</span>Name<span style="color:#f92672">)</span> 
+<span style="color:#66d9ef">let</span> links <span style="color:#f92672">=</span> Network.Load<span style="color:#f92672">(</span>file<span style="color:#f92672">).</span>Links</code></pre></div>
+
+<p>The <code>links</code> variable contains all the links in the network, where the end nodes are specified
+by their indices. To simplify the interpretation of results, I mapped all the indices to the corresponding
+character names:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> nodeLookup <span style="color:#f92672">=</span> nodes <span style="color:#f92672">|&gt;</span> Seq.mapi <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> i name <span style="color:#f92672">-&gt;</span> i<span style="color:#f92672">,</span> name<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> dict
+<span style="color:#66d9ef">let</span> edges <span style="color:#f92672">=</span> 
+	links
+	<span style="color:#f92672">|&gt;</span> Array.collect <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> link <span style="color:#f92672">-&gt;</span>
+		<span style="color:#66d9ef">let</span> n1 <span style="color:#f92672">=</span> nodeLookup<span style="color:#f92672">.[</span>link<span style="color:#f92672">.</span>Source<span style="color:#f92672">]</span>
+		<span style="color:#66d9ef">let</span> n2 <span style="color:#f92672">=</span> nodeLookup<span style="color:#f92672">.[</span>link<span style="color:#f92672">.</span>Target<span style="color:#f92672">]</span>
+			<span style="color:#f92672">[|</span> n1 <span style="color:#f92672">;</span> n2 <span style="color:#f92672">|]</span> <span style="color:#f92672">)</span></code></pre></div>
+
+<p>Then I created an undirected graph object using the <code>igraph</code> library:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp">	<span style="color:#66d9ef">let</span> graph <span style="color:#f92672">=</span>
+		namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;edges&#34;</span><span style="color:#f92672">,</span> box edges<span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;dir&#34;</span><span style="color:#f92672">,</span> box <span style="color:#e6db74">&#34;undirected&#34;</span><span style="color:#f92672">]</span>
+		<span style="color:#f92672">|&gt;</span> R.graph</code></pre></div>
+
+<p>Calculating the betweenness and degree centrality was then as simple as</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp">	<span style="color:#66d9ef">let</span> centrality <span style="color:#f92672">=</span> R.betweenness<span style="color:#f92672">(</span>graph<span style="color:#f92672">)</span>
+	<span style="color:#66d9ef">let</span> degreeCentrality <span style="color:#f92672">=</span> R.degree<span style="color:#f92672">(</span>graph<span style="color:#f92672">)</span></code></pre></div>
+
+<p>The full code that I used to produce the tables comparing the individual episodes is
+available <a href="https://github.com/evelinag/StarWars-social-network/blob/master/centrality.fsx">here</a>.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>As with most data science tasks, the most difficult step here was getting the data into
+a good shape. The Star Wars screenplays all had slightly different
+formats so I spent most of the time figuring out the
+common properties of the HTML documents to create a common function for parsing them
+and for identifying character names.
+ After that, it was just a little fight for Wookiee and droid equality
+when I decided to combine data sources to infer their social connections.
+I made the extracted networks available <a href="https://github.com/evelinag/StarWars-social-network/tree/master/networks">in JSON on my GitHub</a>
+so you can also play with them.</p>
+
+<p>I hope you endjoyed the visualizations, and <em>may the force be with you</em>!</p>
+
+<h2 id="links">Links</h2>
+
+<ul>
+<li>Source code: <a href="https://github.com/evelinag/StarWars-social-network">github.com/evelinag/StarWars-social-network</a></li>
+<li>Extracted networks in JSON format: <a href="https://github.com/evelinag/StarWars-social-network/tree/master/networks">github.com/evelinag/StarWars-social-network/tree/master/networks</a></li>
+<li>Screenplays: <a href="http://www.imsdb.com/">imsdb.com</a></li>
+<li><a href="http://evelinag.com/blog/2016/01-25-social-network-force-awakens/index.html">My analysis of Episode VII, Star Wars: The Force Awakens</a></li>
+</ul>
+
+<h2 id="citing-the-dataset">Citing the dataset</h2>
+
+<p>If you use the dataset in your own work, please cite it via <a href="https://zenodo.org/record/1411479">Zenodo</a>:</p>
+
+<p>Evelina Gabasova. (2016). Star Wars social network (Version 1.0.1) [Data set]. Zenodo. <a href="http://doi.org/10.5281/zenodo.1411479">http://doi.org/10.5281/zenodo.1411479</a></p>
+
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2016/01-25-social-network-force-awakens/">
+            <span class="icon is-small"><i class="fa fa-chevron-left"></i></span>
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Star Wars social networks: The Force Awakens
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Star Wars social networks: The Force Awakens
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Star Wars social networks: The Force Awakens
+            </span>
+            <span class="is-hidden-tablet">
+              Star Wars social networks: The Force...
+            </span>
+            
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/">
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Everything you always wanted to know about using ggplot2 from F# (but were...
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Everything you always wanted to know about using...
+            </span>
+            <span class="is-hidden-tablet">
+              Everything you always wanted to know...
+            </span>
+            
+            <span class="icon is-small"><i class="fa fa-chevron-right"></i></span>
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-15-star-wars-social-network%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-15-star-wars-social-network%2f&text=The%20Star%20Wars%20social%20network&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-15-star-wars-social-network%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-15-star-wars-social-network%2f&title=The%20Star%20Wars%20social%20network">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-15-star-wars-social-network%2f&title=The%20Star%20Wars%20social%20network">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

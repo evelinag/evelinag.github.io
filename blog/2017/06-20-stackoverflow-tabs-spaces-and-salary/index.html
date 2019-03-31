@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>Tabs, spaces and your salary - how is it really?</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="Tabs and spaces are not what they seem."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="Tabs, spaces and your salary - how is it really?"/>
+  <meta itemprop="description"
+        content="Tabs and spaces are not what they seem."/>
+  <meta itemprop="image"
+        content="open_source_tabs_us-1.png"/>
+
+  
+  <meta property="og:title" content="Tabs, spaces and your salary - how is it really?"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2017/06-20-stackoverflow-tabs-spaces-and-salary/"/>
+  <meta property="og:image"
+        content="open_source_tabs_us-1.png"/>
+  <meta property="og:description"
+        content="Tabs and spaces are not what they seem."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2017-06-20T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="Tabs, spaces and your salary - how is it really?"/>
+  <meta name="twitter:description"
+        content="Tabs and spaces are not what they seem."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="open_source_tabs_us-1.png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">Tabs, spaces and your salary - how is it really?</p>
+        <p class="subtitle">20 June 2017</p>
+
+        
+
+        
+        <div class="content">
+          
+
+<p>A couple of days ago, David Robinson published an article on the Stack Overflow blog with a very provocative title: <a href="https://stackoverflow.blog/2017/06/15/developers-use-spaces-make-money-use-tabs/">Developers Who Use Spaces Make More Money Than Those Who Use Tabs</a>. It uses the data from Stack Overflow developer survey to show that indeed, using spaces is associated with higher salaries, even when we account for experience level. So, should you start using spaces instead of tabs to increase your salary?</p>
+
+<!-- more -->
+
+<p><img src="http://evelinag.com/blog/2017/06-20-stackoverflow-tabs-spaces-and-salary/stackoverflow-salary.png" alt="" /></p>
+
+<p>The answer is clearly <em>No</em> because correlation doesn&rsquo;t imply causation and intuitively the indentation of source code doesn&rsquo;t have any direct causal link to anyone&rsquo;s salary. The whole story left a lot of people scratching their heads and it even made it into a <a href="http://www.bbc.co.uk/news/technology-40302410">BBC news story</a>.</p>
+
+<p>I believe that data science should be about answering questions and providing new insights into data - and unfortunately the original article doesn&rsquo;t offer many answers. It&rsquo;s a fun correlation but what&rsquo;s behind it? This blog post is my attempt to shed some light into the issue. The original article encouraged people to explore the data for themselves and this is precisely what I did. So I&rsquo;d like to invite you to follow me through a little data science detective story and a deep dive into the data from the Stack Overflow survey. You&rsquo;ll see that tabs and spaces are not what they seem. Spoiler: your salary has more to do with the type of company and the environment you work in rather than what type of indentation you use.</p>
+
+<h2 id="the-original-findings">The original findings</h2>
+
+<p>In the <a href="https://stackoverflow.blog/2017/06/15/developers-use-spaces-make-money-use-tabs/">original blog post</a>, David shows that using spaces instead of tabs is associated with higher salary and this effect seems to hold regardless of the experience level. Also, people who mix both tabs and spaces have similar salaries to people who prefer just tabs.</p>
+
+<p><img src="original_salary_plot-1.png" alt="" /></p>
+
+<p>Intresting, right? Also, the effect doesn&rsquo;t seem to be related to programming language or the type of developer you are. And same goes for the size of company you&rsquo;re employed in. So why do better paid developers prefer spaces? It&rsquo;s clear that there must be some confounding variable but I wasn&rsquo;t sure if it was present in the survey. I started my investigation by looking at a linear regression model from the original blog post.</p>
+
+<h2 id="exploring-the-data-with-linear-regression">Exploring the data with linear regression</h2>
+
+<p>The original post included a linear regression model that predicts salary based on several variables:</p>
+
+<ul>
+<li>Country</li>
+<li>Years of programming experience</li>
+<li>Tabs and spaces usage</li>
+<li>Developer type and language</li>
+<li>Level of formal education (e.g. bachelor&rsquo;s, master&rsquo;s, doctorate)</li>
+<li>Whether they contribute to open source</li>
+<li>Whether they program as a hobby</li>
+<li>Company size</li>
+</ul>
+
+<p>I decided to have a closer look at the results and play with some modified models. For my linear regression, I concentrated on developers located in the United States. Partly because it is the largest group of developers in the survey and looking at one country removes much of regional variation, but also because I had my doubts about the salaries reported in some of the other countries (but more on that <a href="#salaries_eastern_europe">later</a>). Now please bear with me, we&rsquo;re about to get statistical (but you can always skip directly to the plots and results below). I want to show you the line of reasoning that I followed that lead me to some of the insights.</p>
+
+<h3 id="diving-deeper-into-linear-regression">Diving deeper into linear regression</h3>
+
+<p>I&rsquo;d like to note that I changed the regression model used by David in his original post because it excluded the bias term (intercept), which lead to an ANOVA-type model. I used a standard linear regression including the intercept. What I did is that I fitted two regression models:</p>
+
+<ul>
+<li><strong>Full model</strong> with the information on tabs and spaces included</li>
+<li><strong>Reduced model</strong> without the information on tabs and spaces</li>
+</ul>
+
+<p>Comparing these two models should tell me how much information can I get by including the preferred indentation method. Both models predict salary similarly well, or similarly badly, based on how you&rsquo;re inclined to look at it. How do we know that? We can look at the <a href="https://en.wikipedia.org/wiki/Coefficient_of_determination"><em>coefficient of determination</em> $R^2$</a> which says how much variance in salary can we explain by using the input variables (years of experience, programming language, etc.). The higher this coefficient is, the better we are able to model salary as a combination of the other factors.</p>
+
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Coefficient of determination $R^2$</th>
+<th>Adjusted $R^2_{adj}$</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Full model</td>
+<td>0.4008</td>
+<td>0.3892</td>
+</tr>
+
+<tr>
+<td>Reduced model</td>
+<td>0.3938</td>
+<td>0.3892</td>
+</tr>
+</tbody>
+</table>
+
+<p>Both linear models have very similar performance, they both can explain about 40% of variance in salary. The full model has higher $R^2$ which is expected in a model with more variables. The adjusted $R^2_{adj}$ value can be used to compare the two models to see which one provides a better fit. The full model has higher $R^2_{adj}$ but the difference is only 0.0068. It seems that the the knowledge about tabs and spaces usage, although significant, doesn&rsquo;t contribute that much extra information. The reduced linear regression model can partly compensate for the missing information by using the other variables in the model.</p>
+
+<p>I checked for collinearity which is always a danger in predictive models. Collinearity is a situation where some of the variables are highly correlated which makes it more difficult to extract their individual effects. Interestingly, there were no sign of this happening, and the regression coefficients didn&rsquo;t change massively between the two models.</p>
+
+<p>So did anything change between the full and reduced model? I decided to have a look at p-values of regression coefficients that represent the significance of each variable in the model. Did significance of any parameters increase significantly? I looked at the variables where their p-values dropped by at least an order of magnitude (10-fold) to see which variables became more important in the reduced model compared to the full model.</p>
+
+<p>The variables that gained more significance in the reduced model were:</p>
+
+<ul>
+<li>Years of programming experience</li>
+<li>Contributing to open source</li>
+<li>PHP</li>
+</ul>
+
+<p>The coefficients for these variables also changed, but not dramatically. Together, it means that that if we remove the information about tabs and spaces from the model, the model compensates by boosting experience and open source contributions (and also if you work with PHP). Experience is an obvious factor that affects the salary, so this is not surprising. My first candidate for further investigation was open source.</p>
+
+<p>I looked into open source contributions in more detail and the interesting insight is that contributing to open source is related to higher salary, at least if you live in the US. Possibly people with higher salaries are more likely to contribute to open source? The effect also holds across all experience levels.</p>
+
+<p><img src="open_source_salary-1.png" alt="" /></p>
+
+<h3 id="open-source-contributors-use-spaces-more-than-tabs">Open source contributors use spaces more than tabs</h3>
+
+<p>How does open source relate to our original tabs versus spaces debate? Turns out that people who contribute to open source use spaces much more than people who don&rsquo;t. There is a roughly similar number of people who use tabs and who use spaces among those that don&rsquo;t contribute to open source.</p>
+
+<p><img src="open_source_tabs_us-1.png" alt="" /></p>
+
+<p>But when we look at people who do contribute to open source, they are more than twice as likely to use spaces rather than tabs. This difference is also statistically significant with p-value $9.1981718 \times 10^{-24}$. The same trend holds internationally as well, although there are slightly more people using tabs in open source there.</p>
+
+<p><img src="open_source_tabs_world-1.png" alt="" /></p>
+
+<p>I think we&rsquo;re getting closer to potential causal explanations here. The main advantage of using tabs is that you can set how they are displayed in the IDE, with spaces the layout is fixed. This means that the same code can look very different for different people if using tabs. And when people start mixing the two, one person using tabs and other using spaces within the same file, it leads to a mess. My theory is that when diverse people are working on open source projects together without enforced coding style, the possible formatting mess is nudging people towards using spaces simply because the code is consistent for everyone.</p>
+
+<p>This is just one of possible theories, I didn&rsquo;t look to see if possibly language communities that use predominantly spaces (like Python or Ruby) are more active in open source. Again, correlation doesn&rsquo;t imply causation.</p>
+
+<h3 id="tabs-spaces-open-source-salary-how-does-it-fit-together">Tabs, spaces, open source &amp; salary: how does it fit together?</h3>
+
+<p>Now the question is, does open source work account for higher salaries of people who use spaces more than tabs? When we plot the salaries based on open source contributions and indentation method, we get a more complex picture compared to the original that compared only tabs and spaces.</p>
+
+<p><img src="open_source_tabs_salary-1.png" alt="" /></p>
+
+<p>Junior developers using both tabs and spaces contributing to open source have a slightly higher median salary than people using spaces but not contributing. And open source contributors that have more than 15 years of experience and use tabs have higher median salary than people who use spaces.
+Additionally, if you have less than 15 years of professional experience and use tabs, contributing to open source is not related to higher salaries. But if you use spaces, you&rsquo;re better paid if you also contribute to open source than if you don&rsquo;t. Take these results with a grain of salt because counts in some of the groups are getting relatively small.</p>
+
+<p>Overall, there is some effect but it still doesn&rsquo;t change the global picture: people who use spaces have generally higher salaries than people who use tabs. So is there something else at play as well?</p>
+
+<h3 id="exploring-salary-distributions">Exploring salary distributions</h3>
+
+<p>At this point I was convinced that any variables affecting the salaries of tabs and spaces users were not in the simple regression model. I didn&rsquo;t want to go on a wild goose chase and start adding all the available variables (more than 150 of them, and all of them categorical). I decided to have a look at salary distributions for the different indentation methods: do space users have generally higher salaries than tab users, or is there a subgroup of space users who skew the results?</p>
+
+<p>I plotted the distributions for the different experience levels. The graph below shows the salary densities for developers with less than five years of experience, where the effect was the clearest. All three distributions have their main mode (peak) around the same salary value between 65,000 and 70,000 USD. This peak represents the most of junior developers, and it seems that using tabs or spaces doesn&rsquo;t make any difference in salary there.</p>
+
+<p><img src="salary_distribution_junior-1.png" alt="" /></p>
+
+<p>What is interesting is that the salary distribution for space users is actually bimodal (has two peaks). Most people have similar salary to other developers but there is a subgroup of people who use predominantly spaces and are paid much more than the rest. How does this group of people differ from the rest? I looked at what makes them different across the questions in the survey and I used the $\chi^2$ test to see if the numbers of people in different categories were significantly different for tab and space users.</p>
+
+<h3 id="the-importance-of-version-control">The importance of version control</h3>
+
+<p>Because the number of programmers in the higher salary category was not very large, I ended up with a lot of potential candidates. One of the variables that jumped up as significantly different between the higher paid group and the rest surprised me: <strong>version control</strong>. I filtered out only the version control systems that were used frequently among junior developers in the US (at least 20 users in the survey):</p>
+
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="right">Higher salary</th>
+<th align="right">Lower salary</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">Git</td>
+<td align="right">168</td>
+<td align="right">660</td>
+</tr>
+
+<tr>
+<td align="left">I use some other system</td>
+<td align="right">17</td>
+<td align="right">30</td>
+</tr>
+
+<tr>
+<td align="left">Subversion</td>
+<td align="right">4</td>
+<td align="right">47</td>
+</tr>
+
+<tr>
+<td align="left">Team Foundation Server</td>
+<td align="right">6</td>
+<td align="right">92</td>
+</tr>
+</tbody>
+</table>
+
+<p>Surprisingly, it turns out that the version control system usage is not independent of the indentation method across all developers worldwide, not just the junior US ones (with p-value 1.5336476 &times; 10<sup>-44</sup>)! This means we have quite a strong link between tabs, spaces and version control systems.</p>
+
+<p>Let&rsquo;s have a closer look. Among all US developers, the two most common version control systems (with at least 200 users in the dataset) are Git and Team Foundation Server (TFS). What is their effect on developers&rsquo; salaries?</p>
+
+<p><img src="version_control_salary-1.png" alt="" /></p>
+
+<p>People who use Git have higher salaries across all experience levels. Interesting insight, which might be also connected to our previous investigation into open source contributors. But most importantly, how does version control relate to tabs and spaces usage together with salary?</p>
+
+<p><img src="versioncontrol_tabs_salary-1.png" alt="" /></p>
+
+<p>Interestingly, version control system breaks the pattern of higher salaries being always associated with space users.
+Companies using Git have mostly higher salaries regardless of indentation method, at least for developers with up to 10 years of experience! People using tabs with Git have larger salary than people using spaces with TFS, across all experience levels. Within the Git using group, people using spaces still have higher salaries than people using tabs. But within the TFS group, the pattern is not that clear: people using spaces with TFS have the lowest salaries for some of the groups.</p>
+
+<p>Internationally, the picture is partly different but it seems that you probably don&rsquo;t want to be a programmer with 15+ years of experience and use spaces with TFS.</p>
+
+<p><a href="versioncontrol_tabs_salary_world-1.png"> <img src="versioncontrol_tabs_salary_world-1.png" alt="" /> </a></p>
+
+<p>For completeness, I looked also at Subversion which was slightly more common than TFS internationally. Subversion doesn&rsquo;t again follow the same pattern of space users having overall larger salaries than tab users. Git + tab users have very similar salaries to Subversion + space users and Git + both tab and space users.</p>
+
+<p><a href="versioncontrol_tabs_salary_world2-1.png"> <img src="versioncontrol_tabs_salary_world2-1.png" alt="" /> </a></p>
+
+<h2 id="summary-1-why-is-version-control-so-important">Summary #1: Why is version control so important?</h2>
+
+<p>To sum it up, the combination of open source contributions and version control system usage accounts for at least some of the difference in salaries between tab and spaces users. This doesn&rsquo;t mean that you should start using Git and contribute to open source to get paid more (although it would be great if you did that anyway!).</p>
+
+<p>I believe these two factors together point more towards different environments and different types of companies, how traditional they are and how they use modern technologies. More traditional <em>old-school</em> companies that don&rsquo;t use Git and open source code seem to have lower salaries in general. The type of environment is hard to measure directly in a survey and both of these factors only point in this direction.</p>
+
+<p>This is definitely not the whole story and I&rsquo;m sure there are other variables that shed some light into the tabs-spaces salary inequality. My conclusions are also based mainly on US developers where the effect is the clearest. Why I had issues with the salaries in some other countries is what I discsuss below.</p>
+
+<h2 id="a-name-salaries-eastern-europe-why-look-only-at-us-developers-salaries-a"><a name="salaries_eastern_europe">Why look only at US developers&rsquo; salaries?</a></h2>
+
+<p>Over the whole analysis I concentrated mainly on US developers and their salaries. The reason is that when I was looking at distributions of salaries with respect to various other factors, one thing caught my attention because it didn&rsquo;t make much sense to me. The data I was working with contained only professional developers working full time, yet there was quite a large group of people who had very low annual salaries, below 3,000 USD. That by itself unfortunately wouldn&rsquo;t be strange because there is a lot of inequality worldwide. What was weird were the countries where people were reporting such low salaries.</p>
+
+<p><img src="low_salaries_countries-1.png" alt="" /></p>
+
+<p>The country with the largest number of not-so-well paid developers is India which makes sense in this context, the average salary in India is significantly lower than in OECD countries. But have a look the countries after India: Poland, Russia and even Germany may not have gigantic salaries but less than 3,000 USD for a full time developer is extremely low.</p>
+
+<p>I come from the Czech republic so I have some &ldquo;domain knowledge&rdquo; of the region - I had a suspicion what&rsquo;s happening in the data. So I checked the salary distribution of a couple of countries in Central and Eastern Europe and how do their distributions compare to countries in other parts of the world.</p>
+
+<p><img src="salary_normal_contries-1.png" alt="" /></p>
+
+<p><img src="salary_soviet_countries-1.png" alt="" /></p>
+
+<p>Countries such as the UK and France and even India all have salary distributions with a single peak. On the other hand, all the Central and Eastern European countries have bimodal salary distributions (with two peaks). The first peak corresponds to the very low salary, and the second corresponds to a larger, more believable annual salary. It&rsquo;s less pronounced in Germany, more in Poland and much more in Russia. I checked a couple of other countries including Czech Republic and Ukraine and the trend holds across all of them. All countries from this region seem to have bimodal salary distribution. What&rsquo;s happening there?</p>
+
+<p>Based on my experience, the Czechs always discuss salary not in terms of the annual salary but in terms of the monthly salary. I have never ever heard any Czech person referring to their annual salary. I checked with a Polish friend and he told me the exact same story - nobody ever talks about annual salary, only about the monthly salary. Considering this, it seems likely that many people simply didn&rsquo;t read the survey question properly and reported their monthly salary instead, simply because that&rsquo;s the number they are used to think about.</p>
+
+<p>Can we fix the data somehow? We can for example fit a mixture model to the data and multiply the low-salary group by 12 to get annual salary. This will create a salary distribution that is left-truncated but represents the actual salaries in the country better than the original distribution. Below is an example for Poland.</p>
+
+<p><img src="salary_adapted-1.png" alt="" /></p>
+
+<h2 id="summary-2-data-traps">Summary #2: Data traps</h2>
+
+<p>The main conclusion from the salary issue is that we always have to be careful about our data. There are many hidden biases in any survey and some of them are quite unexpected. If I wasn&rsquo;t aware of how people talk about their monthly salaries, I would have probably assumed that the countries have a lot of badly paid internship-style positions and that&rsquo;s what is skewing the data. I&rsquo;m not sure which other countries discuss their salary not in terms of the annual salary, and for this reason I used mainly the US data in my analysis. Hopefully the data are the most consistent.</p>
+
+<p>Unfortunately people don&rsquo;t always fill in surveys correctly and it is very hard to discover this. It might have affected the tabs versus spaces question as well. Based on some reactions on social media, it seems that some people filled-in that they use tabs because they press the Tab key, even though the tabs are implicitly converted to spaces by their editors.</p>
+
+<h2 id="summary-3">Summary #3</h2>
+
+<p>To sum it all up, I&rsquo;m quite convinced that the difference in salaries of tab and space users is mainly due to the type of company and the environment they work in. Environments where people use Git and contribute to open source are more associated both with higher salaries and spaces, rather than with tabs. I&rsquo;m sure there are other factors as well - let me know what you think! But beware: you can never trust the data completely.</p>
+
+<p>Finally, I&rsquo;d like to thank David for providing <a href="https://github.com/dgrtwo/tabs-spaces-post">the code he used in his blog post</a> and Stack Overflow for publishing the data from their developer survey. You can get my code that I used to produce this analysis <a href="https://github.com/evelinag/stackoverflow-survey-analysis">from my GitHub</a>.</p>
+
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2016/01-25-social-network-force-awakens/">
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Star Wars social networks: The Force Awakens
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Star Wars social networks: The Force Awakens
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Star Wars social networks: The Force Awakens
+            </span>
+            <span class="is-hidden-tablet">
+              Star Wars social networks: The Force...
+            </span>
+            
+            <span class="icon is-small"><i class="fa fa-chevron-right"></i></span>
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2017%2f06-20-stackoverflow-tabs-spaces-and-salary%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2017%2f06-20-stackoverflow-tabs-spaces-and-salary%2f&text=Tabs%2c%20spaces%20and%20your%20salary%20-%20how%20is%20it%20really%3f&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2017%2f06-20-stackoverflow-tabs-spaces-and-salary%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2017%2f06-20-stackoverflow-tabs-spaces-and-salary%2f&title=Tabs%2c%20spaces%20and%20your%20salary%20-%20how%20is%20it%20really%3f">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2017%2f06-20-stackoverflow-tabs-spaces-and-salary%2f&title=Tabs%2c%20spaces%20and%20your%20salary%20-%20how%20is%20it%20really%3f">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

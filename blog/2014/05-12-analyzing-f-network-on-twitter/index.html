@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>Who&#39;s the most central? F# network on Twitter</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="Have you ever wondered who you should follow on Twitter to get interesting F# content? I analyzed community of users around F# for the new F# Deep Dives book and I&#39;d like to share some insights."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="Who&#39;s the most central? F# network on Twitter"/>
+  <meta itemprop="description"
+        content="Have you ever wondered who you should follow on Twitter to get interesting F# content? I analyzed community of users around F# for the new F# Deep Dives book and I&#39;d like to share some insights."/>
+  <meta itemprop="image"
+        content="fsharporg_egoNetwork_small.png"/>
+
+  
+  <meta property="og:title" content="Who&#39;s the most central? F# network on Twitter"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter/"/>
+  <meta property="og:image"
+        content="fsharporg_egoNetwork_small.png"/>
+  <meta property="og:description"
+        content="Have you ever wondered who you should follow on Twitter to get interesting F# content? I analyzed community of users around F# for the new F# Deep Dives book and I&#39;d like to share some insights."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2014-05-12T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="Who&#39;s the most central? F# network on Twitter"/>
+  <meta name="twitter:description"
+        content="Have you ever wondered who you should follow on Twitter to get interesting F# content? I analyzed community of users around F# for the new F# Deep Dives book and I&#39;d like to share some insights."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="fsharporg_egoNetwork_small.png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">Who&#39;s the most central? F# network on Twitter</p>
+        <p class="subtitle">12 May 2014</p>
+
+        
+
+        
+        <div class="content">
+          <p>Have you ever wondered who you should follow on Twitter to get more interesting
+F# content?
+Recently I&rsquo;ve written a chapter on social network analysis for the new
+<a href="http://www.manning.com/petricek2/">F# Deep Dives</a> book. The chapter shows
+how to download data on social connections from Twitter and how to do some
+exploratory data analysis, such as finding accounts that people
+find worth following.</p>
+
+<p>I worked with a network around the
+<a href="http://fsharp.org">F# Software Foundation&rsquo;s</a> account. What
+emerged is a nice picture of how F# community looks on Twitter and which
+users are the most central to the network.
+Since the results are quite interesting, I&rsquo;d like to share them with wider F# community.</p>
+
+<h2 id="network-around-fsharporg">Network around @fsharporg</h2>
+
+<p>For the chapter, I wanted to analyze a network of F# users that are active
+on Twitter. A good starting point is the account of the F# Software Foundation.
+I think we can reasonably assume that followers of this account are generally
+people interested in F#. This group definitely doesn&rsquo;t cover
+all the Fsharpers on Twitter but it probably includes a significant
+part of the active community.</p>
+
+<p>The network that I analyzed is centred around the
+<a href="http://www.twitter.com/fsharporg">@fsharporg</a> account. Nodes in the network are
+users that either follow @fsharporg or who are being followed by @fsharporg.
+Links between nodes represent the &lsquo;follow&rsquo; relationships.
+If account A follows
+account B, there&rsquo;ll be a link from A to B in the Twitter network. The actual @fsharporg
+node is not included because it is connected to every other node
+so it doesn&rsquo;t add any new information.</p>
+
+<p><img src="fsharporg_egoNetwork.png" alt="Ego network around fsharporg" title="Ego network around fsharporg" /></p>
+
+<p>I downloaded the data from Twitter using the F# Twitter type provider from
+<a href="http://fsprojects.github.io/FSharp.Data.Toolbox/">F# Data Toolbox</a>.
+The network as described contains 1109 nodes and 14412 links.
+This is not an up-to-date number of nodes because I downloaded the data back in February
+and the number of followers
+has grown since. Number of links is also larger in reality. Some of the accounts
+that follow @fsharporg keep their
+friends and followers private and their links don&rsquo;t appear in the network.</p>
+
+<h2 id="number-of-followers">Number of followers</h2>
+
+<p>First thing that we can do with the data is to find how many followers each user has
+within the F# community. Note that it is not the same as total number of followers because
+we&rsquo;re working only with the users linked to @fsharporg.</p>
+
+<p>In terminology of network science, number of followers corresponds to in-degree of a node in a graph.
+In-degree is simply the number of links (arrows) pointing towards a node.</p>
+
+<p>Here I extracted the top 20 Twitter accounts based on number of
+their F# followers:</p>
+
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Twitter screen name</th>
+<th>Number of followers</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>1</td>
+<td>dsyme</td>
+<td>644</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>tomaspetricek</td>
+<td>556</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>migueldeicaza</td>
+<td>545</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>VisualFSharp</td>
+<td>483</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>c4fsharp</td>
+<td>457</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>ptrelford</td>
+<td>348</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>rickasaurus</td>
+<td>337</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>jonharrop</td>
+<td>264</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>reddit_fsharp</td>
+<td>262</td>
+</tr>
+
+<tr>
+<td>10</td>
+<td>sforkmann</td>
+<td>257</td>
+</tr>
+
+<tr>
+<td>11</td>
+<td>dmohl</td>
+<td>254</td>
+</tr>
+
+<tr>
+<td>12</td>
+<td>sergey_tihon</td>
+<td>249</td>
+</tr>
+
+<tr>
+<td>13</td>
+<td>brandewinder</td>
+<td>233</td>
+</tr>
+
+<tr>
+<td>14</td>
+<td>rachelreese</td>
+<td>201</td>
+</tr>
+
+<tr>
+<td>15</td>
+<td>granicz</td>
+<td>199</td>
+</tr>
+
+<tr>
+<td>16</td>
+<td>ttliu2000</td>
+<td>194</td>
+</tr>
+
+<tr>
+<td>17</td>
+<td>ovatsus</td>
+<td>187</td>
+</tr>
+
+<tr>
+<td>18</td>
+<td>kitlovesfsharp</td>
+<td>174</td>
+</tr>
+
+<tr>
+<td>19</td>
+<td>theburningmonk</td>
+<td>173</td>
+</tr>
+
+<tr>
+<td>20</td>
+<td>foxyjackfox</td>
+<td>155</td>
+</tr>
+</tbody>
+</table>
+
+<p>The first position belongs to Don Syme,
+designer and architect of F# itself. Don seems to be doing a good job promoting F#!
+It is interesting that in the third place we have Miguel de Icaza who is not
+directly linked with F#. The fact that he features so prominently in the
+network shows that people connected to
+@fsharporg on Twitter are interested in Mono and open source development.
+It is also a nice validation that the number of
+followers corresponds to importance to some degree.
+The full list of accounts ordered by number of their F# followers is available
+as a
+<a href="https://github.com/evelinag/Social-network-analysis/blob/master/data/indegrees.csv">csv file</a>.</p>
+
+<p>Number of followers is a straightforward measure of importance but it doesn&rsquo;t take some finer aspects
+into account. For example, having a few very important followers is making
+an account immediately more influential. Some of this
+intuition is captured in a different centrality metric, the PageRank.</p>
+
+<h2 id="centrality-with-pagerank">Centrality with PageRank</h2>
+
+<p>PageRank is a popular measure of node importance in general graphs.
+The name &lsquo;PageRank&rsquo; originally comes from Google who uses it as a part of their
+website ranking algorithm. It uses
+the structure of World Wide Web to estimate relative importance
+and authority of each website.
+The method itself is based on probability theory but I don&rsquo;t want to
+go into details here (you can find them in the chapter).</p>
+
+<p>The same measure works for estimating centrality in other types of graphs, such as social networks.
+When we look at PageRank applied to Twitter network, there are three aspects that affect centrality
+of an account:</p>
+
+<ul>
+<li>number of followers</li>
+<li>centrality of followers</li>
+<li>quality of links from followers</li>
+</ul>
+
+<p>Quality of links is based on the number of accounts that a node follows.
+For example, Alice follows only 10 accounts on Twitter and her friend Bob follows 1000 accounts.
+Each account that Alice follows receives more weight from her than from Bob because
+Bob distributes his interest among many more accounts.</p>
+
+<p>PageRank combines these aspects to put together relative importance of each follower.
+How different is the list of top 20 F# accounts based on PageRank?</p>
+
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Twitter screen name</th>
+<th>PageRank</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>1</td>
+<td>migueldeicaza</td>
+<td>0.03313</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>dsyme</td>
+<td>0.03278</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>tomaspetricek</td>
+<td>0.02776</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>LincolnAtkinson</td>
+<td>0.02199</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>VisualFSharp</td>
+<td>0.02023</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>c4fsharp</td>
+<td>0.01972</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>rickasaurus</td>
+<td>0.01919</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>ptrelford</td>
+<td>0.01810</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>1tgr</td>
+<td>0.01652</td>
+</tr>
+
+<tr>
+<td>10</td>
+<td>sforkmann</td>
+<td>0.01497</td>
+</tr>
+
+<tr>
+<td>11</td>
+<td>brandewinder</td>
+<td>0.01391</td>
+</tr>
+
+<tr>
+<td>12</td>
+<td>jonharrop</td>
+<td>0.01370</td>
+</tr>
+
+<tr>
+<td>13</td>
+<td>dmohl</td>
+<td>0.01337</td>
+</tr>
+
+<tr>
+<td>14</td>
+<td>rachelreese</td>
+<td>0.01176</td>
+</tr>
+
+<tr>
+<td>15</td>
+<td>granicz</td>
+<td>0.01164</td>
+</tr>
+
+<tr>
+<td>16</td>
+<td>sergey_tihon</td>
+<td>0.01101</td>
+</tr>
+
+<tr>
+<td>17</td>
+<td>reddit_fsharp</td>
+<td>0.01096</td>
+</tr>
+
+<tr>
+<td>18</td>
+<td>ovatsus</td>
+<td>0.00995</td>
+</tr>
+
+<tr>
+<td>19</td>
+<td>ttliu2000</td>
+<td>0.00924</td>
+</tr>
+
+<tr>
+<td>20</td>
+<td>foxyjackfox</td>
+<td>0.00910</td>
+</tr>
+</tbody>
+</table>
+
+<p>Now we have Miguel de Icaza in the first place and Don Syme in the second! It seems
+that PageRank does indeed capture some extra information. The full list of accounts ordered by their PageRank is available as a
+<a href="https://github.com/evelinag/Social-network-analysis/blob/master/data/pagerank.csv">csv file</a>.</p>
+
+<p>Some accounts seem to be quite underrated in terms of number of their followers.
+Here is a comparison of how the ordering changes between the two measures of
+centrality:</p>
+
+<p><img src="ordering.png" alt="Indegree vs PageRank" title="Difference in ordering between in-degree and PageRank" /></p>
+
+<h2 id="visualization">Visualization</h2>
+
+<p>I&rsquo;ve also visualized the F# Twitter network using <a href="http://d3js.org/">D3.js</a>.
+If you click on the image below, you&rsquo;ll see the full F# network in svg format.
+When you hover your mouse over a node in the visualization, you should see its Twitter name.
+Each node
+is also scaled proportionally to its PageRank score. The larger the node, the more important
+it is in the network.</p>
+
+<p><a href="network_visualization.svg"><img src="network_visualization.png" alt="Visualization of F# network" /></a></p>
+
+<p>From the picture it is clear that the graph is well connected with a dense centre.
+There are no clear sub-communities. A structure like this is fairly typical for so-called
+scale-free networks. These are characterized by a few large hubs that are densely connected with many
+other less connected nodes. Another example of a network with this type of structure is the internet.</p>
+
+<p>An interesting feature of scale-free networks is that they are robust with respect to random node
+deletion.
+I suppose that is good news for F# on Twitter because the network won&rsquo;t
+fall apart easily if individual users leave.</p>
+
+<h2 id="network-analysis-in-f">Network analysis in F#</h2>
+
+<p>I hope you enjoyed getting some information on how F# Twitter community looks and who are
+its key figures.
+The whole analysis was done in F# and the source code for the chapter is available
+from <a href="https://github.com/evelinag/Social-network-analysis">GitHub</a>.
+I think F# is a great tool for this kind of analysis because it combines all the steps of the process,
+from downloading and extracting the data to doing computational analysis.
+If you&rsquo;re interested in details on how to analyze social networks with F#, they will appear
+in Chapter 5 of <a href="http://www.manning.com/petricek2/">F# Deep Dives</a>.</p>
+
+<h4 id="links">Links</h4>
+
+<ul>
+<li><a href="https://github.com/evelinag/Social-network-analysis/blob/master/data/indegrees.csv">Users ordered by number of their followers</a></li>
+<li><a href="https://github.com/evelinag/Social-network-analysis/blob/master/data/pagerank.csv">Users ordered by PageRank</a></li>
+<li><a href="https://github.com/evelinag/Social-network-analysis">Source code for the chapter</a></li>
+<li><a href="http://www.manning.com/petricek2/">F# Deep Dives</a></li>
+<li><a href="http://fsprojects.github.io/FSharp.Data.Toolbox/">F# Data Toolbox</a> with library for Twitter data access</li>
+</ul>
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/">
+            <span class="icon is-small"><i class="fa fa-chevron-left"></i></span>
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Comparing F# and C# with dependency networks
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Comparing F# and C# with dependency networks
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Comparing F# and C# with dependency networks
+            </span>
+            <span class="is-hidden-tablet">
+              Comparing F# and C# with dependency...
+            </span>
+            
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f05-12-analyzing-f-network-on-twitter%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f05-12-analyzing-f-network-on-twitter%2f&text=Who%27s%20the%20most%20central%3f%20F%23%20network%20on%20Twitter&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f05-12-analyzing-f-network-on-twitter%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f05-12-analyzing-f-network-on-twitter%2f&title=Who%27s%20the%20most%20central%3f%20F%23%20network%20on%20Twitter">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f05-12-analyzing-f-network-on-twitter%2f&title=Who%27s%20the%20most%20central%3f%20F%23%20network%20on%20Twitter">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

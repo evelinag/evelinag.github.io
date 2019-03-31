@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>F# tackles James Bond</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="Earlier this week I read an interesting blog post on visualizing box office success of individual James Bond films using R and ggplot2. In this blog post I&#39;m looking at how to do similar analysis in F#, using the HTML type provider and XPlot."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="F# tackles James Bond"/>
+  <meta itemprop="description"
+        content="Earlier this week I read an interesting blog post on visualizing box office success of individual James Bond films using R and ggplot2. In this blog post I&#39;m looking at how to do similar analysis in F#, using the HTML type provider and XPlot."/>
+  <meta itemprop="image"
+        content="bond-bubble-zoom.png"/>
+
+  
+  <meta property="og:title" content="F# tackles James Bond"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/"/>
+  <meta property="og:image"
+        content="bond-bubble-zoom.png"/>
+  <meta property="og:description"
+        content="Earlier this week I read an interesting blog post on visualizing box office success of individual James Bond films using R and ggplot2. In this blog post I&#39;m looking at how to do similar analysis in F#, using the HTML type provider and XPlot."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2015-11-18T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="F# tackles James Bond"/>
+  <meta name="twitter:description"
+        content="Earlier this week I read an interesting blog post on visualizing box office success of individual James Bond films using R and ggplot2. In this blog post I&#39;m looking at how to do similar analysis in F#, using the HTML type provider and XPlot."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="bond-bubble-zoom.png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">F# tackles James Bond</p>
+        <p class="subtitle">18 November 2015</p>
+
+        
+
+        
+        <div class="content">
+          
+
+<p>Earlier this week I read an interesting article on visualizing box office success of
+James Bond films using R and ggplot2 by Christoph Safferling (
+you can find it <a href="http://opiateforthemass.es/articles/james-bond-film-ratings/">here</a>).
+The blog post shows how to pull information from Wikipedia and visualize
+the budget, box office and rating of each film - all this using R.
+While reading the blog post, I couldn&rsquo;t help wondering how would a similar
+analysis look in F# using the HTML type provider from the
+<a href="http://fsharp.github.io/FSharp.Data/index.html">F# Data</a> library.</p>
+
+<!-- more -->
+
+<p>I was looking for a good excuse to play with the HTML type provider for some time so I decided
+to replicate the analysis. And since I saw the
+latest James Bond film Spectre recently, I was also curious how do the individual films differ
+from each other quantitatively.</p>
+
+<p>The original <a href="http://opiateforthemass.es/articles/james-bond-film-ratings/">blog post</a>
+looks at how does the box office success of each film compare to its aggregated rating from
+Rotten Tomatoes. All the data are available on Wikipedia in a single
+<a href="https://en.wikipedia.org/w/index.php?title=List_of_James_Bond_films&amp;oldid=688916363">article</a>, so
+all that is needed is to download the data, clean them and visualize them.</p>
+
+<h2 id="accessing-data-with-html-type-provider">Accessing data with HTML type provider</h2>
+
+<p>To download the data from Wikipedia, the original blog post used <code>rvest</code> package in R. As I&rsquo;m using
+the HTML type provider in F# to do the same task, the first step is to use the URL of the article
+to initialize the type provider. The type provider
+then looks at the website and generates statically typed access to all the tables that appear on that website:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#f92672">#</span>load <span style="color:#e6db74">&#34;packages/FsLab/FsLab.fsx&#34;</span>
+<span style="color:#66d9ef">open</span> FSharp.Data
+<span style="color:#66d9ef">open</span> XPlot.GoogleCharts
+
+<span style="color:#66d9ef">let</span> bondUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://en.wikipedia.org/w/index.php?title=List_of_James_Bond_films&amp;oldid=688916363&#34;</span>
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">BondProvider</span> <span style="color:#f92672">=</span> HtmlProvider<span style="color:#f92672">&lt;</span><span style="color:#75715e">(*[omit:(...)]*)</span><span style="color:#e6db74">&#34;https://en.wikipedia.org/w/index.php?title=List_of_James_Bond_films&amp;oldid=688916363&#34;</span><span style="color:#75715e">(*[/omit]*)</span><span style="color:#f92672">&gt;</span>
+
+<span style="color:#66d9ef">let</span> bondWiki <span style="color:#f92672">=</span> BondProvider.Load<span style="color:#f92672">(</span>bondUrl<span style="color:#f92672">)</span> </code></pre></div>
+
+<p>Accessing the actual data from the Wikipedia article was so quick and easy that I had to create a gif to
+show explicitly how nice and straightforward it is:</p>
+
+<p><img src="bondProvider.gif" alt="Bond type provider" /></p>
+
+<p>One of the main advantages of the HTML type provider is that we can access the tables on the website using
+their original headings. The original R version of the code accesses the tables using the
+order in which the tables appear on the website so we would need to know the index of the correct table.</p>
+
+<p>When accessing individual items in the table, we can similarly see all the labels from the table&rsquo;s header and
+directly access all the elements in each row. No need to parse or clean the data manually.</p>
+
+<p>Using the type provider, I pulled the following information about each film: the title, year, the actor, the budget and
+the box office. Both the budet and the box office are adjusted to the equivalent of 2005
+prices to make them comparable between different years.
+Again, the type provider does most of the parsing, except for a few tweaks that the original Wikipedia
+table used to make alphabetic sorting of items in the table easier. Because of this, I had to manually
+adjust some of titles and names of the actors.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> boxOffice <span style="color:#f92672">=</span> 
+	<span style="color:#66d9ef">let</span> allBoxOffice <span style="color:#f92672">=</span> 
+		<span style="color:#f92672">[|</span> <span style="color:#66d9ef">for</span> row <span style="color:#66d9ef">in</span> bondWiki<span style="color:#f92672">.</span>Tables.``Box office``<span style="color:#f92672">.</span>Rows <span style="color:#f92672">-&gt;</span>
+			row<span style="color:#f92672">.</span>Title<span style="color:#f92672">,</span> row<span style="color:#f92672">.</span>Year<span style="color:#f92672">,</span> row<span style="color:#f92672">.</span>Budget2<span style="color:#f92672">,</span> 
+			row<span style="color:#f92672">.</span>``Box office 2``<span style="color:#f92672">,</span> row<span style="color:#f92672">.</span>``Bond actor`` <span style="color:#f92672">|]</span>
+	allBoxOffice<span style="color:#f92672">.[</span>1<span style="color:#f92672">..</span>allBoxOffice<span style="color:#f92672">.</span>Length<span style="color:#f92672">-</span>3<span style="color:#f92672">]</span>
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>titleRaw<span style="color:#f92672">,</span> yr<span style="color:#f92672">,</span> bdgt<span style="color:#f92672">,</span> bo<span style="color:#f92672">,</span> actorRaw<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#66d9ef">let</span> actor <span style="color:#f92672">=</span> actorRaw<span style="color:#f92672">.[</span>actorRaw<span style="color:#f92672">.</span>Length<span style="color:#f92672">/</span>2 <span style="color:#f92672">+</span> 1 <span style="color:#f92672">..</span> <span style="color:#f92672">]</span>
+		<span style="color:#66d9ef">let</span> title <span style="color:#f92672">=</span> 
+			<span style="color:#66d9ef">match</span> titleRaw <span style="color:#f92672">|&gt;</span> Seq.tryFindIndex <span style="color:#f92672">((=)</span> <span style="color:#e6db74">&#39;!&#39;</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">with</span>
+			<span style="color:#f92672">|</span> Some<span style="color:#f92672">(</span>idx<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> titleRaw<span style="color:#f92672">.[</span>idx<span style="color:#f92672">+</span>1 <span style="color:#f92672">..]</span>
+			<span style="color:#f92672">|</span> None <span style="color:#f92672">-&gt;</span> titleRaw
+		title<span style="color:#f92672">,</span> int yr<span style="color:#f92672">,</span> <span style="color:#66d9ef">float</span> bdgt<span style="color:#f92672">,</span> <span style="color:#66d9ef">float</span> bo<span style="color:#f92672">,</span> actor<span style="color:#f92672">)</span></code></pre></div>
+
+<p>To keep things simple, I returned all the values as a simple array of tuples containing all the relevant
+information. This could be modified to a proper data frame using <a href="http://bluemountaincapital.github.io/Deedle/">Deedle</a>.</p>
+
+<p>As the next step, I downloaded the Rotten tomatoes ratings, which are placed in a different table called
+&ldquo;Reception and accolades&rdquo; on the same Wikipedia page:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> rating <span style="color:#f92672">=</span> 
+	<span style="color:#66d9ef">let</span> allRatings <span style="color:#f92672">=</span> 
+		<span style="color:#f92672">[|</span> <span style="color:#66d9ef">for</span> row <span style="color:#66d9ef">in</span> bondWiki<span style="color:#f92672">.</span>Tables.``Reception and accolades``<span style="color:#f92672">.</span>Rows <span style="color:#f92672">-&gt;</span>
+			row<span style="color:#f92672">.</span>Film<span style="color:#f92672">,</span> row<span style="color:#f92672">.</span>``Rotten Tomatoes`` <span style="color:#f92672">|]</span>
+	allRatings<span style="color:#f92672">.[</span>0<span style="color:#f92672">..</span>allRatings<span style="color:#f92672">.</span>Length<span style="color:#f92672">-</span>2<span style="color:#f92672">]</span>
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>title<span style="color:#f92672">,</span> r<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> 
+		title<span style="color:#f92672">,</span> r<span style="color:#f92672">.[</span>0<span style="color:#f92672">..</span>r<span style="color:#f92672">.</span>IndexOf<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;%&#39;</span><span style="color:#f92672">)-</span>1<span style="color:#f92672">]</span> <span style="color:#f92672">|&gt;</span> <span style="color:#66d9ef">float</span> <span style="color:#f92672">)</span></code></pre></div>
+
+<p>Here I had to strip off some additional information like the percent sign and the total number
+of reviews that Wikipedia added into each cell of the table.</p>
+
+<h2 id="visualization">Visualization</h2>
+
+<p>Now we are ready to do some charting. I&rsquo;m using the <a href="https://tahahachana.github.io/XPlot/">XPlot</a> library
+which provides a nice API for Google Charts (and also plot.ly). To follow the visualization used in the original
+blog post, I decided to create a bubble chart. This type of plot in Google Charts
+takes up to four parameters for each data point:
+to define its horizontal and vertical position in the plot, and to specify the colour and size of each bubble.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> options <span style="color:#f92672">=</span>
+	Options<span style="color:#f92672">(</span>
+		title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Bond fims - rating and box office&#34;</span><span style="color:#f92672">,</span>
+		hAxis <span style="color:#f92672">=</span> Axis<span style="color:#f92672">(</span>title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Year&#34;</span><span style="color:#f92672">),</span>
+		vAxis <span style="color:#f92672">=</span> Axis<span style="color:#f92672">(</span>title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Box office (millions $)&#34;</span><span style="color:#f92672">),</span>
+		bubble <span style="color:#f92672">=</span> Bubble<span style="color:#f92672">(</span>textStyle<span style="color:#f92672">=</span>TextStyle<span style="color:#f92672">(</span>color<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;transparent&#34;</span><span style="color:#f92672">)),</span>
+		colors <span style="color:#f92672">=</span> <span style="color:#f92672">[|</span> <span style="color:#e6db74">&#34;red&#34;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;gold&#34;</span> <span style="color:#f92672">|]</span> <span style="color:#f92672">)</span>
+
+Array.map2 <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>title<span style="color:#f92672">,</span> yr<span style="color:#f92672">,</span> bdgt<span style="color:#f92672">,</span> bo<span style="color:#f92672">,</span> actor<span style="color:#f92672">)</span> <span style="color:#f92672">(_,</span> rt<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> 
+				title <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; (&#34;</span> <span style="color:#f92672">+</span> actor <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;)&#34;</span><span style="color:#f92672">,</span> yr<span style="color:#f92672">,</span> bo<span style="color:#f92672">,</span> rt<span style="color:#f92672">,</span> bdgt <span style="color:#f92672">)</span> boxOffice rating
+<span style="color:#f92672">|&gt;</span> Chart.Bubble
+<span style="color:#f92672">|&gt;</span> Chart.WithLabels<span style="color:#f92672">([</span><span style="color:#e6db74">&#34;Title&#34;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;Year&#34;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;Box office&#34;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;Rating&#34;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;Budget&#34;</span><span style="color:#f92672">])</span>
+<span style="color:#f92672">|&gt;</span> Chart.WithOptions<span style="color:#f92672">(</span>options<span style="color:#f92672">)</span></code></pre></div>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]})
+    google.setOnLoadCallback(drawChart);
+function drawChart() {
+    var data = new google.visualization.DataTable({"cols": [{"type": "string" ,"id": "Title" ,"label": "Title" }, {"type": "number" ,"id": "Year" ,"label": "Year" }, {"type": "number" ,"id": "Box office" ,"label": "Box office" }, {"type": "number" ,"id": "Rating" ,"label": "Rating" }, {"type": "number" ,"id": "Budget" ,"label": "Budget" }], "rows" : [{"c" : [{"v": "Dr. No (Sean Connery)"}, {"v": 1962}, {"v": 448.8}, {"v": 96}, {"v": 7}]}, {"c" : [{"v": "From Russia with Love (Sean Connery)"}, {"v": 1963}, {"v": 543.8}, {"v": 96}, {"v": 12.6}]}, {"c" : [{"v": "Goldfinger (Sean Connery)"}, {"v": 1964}, {"v": 820.4}, {"v": 96}, {"v": 18.6}]}, {"c" : [{"v": "Thunderball (Sean Connery)"}, {"v": 1965}, {"v": 848.1}, {"v": 86}, {"v": 41.9}]}, {"c" : [{"v": "You Only Live Twice (Sean Connery)"}, {"v": 1967}, {"v": 514.2}, {"v": 72}, {"v": 59.9}]}, {"c" : [{"v": "On Her Majesty's Secret Service (George Lazenby)"}, {"v": 1969}, {"v": 291.5}, {"v": 82}, {"v": 37.3}]}, {"c" : [{"v": "Diamonds Are Forever (Sean Connery)"}, {"v": 1971}, {"v": 442.5}, {"v": 67}, {"v": 34.7}]}, {"c" : [{"v": "Live and Let Die (Roger Moore)"}, {"v": 1973}, {"v": 460.3}, {"v": 66}, {"v": 30.8}]}, {"c" : [{"v": "The Man with the Golden Gun (Roger Moore)"}, {"v": 1974}, {"v": 334}, {"v": 46}, {"v": 27.7}]}, {"c" : [{"v": "The Spy Who Loved Me (Roger Moore)"}, {"v": 1977}, {"v": 533}, {"v": 79}, {"v": 45.1}]}, {"c" : [{"v": "Moonraker (Roger Moore)"}, {"v": 1979}, {"v": 535}, {"v": 60}, {"v": 91.5}]}, {"c" : [{"v": "For Your Eyes Only (Roger Moore)"}, {"v": 1981}, {"v": 449.4}, {"v": 74}, {"v": 60.2}]}, {"c" : [{"v": "Octopussy (Roger Moore)"}, {"v": 1983}, {"v": 373.8}, {"v": 42}, {"v": 53.9}]}, {"c" : [{"v": "A View to a Kill (Roger Moore)"}, {"v": 1985}, {"v": 275.2}, {"v": 35}, {"v": 54.5}]}, {"c" : [{"v": "The Living Daylights (Timothy Dalton)"}, {"v": 1987}, {"v": 313.5}, {"v": 69}, {"v": 68.8}]}, {"c" : [{"v": "Licence to Kill (Timothy Dalton)"}, {"v": 1989}, {"v": 250.9}, {"v": 76}, {"v": 56.7}]}, {"c" : [{"v": "GoldenEye (Pierce Brosnan)"}, {"v": 1995}, {"v": 518.5}, {"v": 77}, {"v": 76.9}]}, {"c" : [{"v": "Tomorrow Never Dies (Pierce Brosnan)"}, {"v": 1997}, {"v": 463.2}, {"v": 57}, {"v": 133.9}]}, {"c" : [{"v": "The World Is Not Enough (Pierce Brosnan)"}, {"v": 1999}, {"v": 439.5}, {"v": 51}, {"v": 158.3}]}, {"c" : [{"v": "Die Another Day (Pierce Brosnan)"}, {"v": 2002}, {"v": 465.4}, {"v": 58}, {"v": 154.2}]}, {"c" : [{"v": "Casino Royale (Daniel Craig)"}, {"v": 2006}, {"v": 581.5}, {"v": 95}, {"v": 145.3}]}, {"c" : [{"v": "Quantum of Solace (Daniel Craig)"}, {"v": 2008}, {"v": 514.2}, {"v": 65}, {"v": 181.4}]}, {"c" : [{"v": "Skyfall (Daniel Craig)"}, {"v": 2012}, {"v": 879.8}, {"v": 93}, {"v": 158.1}]}]});
+    var options = {"colors":["red","gold"],"hAxis":{"title":"Year"},"legend":{"position":"none"},"title":"Bond fims - rating and box office","vAxis":{"title":"Box office (millions $)"},"bubble":{"textStyle":{"color":"transparent"}}} 
+    var chart = new google.visualization.BubbleChart(document.getElementById('7079c2e6-91fe-4ff3-96c1-f778b22874df'));
+    chart.draw(data, options);
+}
+</script>
+
+<div id="7079c2e6-91fe-4ff3-96c1-f778b22874df" style="width: 100%; height: 500px;"></div>
+
+<p>In the resulting plot, the x axis represents the year and the y axis shows the box office success.
+The size of each bubble represents the budget of each film, and finally the colours show the Rotten Tomatoes
+rating where lighter colours mean higher rating. Also, hover over the individual bubbles to see all the
+information about the films including their title and the James Bond actors.</p>
+
+<p>This plot shows that the first few James Bond films with Sean Connery were very successfull,
+with small budgets, high aggregated rating and growing revenues. The revenue was gradually decreasing
+over the Roger Moore and Timothy Dalton era. The box office again improved after 1995 with Pierce
+Brosnan, and the budgets increased as well. Two of the most recent films with Daniel Craig, Casino
+Royal and Skyfall, also reached similarly high aggregated ratings as some of the older Sean Connery films.
+Unfortunately, there are no available data on Spectre at the moment so we don&rsquo;t know how does it
+compare to the previous films.</p>
+
+<p>From the source code perspective, this all took about 45 lines of F# code,
+compared to 125 lines of R code that were used in the original blog
+post to produce a similar bubble chart with ggplot2
+(<a href="https://github.com/safferli/james_bond_films/blob/master/007.R">see the original R code</a>).
+The difference in
+size is mainly because the R code parses all the data in the Wikipedia table manually to create a
+clean data frame. In F#, the HTML type provider already does most of the work that is required to get
+the data into a usable shape.</p>
+
+<p>I also tried to replicate the resulting ggplot figure from the original blog post to test the capabilities
+of the F# <a href="http://bluemountaincapital.github.io/FSharpRProvider/">RPRovider</a>, which is a mechanism of
+accessing functions from R within F#. Using ggplot2 from F# with RProvider is a little more verbose than in
+R, but the full F# code still came out shorter than the the full R code (125 lines in F# compared to 187 lines in R).
+The code I used to generate the bubble chart and the full ggplot2 chart is available as a
+<a href="https://gist.github.com/evelinag/0ce68655f2aae1ecabcb">gist</a>.</p>
+
+<p><img src="bond-ggplot.png" alt="James Bond with ggplot" /></p>
+
+<h2 id="summary">Summary</h2>
+
+<p>Overall, I was very happy with the whole F# HTML type provider experience. It allows accessing most of the
+elements from the webpage using their real human-readable names and it does a great job parsing the data from
+the tables. Compared to the R version, there is less work left to be done to get the data into a good
+shape and prepare it for visualisation.</p>
+
+<p>Finally, here is the source code that I used and some other relevant links:</p>
+
+<ul>
+<li><a href="https://gist.github.com/evelinag/0ce68655f2aae1ecabcb">Source code</a></li>
+<li>This blog post uses FsLab, you can download a template <a href="http://fslab.org/download/">here</a></li>
+<li><a href="http://opiateforthemass.es/articles/james-bond-film-ratings/">Blog post that inspired all this</a></li>
+</ul>
+
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/">
+            <span class="icon is-small"><i class="fa fa-chevron-left"></i></span>
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Everything you always wanted to know about using ggplot2 from F# (but were...
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Everything you always wanted to know about using...
+            </span>
+            <span class="is-hidden-tablet">
+              Everything you always wanted to know...
+            </span>
+            
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/">
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Christmas Carol and other eigenvectors
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Christmas Carol and other eigenvectors
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Christmas Carol and other eigenvectors
+            </span>
+            <span class="is-hidden-tablet">
+              Christmas Carol and other eigenvectors
+            </span>
+            
+            <span class="icon is-small"><i class="fa fa-chevron-right"></i></span>
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f11-18-f-tackles-james-bond%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f11-18-f-tackles-james-bond%2f&text=F%23%20tackles%20James%20Bond&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f11-18-f-tackles-james-bond%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f11-18-f-tackles-james-bond%2f&title=F%23%20tackles%20James%20Bond">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f11-18-f-tackles-james-bond%2f&title=F%23%20tackles%20James%20Bond">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

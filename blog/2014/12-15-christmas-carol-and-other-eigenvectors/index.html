@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>Christmas Carol and other eigenvectors</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="This is day 15 of the F# Advent Calendar. Do you know who wrote the classic Christmas story, &#39;A Christmas Carol&#39;? Are you sure it was Charles Dickens? In this blog post, I&#39;m using Principal Component Analysis to compare and visualise similarity between classic works of literature."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="Christmas Carol and other eigenvectors"/>
+  <meta itemprop="description"
+        content="This is day 15 of the F# Advent Calendar. Do you know who wrote the classic Christmas story, &#39;A Christmas Carol&#39;? Are you sure it was Charles Dickens? In this blog post, I&#39;m using Principal Component Analysis to compare and visualise similarity between classic works of literature."/>
+  <meta itemprop="image"
+        content="author_pca(small).png"/>
+
+  
+  <meta property="og:title" content="Christmas Carol and other eigenvectors"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/"/>
+  <meta property="og:image"
+        content="author_pca(small).png"/>
+  <meta property="og:description"
+        content="This is day 15 of the F# Advent Calendar. Do you know who wrote the classic Christmas story, &#39;A Christmas Carol&#39;? Are you sure it was Charles Dickens? In this blog post, I&#39;m using Principal Component Analysis to compare and visualise similarity between classic works of literature."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2014-12-15T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="Christmas Carol and other eigenvectors"/>
+  <meta name="twitter:description"
+        content="This is day 15 of the F# Advent Calendar. Do you know who wrote the classic Christmas story, &#39;A Christmas Carol&#39;? Are you sure it was Charles Dickens? In this blog post, I&#39;m using Principal Component Analysis to compare and visualise similarity between classic works of literature."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="author_pca(small).png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">Christmas Carol and other eigenvectors</p>
+        <p class="subtitle">15 December 2014</p>
+
+        
+
+        
+        <div class="content">
+          
+
+<p>This blog post marks day 15 of the amazing <a href="https://sergeytihon.wordpress.com/2014/11/24/f-advent-calendar-in-english-2014/">F# Advent Calendar</a>.
+Christmas is getting closer - soon we will have time to
+relax and perhaps read a nice book.
+Do you know who wrote the classic Christmas story,
+<a href="http://en.wikipedia.org/wiki/A_Christmas_Carol">&lsquo;A Christmas Carol&rsquo;</a>?
+All sources claim it was Charles Dickens, but how can we be sure? I&rsquo;ll look
+at how this book compares to other books he wrote in terms of the language
+used in the books. I&rsquo;ll also analyse other classic works of literature from
+the Victorian and Edwardian era and look at similarity of their
+language. In the end, I&rsquo;ll try to find out if it really was Charles Dickens
+who wrote &lsquo;A Christmas Carol&rsquo;.</p>
+
+<!-- more -->
+
+<figure class="image container is-fluid">
+<img alt="First edition of Christmas Carol, 1843" src="Charles_Dickens-A_Christmas_Carol-Title_page-First_edition_1843.jpg" style="max-width:400px; "/>
+</figure>
+
+<p>This is a simple data analysis project which compares and visualises
+some publicly available classic English books. General approach to analysis
+of complex data that are hard to compare directly is to describe the
+data using a set of characteristic features.
+For my literature analysis, I&rsquo;ll be using
+frequencies of pairs of letters, called bigrams. These simple features
+capture some characteristics of the language that different authors use.</p>
+
+<p>I compute such features for a set of classic books in English. Then
+I use Principal Component Analysis (PCA) to find how different is the language
+of different authors. I also use the PCA projection to visualise the
+data and visually explore their similarity.</p>
+
+<p>Finally, I use the k nearest neighbours classification method to see
+if it really was Charles Dickens who wrote &lsquo;A Christmas Carol&rsquo;.
+I will be using F# through this post, source code is available
+from my <a href="https://github.com/evelinag/Projects/tree/master/PCA">GitHub</a>.</p>
+
+<h2 id="parsing-books-from-project-gutenberg">Parsing books from Project Gutenberg</h2>
+
+<p>For this project, I downloaded 82 books in total from 8 classic English authors:</p>
+
+<ul>
+<li>Jane Austen</li>
+<li>Charlotte Bronte</li>
+<li>Charles Dickens</li>
+<li>Arthur C. Doyle</li>
+<li>Emily Bronte</li>
+<li>Thomas Hardy</li>
+<li>Rudyard Kipling</li>
+<li>H. G. Wells</li>
+</ul>
+
+<p>All the books I used are in the public domain, available from
+<a href="https://www.gutenberg.org/">Project Gutenberg</a>. The books I&rsquo;m using
+in my little project are also available on my <a href="https://github.com/evelinag/Projects/tree/master/PCA">GitHub</a>
+together with all the source code.</p>
+
+<p>The first and most annoying step of any data analysis is to clean the data.
+Every book from project Gutenberg comes with licence agreement at the
+beginning and the full licence text at the end. The structure of these
+sections is fairly standardised, which makes it fairly easy to strip each book
+off these parts. The preamble in the beginning also contains book title
+which we can extract.</p>
+
+<p>In F#, it&rsquo;s straightforward to load text of each book separated into lines
+and then look for the specific lines that mark the beginning and end of each book.
+The following functions identify the main body of text, standardise it to
+lower case and and also find the book title.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">open</span> System
+<span style="color:#66d9ef">open</span> System.IO
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">BookPart</span> <span style="color:#f92672">=</span> <span style="color:#f92672">|</span> Start <span style="color:#f92672">|</span> End
+
+<span style="color:#75715e">// This function uses specific format of books from Project Gutenberg
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> isBookPart part <span style="color:#f92672">(</span>line<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> keyword <span style="color:#f92672">=</span> 
+		<span style="color:#66d9ef">match</span> part <span style="color:#66d9ef">with</span>
+		<span style="color:#f92672">|</span> Start <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;START&#34;</span>
+		<span style="color:#f92672">|</span> End <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;END&#34;</span>
+	<span style="color:#f92672">(</span>line<span style="color:#f92672">.</span>Contains <span style="color:#f92672">(</span>keyword <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; OF THIS PROJECT GUTENBERG EBOOK&#34;</span><span style="color:#f92672">))</span>
+	<span style="color:#f92672">||</span> <span style="color:#f92672">(</span>line<span style="color:#f92672">.</span>Contains <span style="color:#f92672">(</span>keyword <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; OF THE PROJECT GUTENBERG EBOOK&#34;</span><span style="color:#f92672">))</span>
+
+<span style="color:#66d9ef">let</span> bookStarted line <span style="color:#f92672">=</span> isBookPart Start line
+<span style="color:#66d9ef">let</span> bookFinished line <span style="color:#f92672">=</span> isBookPart End line
+
+<span style="color:#75715e">// Process lines of text in a book, skip license agreements
+</span><span style="color:#75715e">// and standardise letters
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> cleanText <span style="color:#f92672">(</span>lines<span style="color:#f92672">:</span> <span style="color:#66d9ef">string</span>[]<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
+	lines
+	<span style="color:#f92672">|&gt;</span> Seq.skipWhile <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> str <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">(</span>bookStarted str<span style="color:#f92672">))</span>
+	<span style="color:#f92672">|&gt;</span> Seq.takeWhile <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> str <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">(</span>bookFinished str<span style="color:#f92672">))</span>
+	<span style="color:#f92672">|&gt;</span> String.concat <span style="color:#e6db74">&#34; &#34;</span>
+	<span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> c <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#66d9ef">if</span> Char.IsLetter c <span style="color:#66d9ef">then</span> Char.ToLowerInvariant c
+		<span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39; &#39;</span><span style="color:#f92672">)</span>
+
+<span style="color:#75715e">// Extract title of a book from the preamble
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> getBookTitle <span style="color:#f92672">(</span>lines<span style="color:#f92672">:</span> <span style="color:#66d9ef">string</span>[]<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 
+	lines<span style="color:#f92672">.[</span>0<span style="color:#f92672">..</span>15<span style="color:#f92672">]</span>
+	<span style="color:#f92672">|&gt;</span> Array.pick <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> str <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#66d9ef">if</span> str<span style="color:#f92672">.</span>StartsWith <span style="color:#e6db74">&#34;Title:&#34;</span> <span style="color:#66d9ef">then</span> 
+			Some<span style="color:#f92672">(</span>str<span style="color:#f92672">.[</span>6<span style="color:#f92672">..].</span>Trim() <span style="color:#f92672">)</span>
+		<span style="color:#66d9ef">else</span> None<span style="color:#f92672">)</span>    </code></pre></div>
+
+<p>Now we have all the ingredients to pre-process each book:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> loadBook filename <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> fullContents <span style="color:#f92672">=</span> File.ReadAllLines filename
+	<span style="color:#66d9ef">let</span> title <span style="color:#f92672">=</span> getBookTitle fullContents
+	<span style="color:#66d9ef">let</span> text <span style="color:#f92672">=</span> cleanText fullContents
+	title<span style="color:#f92672">,</span> text</code></pre></div>
+
+<h2 id="representing-text-with-bigrams">Representing text with bigrams</h2>
+
+<p>Bigrams are simply pairs of letters. They are used in
+various language modelling algorithms. For example, different
+languages use bigrams with frequencies that are characteristic for each language.
+This property makes it possible to
+use bigrams for simple language identification.</p>
+
+<p>Generally, other symbols than letters can be included into bigrams as well.
+Pairs of letters and spaces show what are common characters at the beginning
+and the end of words. Here I define all possible bigrams that I&rsquo;m interested in:
+this piece of code generates simply all possible pairs of letters.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> alphabet <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;abcdefghijklmnopqrstuvwxyz&#34;</span>
+<span style="color:#66d9ef">let</span> letterPairs <span style="color:#f92672">=</span>
+	<span style="color:#f92672">[|</span> <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> alphabet <span style="color:#66d9ef">do</span> 
+		<span style="color:#66d9ef">for</span> b <span style="color:#66d9ef">in</span> alphabet <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">[|</span>a<span style="color:#f92672">;</span> b<span style="color:#f92672">|]</span> <span style="color:#f92672">|]</span></code></pre></div>
+
+<p>Finally, we can write a function that turns a book into a sequence
+of bigram counts. When we have sequence of letters in a book, it is
+very easy to split it into all consequtive pairs of letters using
+<code>Seq.windowed</code> (or <code>Seq.pairwise</code>) and then count occurences of each pair with
+<code>Seq.countBy</code>. If we wanted to count number of trigrams (triples
+of letters), we would only need to change the window size in <code>Seq.windowed</code>.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> rawBigrams <span style="color:#f92672">=</span>
+	text
+	<span style="color:#f92672">|&gt;</span> Seq.windowed 2
+	<span style="color:#f92672">|&gt;</span> Seq.countBy id</code></pre></div>
+
+<p>The following is the complete function which processes a whole book and returns bigram
+counts in a standard order defined by <code>letterPairs</code>.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// Extract title and bigram counts from a specific book
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> bookBigrams filename <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> title<span style="color:#f92672">,</span> text <span style="color:#f92672">=</span> loadBook filename
+
+	<span style="color:#66d9ef">let</span> rawBigrams <span style="color:#f92672">=</span>
+		text
+		<span style="color:#f92672">|&gt;</span> Seq.windowed 2
+		<span style="color:#f92672">|&gt;</span> Seq.countBy id
+		<span style="color:#f92672">|&gt;</span> dict
+
+	<span style="color:#66d9ef">let</span> bigramCountVector <span style="color:#f92672">=</span>
+		letterPairs 
+		<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> pair <span style="color:#f92672">-&gt;</span> 
+			<span style="color:#66d9ef">if</span> rawBigrams<span style="color:#f92672">.</span>ContainsKey pair <span style="color:#66d9ef">then</span> rawBigrams<span style="color:#f92672">.[</span>pair<span style="color:#f92672">]</span>
+			<span style="color:#66d9ef">else</span> 0<span style="color:#f92672">)</span>
+
+	title<span style="color:#f92672">,</span> bigramCountVector</code></pre></div>
+
+<p>Now we can find which bigrams are the most frequent in each book.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> filename <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C:/Temp/books/Dickens/pg46.txt&#34;</span>
+<span style="color:#66d9ef">let</span> title<span style="color:#f92672">,</span> data <span style="color:#f92672">=</span> bookBigrams filename
+
+<span style="color:#75715e">// most common bigrams
+</span><span style="color:#75715e"></span>Array.zip letterPairs data
+<span style="color:#f92672">|&gt;</span> Array.sortBy <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">-</span> snd x<span style="color:#f92672">)</span>
+<span style="color:#f92672">|&gt;</span> Seq.take 3</code></pre></div>
+
+<p>In &lsquo;A Christmas Carol&rsquo;, the most common bigram is &lsquo;th&rsquo; followed by &lsquo;he&rsquo;.
+It seems that the most frequent word in the book is &lsquo;the&rsquo;!</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">val</span> it <span style="color:#f92672">:</span> seq<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span> [] <span style="color:#f92672">*</span> int<span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span>
+seq <span style="color:#f92672">[([|</span><span style="color:#e6db74">&#39;t&#39;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#39;h&#39;</span><span style="color:#f92672">|],</span> 3650<span style="color:#f92672">);</span> <span style="color:#f92672">([|</span><span style="color:#e6db74">&#39;h&#39;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#39;e&#39;</span><span style="color:#f92672">|],</span> 3532<span style="color:#f92672">);</span> <span style="color:#f92672">([|</span><span style="color:#e6db74">&#39;i&#39;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#39;n&#39;</span><span style="color:#f92672">|],</span> 2155<span style="color:#f92672">)]</span></code></pre></div>
+
+<p>The following block of code processes all books in my little data set.
+Each book is located in a directory named after its author. To speed it up,
+I run this step in parallel using F# <code>PSeq</code>.
+Computing bigrams from all the books is still the most time-consuming step
+of the analysis. For this reason, I save the results into a <code>csv</code> file
+so that I don&rsquo;t have to re-run the computation often. You can find the
+resulting <code>csv</code> file in the source-code.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#f92672">#</span>r <span style="color:#e6db74">&#34;packages/FSharp.Collections.ParallelSeq/lib/net40/FSharp.Collections.ParallelSeq.dll&#34;</span>
+<span style="color:#66d9ef">open</span> FSharp.Collections.ParallelSeq
+
+<span style="color:#66d9ef">let</span> booksDir <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C:/Temp/books&#34;</span>
+<span style="color:#66d9ef">let</span> authorDirs <span style="color:#f92672">=</span> Directory.GetDirectories<span style="color:#f92672">(</span>booksDir<span style="color:#f92672">)</span>
+
+<span style="color:#75715e">// Compute bigram counts for all books
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> authorBigrams <span style="color:#f92672">=</span>
+	authorDirs
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> d <span style="color:#f92672">-&gt;</span> 
+		Directory.GetFiles<span style="color:#f92672">(</span>d<span style="color:#f92672">)</span>
+		<span style="color:#f92672">|&gt;</span> PSeq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> file <span style="color:#f92672">-&gt;</span> bookBigrams file<span style="color:#f92672">)</span>
+		<span style="color:#f92672">|&gt;</span> PSeq.toArray<span style="color:#f92672">)</span>
+
+<span style="color:#75715e">(*[omit:(Save computed results into a csv file.)]*)</span>
+<span style="color:#66d9ef">let</span> header <span style="color:#f92672">=</span> 
+	<span style="color:#e6db74">&#34;Author,Book,&#34;</span> 
+	<span style="color:#f92672">+</span> <span style="color:#f92672">(</span>letterPairs 
+		<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> cs <span style="color:#f92672">-&gt;</span> 
+			cs <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#66d9ef">string</span> <span style="color:#f92672">|&gt;</span> String.concat <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span> 
+		<span style="color:#f92672">|&gt;</span> String.concat <span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">)</span>
+
+<span style="color:#66d9ef">let</span> lines <span style="color:#f92672">=</span> 
+	Array.zip authorDirs authorBigrams
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>d<span style="color:#f92672">,</span> data<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span>
+		<span style="color:#66d9ef">let</span> author <span style="color:#f92672">=</span> Path.GetFileName<span style="color:#f92672">(</span>d<span style="color:#f92672">)</span>
+		data 
+		<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>b<span style="color:#f92672">,</span> xs<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span>
+			author <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;,&#34;</span> <span style="color:#f92672">+</span> b
+			<span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;,&#34;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">(</span>xs <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#66d9ef">string</span> <span style="color:#f92672">|&gt;</span> String.concat <span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">))</span>
+		<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> Array.concat
+
+<span style="color:#66d9ef">let</span> file <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C:/Temp/books/bigramValues.csv&#34;</span>
+File.WriteAllLines<span style="color:#f92672">(</span>file<span style="color:#f92672">,</span> Array.append <span style="color:#f92672">[|</span>header<span style="color:#f92672">|]</span> lines<span style="color:#f92672">)</span>
+<span style="color:#75715e">(*[/omit]*)</span></code></pre></div>
+
+<h2 id="data-preprocessing">Data preprocessing</h2>
+
+<p>Although now we have counts of bigrams in all the books, we are
+still not finished with the clean-up! There are many bigrams that
+are only rarely appearing in standard English text, such as &lsquo;qb&rsquo; or &lsquo;bg&rsquo;.
+These rare bigrams behave like noise in our data - they might come
+for example from some unusual name used just by one author etc.</p>
+
+<p><img src="bigramCounts.png" alt="Bigram counts" /></p>
+
+<p>The graph shows how many times each bigram appears in the books.
+We can safely discard many of the bigrams that are only rarely used.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// read csv file and extract data
+</span><span style="color:#75715e"></span><span style="color:#75715e">(*[omit:(Read csv file and extract data.)]*)</span>
+<span style="color:#f92672">#</span>r <span style="color:#e6db74">&#34;packages/MathNet.Numerics/lib/net40/MathNet.Numerics.dll&#34;</span>
+<span style="color:#f92672">#</span>r <span style="color:#e6db74">&#34;packages/MathNet.Numerics.FSharp/lib/net40/MathNet.Numerics.FSharp.dll&#34;</span>
+<span style="color:#f92672">#</span>load <span style="color:#e6db74">&#34;packages/FSharp.Charting.0.90.9/FSharp.Charting.fsx&#34;</span>
+
+<span style="color:#66d9ef">open</span> System
+<span style="color:#66d9ef">open</span> System.IO
+<span style="color:#66d9ef">open</span> FSharp.Charting
+
+<span style="color:#75715e">// Load the full dataset
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> dataFile <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C:/Temp/books/bigramValues.csv&#34;</span>
+
+<span style="color:#66d9ef">let</span> authors<span style="color:#f92672">,</span> titles<span style="color:#f92672">,</span> fullData <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">(</span>dataFile <span style="color:#f92672">|&gt;</span> File.ReadAllLines<span style="color:#f92672">).[</span>1<span style="color:#f92672">..]</span>
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> line <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#66d9ef">let</span> fullLine <span style="color:#f92672">=</span> line<span style="color:#f92672">.</span>Split <span style="color:#f92672">[|</span><span style="color:#e6db74">&#39;,&#39;</span><span style="color:#f92672">|]</span>
+		fullLine<span style="color:#f92672">.[</span>0<span style="color:#f92672">],</span> fullLine<span style="color:#f92672">.[</span>1<span style="color:#f92672">],</span> 
+		fullLine<span style="color:#f92672">.[</span>2<span style="color:#f92672">..]</span> <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> Double.Parse x<span style="color:#f92672">))</span>
+	<span style="color:#f92672">|&gt;</span> Array.unzip3
+<span style="color:#75715e">(*[/omit]*)</span>
+
+<span style="color:#75715e">// Sort bigrams by frequency
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> sortedBigrams <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">[|</span> <span style="color:#66d9ef">for</span> idx <span style="color:#66d9ef">in</span> 0<span style="color:#f92672">..</span>letterPairs<span style="color:#f92672">.</span>Length <span style="color:#f92672">-</span> 1 <span style="color:#f92672">-&gt;</span>
+		<span style="color:#66d9ef">let</span> sum <span style="color:#f92672">=</span> fullData <span style="color:#f92672">|&gt;</span> Array.sumBy <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> xs <span style="color:#f92672">-&gt;</span> xs<span style="color:#f92672">.[</span>idx<span style="color:#f92672">])</span>
+		idx<span style="color:#f92672">,</span> sum <span style="color:#f92672">|]</span>
+	<span style="color:#f92672">|&gt;</span> Array.sortBy <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>idx<span style="color:#f92672">,</span> sum<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">-</span>sum<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> Array.map fst
+
+<span style="color:#75715e">// How many bigrams to keep
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> bigramCount <span style="color:#f92672">=</span> 400
+<span style="color:#66d9ef">let</span> mostUsedBigrams <span style="color:#f92672">=</span> sortedBigrams<span style="color:#f92672">.[</span>0<span style="color:#f92672">..</span>bigramCount<span style="color:#f92672">-</span>1<span style="color:#f92672">]</span> <span style="color:#f92672">|&gt;</span> set
+
+<span style="color:#66d9ef">let</span> chooseBigrams bigramValues <span style="color:#f92672">=</span>
+	bigramValues 
+	<span style="color:#f92672">|&gt;</span> Array.mapi <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> i x <span style="color:#f92672">-&gt;</span> 
+		<span style="color:#66d9ef">if</span> mostUsedBigrams<span style="color:#f92672">.</span>Contains i <span style="color:#66d9ef">then</span> Some<span style="color:#f92672">(</span>x<span style="color:#f92672">)</span> <span style="color:#66d9ef">else</span> None<span style="color:#f92672">)</span> 
+	<span style="color:#f92672">|&gt;</span> Array.choose id    </code></pre></div>
+
+<p>Here I&rsquo;m keeping only the 400 most frequent bigrams. The last step in
+preprocessing the data is to normalize the total counts for each
+bigram to relative frequencies within each document.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// Normalize counts to relative frequencies
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> normalize <span style="color:#f92672">(</span>xs<span style="color:#f92672">:</span> <span style="color:#66d9ef">float</span>[]<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
+	<span style="color:#66d9ef">let</span> total <span style="color:#f92672">=</span> Array.sum xs
+	xs <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">/</span>total<span style="color:#f92672">)</span></code></pre></div>
+
+<p>Finally, the data are prepared for the mathematical analysis.
+The following piece of code turns the data into a matrix.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">open</span> MathNet.Numerics
+<span style="color:#66d9ef">open</span> MathNet.Numerics.LinearAlgebra
+<span style="color:#66d9ef">open</span> MathNet.Numerics.LinearAlgebra.Double		 
+
+<span style="color:#66d9ef">let</span> dataMatrix <span style="color:#f92672">=</span> 
+	fullData
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> xs <span style="color:#f92672">-&gt;</span> chooseBigrams xs<span style="color:#f92672">)</span>    
+	<span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> xs <span style="color:#f92672">-&gt;</span> normalize xs<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> DenseMatrix.ofColumnArrays	</code></pre></div>
+
+<h2 id="principal-component-analysis">Principal Component Analysis</h2>
+
+<p>Principal Component Analysis (PCA) is a mathematical method
+for data transformation. It is most commonly used
+for dimensionality reduction. Right now we have 400-dimensional
+dataset, i.e. separate dimension for each bigram. It is hard to
+visualise such data to get an overview of relations between individual
+books and authors. PCA gives us a method to project data onto
+a lower-dimensional hyperspace while preserving most differences.
+In the projection, data points that are far in the original data
+should stay distant from each other and vice versa.</p>
+
+<p>PCA can be mathematically derived as a projection into a lower-dimensional
+hyperspace which minimizes the sum of squared differences between
+the original data point and its low-dimensional projection. What it does
+in simple terms is that it finds directions of largest variance in
+the data.</p>
+
+<p><img src="pca_sample.png" alt="PCA illustration" /></p>
+
+<p>In the illustration above, the first principal component shows the
+direction of the largest variance in the data. The second principal component
+points to a direction of smaller variance.
+We can use principal component directions as a new coordinate system.
+For dimensionality reduction, we typically discard directions (dimensions) that account
+only for small variance in the data - these dimensions
+are not very informative (because they don&rsquo;t vary between data points),
+or account for noise in the data.</p>
+
+<p>Before the actual Principal Component Analysis, we have to
+center data such that their mean is at zero.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// Mean vector of the whole dataset
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> center <span style="color:#f92672">=</span> 
+	<span style="color:#66d9ef">let</span> n <span style="color:#f92672">=</span> dataMatrix<span style="color:#f92672">.</span>ColumnCount <span style="color:#f92672">|&gt;</span> <span style="color:#66d9ef">float</span>
+	dataMatrix<span style="color:#f92672">.</span>RowSums() <span style="color:#f92672">/</span> n
+
+<span style="color:#75715e">// Normalize data to zero mean
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> centeredMatrix <span style="color:#f92672">=</span> 
+	<span style="color:#66d9ef">let</span> sumMatrix <span style="color:#f92672">=</span> Array.init dataMatrix<span style="color:#f92672">.</span>ColumnCount <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">_</span> <span style="color:#f92672">-&gt;</span> center<span style="color:#f92672">)</span>
+						<span style="color:#f92672">|&gt;</span> DenseMatrix.OfColumnVectors
+	dataMatrix <span style="color:#f92672">-</span> sumMatrix</code></pre></div>
+
+<p>The standard algorithm for computing principal component
+analysis is very simple, principal components are eigenvectors
+of data covariance matrix. There is a function for eigenvalue decomposition
+in <code>Math.NET Numerics</code>, which makes it straightforward to compute
+in F#. First we need to calculate the covariance matrix
+of our centered data.</p>
+
+<p>$$
+S = \frac{1}{N-1} X X^T
+$$</p>
+
+<p>$X$ is the data matrix and $S$ is the resulting covariance.
+I will work with a scaled covariance matrix $ X X^T $ which has the
+same eigenvectors as the matrix $ S $.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// Compute covariance matrix
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> covarianceMatrix <span style="color:#f92672">=</span> centeredMatrix <span style="color:#f92672">*</span> centeredMatrix<span style="color:#f92672">.</span>Transpose()
+
+<span style="color:#75715e">// Eigenvalue decomposition
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> evd <span style="color:#f92672">=</span> covarianceMatrix<span style="color:#f92672">.</span>Evd()</code></pre></div>
+
+<p>In variable <code>evd</code> we now have an object returned by <code>Math.NET</code>
+which contains eigenvectors and eigenvalues of the covariance matrix.
+Directions of the largest variance are eigenvectors that correspond
+to largest eigenvalues. Since eigenvalues are ordered from smallest to
+the largest, we have to pick eigenvectors from the end of their
+matrix. The following function returns a matrix formed of
+$d$ most important eigenvectors.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> eigenvectors d <span style="color:#f92672">=</span> 
+	<span style="color:#66d9ef">let</span> m <span style="color:#f92672">=</span> evd<span style="color:#f92672">.</span>EigenVectors
+	m<span style="color:#f92672">.[</span>0<span style="color:#f92672">..</span>m<span style="color:#f92672">.</span>RowCount<span style="color:#f92672">-</span>1<span style="color:#f92672">,</span> m<span style="color:#f92672">.</span>ColumnCount<span style="color:#f92672">-</span>d<span style="color:#f92672">..</span>m<span style="color:#f92672">.</span>ColumnCount<span style="color:#f92672">-</span>1<span style="color:#f92672">]</span></code></pre></div>
+
+<p>With eigenvectors ready, we can compute projection of
+our data set onto a specified number of dimensions $d$.</p>
+
+<p>$$
+\tilde{X} = E_d^T \, X
+$$</p>
+
+<p>$\tilde{X}$ is an approximation of our original data matrix $X$ in $d$ dimensions
+and $E_d$ is the eigenvector matrix formed of $d$ most important eigenvectors.
+The following function takes number of dimensions as an
+input and returns projection of the data into the specified number
+of dimensions.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> projection d <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>eigenvectors d<span style="color:#f92672">).</span>Transpose() <span style="color:#f92672">*</span> centeredMatrix</code></pre></div>
+
+<h2 id="similarity-of-classic-works-of-literature">Similarity of classic works of literature</h2>
+
+<p>Finally we can look at the classic books and how do they compare
+in terms of language that they use. The plot below shows a projection
+onto two most significant principal components.</p>
+
+<p><a href="author_pca(big).png"><img src="author_pca.png"></a></p>
+
+<p>The resulting image is quite interesting: H. G. Wells and Rudyard Kipling
+are well separated from the others. This might be the result of
+using foreign and exotic names in their books. On the other hand,
+Arthur Conan Doyle
+seems to be all over the place - perhaps Sherlock Holmes investigated
+cases in many different environments.
+Another interesting thing is that women authors, Jane Austen and
+the Bronte sisters are all grouped together in the bottom half of the plot.</p>
+
+<p>Note that this visualisation is very simplifying - it summarizes
+400-dimensional vectors into just two dimensions. Still, it seems
+to reveal some interesting regularities in our data.</p>
+
+<h2 id="so-who-wrote-a-christmas-carol">So who wrote &lsquo;A Christmas Carol&rsquo;?</h2>
+
+<p>Let&rsquo;s turn to the key question of this blog post - was it indeed Charles
+Dickens who wrote the book <code>A Christmas Carol</code>? For this, I will
+use a simple classification algorithm, k nearest neighbours. The algorithm
+itself is very simple: it computes distances of our data point of interest
+(the book) to all other data points (other books). Then it selects $k$
+nearest items. The author of the Christmas Carol book will be the author who wrote most
+of the books that are closests.</p>
+
+<p>This classification algorithm works very well when combined with PCA.
+In its standard form, k nearest neighbours suffers from the so-called
+<a href="http://en.wikipedia.org/wiki/Curse_of_dimensionality#Nearest_neighbor_search">curse of dimensionality</a>.
+When computing distances in very high-dimensional spaces, the result
+is highly sensitive to noise and irrelevant dimensions. By preprocessing
+data with PCA and projecting it into a lower-dimensional space,
+k nearest neighbours turns into a much more robust algorithm.</p>
+
+<p>For our analysis of &lsquo;A Christmas Carol&rsquo;, I projected the books&rsquo; bigram
+frequencies into 20 dimensions. This captures more information about
+the data than the 2D visualisation.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> projectedData <span style="color:#f92672">=</span> projection 20
+<span style="color:#66d9ef">let</span> christmasCarol <span style="color:#f92672">=</span> projectedData<span style="color:#f92672">.</span>Column<span style="color:#f92672">(</span>christmasCarolIdx<span style="color:#f92672">)</span></code></pre></div>
+
+<p>To &ldquo;identify&rdquo; the author, I will look at only three nearest neighbours
+based on Euclidean distance:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> kNearest k <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">[|</span> <span style="color:#66d9ef">for</span> idx<span style="color:#f92672">,</span> v <span style="color:#66d9ef">in</span> projectedData<span style="color:#f92672">.</span>EnumerateColumnsIndexed() <span style="color:#66d9ef">do</span>
+		<span style="color:#66d9ef">if</span> idx <span style="color:#f92672">&lt;&gt;</span> christmasCarolIdx <span style="color:#66d9ef">then</span>
+			<span style="color:#66d9ef">let</span> distance <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>v <span style="color:#f92672">-</span> christmasCarol<span style="color:#f92672">)*(</span>v <span style="color:#f92672">-</span> christmasCarol<span style="color:#f92672">)</span>
+			<span style="color:#66d9ef">yield</span> titles<span style="color:#f92672">.[</span>idx<span style="color:#f92672">],</span> distance <span style="color:#f92672">|]</span>
+	<span style="color:#f92672">|&gt;</span> Seq.sortBy snd
+	<span style="color:#f92672">|&gt;</span> Seq.take k
+	<span style="color:#f92672">|&gt;</span> Array.ofSeq
+
+kNearest 3</code></pre></div>
+
+<p>What is the conclusion?</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">val</span> it <span style="color:#f92672">:</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">string</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">float</span><span style="color:#f92672">)</span> [] <span style="color:#f92672">=</span>
+	<span style="color:#f92672">[|(</span><span style="color:#e6db74">&#34;Oliver Twist&#34;</span><span style="color:#f92672">,</span> 0<span style="color:#f92672">.</span>0001679233456<span style="color:#f92672">);</span>
+	<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;A Tale of Two Cities&#34;</span><span style="color:#f92672">,</span> 0<span style="color:#f92672">.</span>0001827125101<span style="color:#f92672">);</span>
+	<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;The Sign of the Four&#34;</span><span style="color:#f92672">,</span> 0<span style="color:#f92672">.</span>0002067513054<span style="color:#f92672">)|]</span></code></pre></div>
+
+<p>Well, it seems it must have been Charles Dickens after all! Two out of three
+closest books were written by him.
+This shows that our simple PCA analysis on bigrams
+was able to capture some characteristics of language used by different
+authors.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>In this Christmas themed blog post, I went through the task of
+identifying author of a book based on features of language he used
+in his work. Although this is a simple toy problem, the general principles
+apply to other problems as well.
+Principal component analysis is an incredibly useful tool for visualisation
+of complex high-dimensional data. Together with k nearest neighbours
+algorithm it can be used for easy exploration for supervised
+learning problems. And it might even help you in fairy tales!</p>
+
+<p><a href="http://xkcd.com/872/"><img src="fairy_tales.png"></a></p>
+
+<p><a href="http://xkcd.com/872/">Source: xkcd.com</a></p>
+
+<p>Happy holidays!</p>
+
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/">
+            <span class="icon is-small"><i class="fa fa-chevron-left"></i></span>
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              F# tackles James Bond
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              F# tackles James Bond
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              F# tackles James Bond
+            </span>
+            <span class="is-hidden-tablet">
+              F# tackles James Bond
+            </span>
+            
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2014/09-15-introducing-ariadne/">
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Introducing Ariadne: F# library for Gaussian processes
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Introducing Ariadne: F# library for Gaussian processes
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Introducing Ariadne: F# library for Gaussian...
+            </span>
+            <span class="is-hidden-tablet">
+              Introducing Ariadne: F# library for...
+            </span>
+            
+            <span class="icon is-small"><i class="fa fa-chevron-right"></i></span>
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f12-15-christmas-carol-and-other-eigenvectors%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f12-15-christmas-carol-and-other-eigenvectors%2f&text=Christmas%20Carol%20and%20other%20eigenvectors&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f12-15-christmas-carol-and-other-eigenvectors%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f12-15-christmas-carol-and-other-eigenvectors%2f&title=Christmas%20Carol%20and%20other%20eigenvectors">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f12-15-christmas-carol-and-other-eigenvectors%2f&title=Christmas%20Carol%20and%20other%20eigenvectors">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

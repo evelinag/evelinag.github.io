@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://evelinag.com/blog/2017/06-20-stackoverflow-tabs-spaces-and-salary/</loc>
+    <lastmod>2017-06-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2016/01-25-social-network-force-awakens/</loc>
+    <lastmod>2016-01-25T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2015/12-15-star-wars-social-network/</loc>
+    <lastmod>2015-12-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/</loc>
+    <lastmod>2015-12-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/</loc>
+    <lastmod>2015-11-18T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/</loc>
+    <lastmod>2014-12-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2014/09-15-introducing-ariadne/</loc>
+    <lastmod>2014-09-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/</loc>
+    <lastmod>2014-06-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter/</loc>
+    <lastmod>2014-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/sidenav/</loc>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/about/</loc>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/blog/</loc>
+    <lastmod>2017-06-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/</loc>
+    <lastmod>2017-06-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/speaking/</loc>
+  </url>
+  
+  <url>
+    <loc>http://evelinag.com/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

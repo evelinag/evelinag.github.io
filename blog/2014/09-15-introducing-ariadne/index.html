@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>Introducing Ariadne: F# library for Gaussian processes</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="Gaussian processes are probabilistic models for random functions. Ariadne package implements basic Gaussian processes for supervised nonlinear regression."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="Introducing Ariadne: F# library for Gaussian processes"/>
+  <meta itemprop="description"
+        content="Gaussian processes are probabilistic models for random functions. Ariadne package implements basic Gaussian processes for supervised nonlinear regression."/>
+  <meta itemprop="image"
+        content="gp.png"/>
+
+  
+  <meta property="og:title" content="Introducing Ariadne: F# library for Gaussian processes"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2014/09-15-introducing-ariadne/"/>
+  <meta property="og:image"
+        content="gp.png"/>
+  <meta property="og:description"
+        content="Gaussian processes are probabilistic models for random functions. Ariadne package implements basic Gaussian processes for supervised nonlinear regression."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2014-09-15T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="Introducing Ariadne: F# library for Gaussian processes"/>
+  <meta name="twitter:description"
+        content="Gaussian processes are probabilistic models for random functions. Ariadne package implements basic Gaussian processes for supervised nonlinear regression."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="gp.png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">Introducing Ariadne: F# library for Gaussian processes</p>
+        <p class="subtitle">15 September 2014</p>
+
+        
+
+        
+        <div class="content">
+          
+
+<p>For my academic research, I recently wrote a library in F# for
+fitting basic Gaussian process
+regression that I used to model time-series gene expression data.
+I am releasing the code publicly as an
+<a href="http://evelinag.com/Ariadne">Ariadne package</a>.
+In its current state, you can use the library to model various time-series
+data.</p>
+
+<!-- more -->
+
+<p><img src="gp.png" alt="Gaussian process regression" /></p>
+
+<p>Gaussian processes are probabilistic models for random functions.
+<a href="http://evelinag.com/Ariadne">Ariadne package</a>
+implements basic Gaussian processes for supervised nonlinear regression.</p>
+
+<p>In general, Gaussian processes are used to model functions $ f : X \rightarrow Y$
+when we have noisy observations of function values $y_i$ at locations $x_i$</p>
+
+<p>$$
+(x_1, y_1), \dots, (x_n, y_n),
+$$
+$$y_i
+= f(x_i) + \epsilon_i, \text{ where } \epsilon_i \sim \mathcal{N}(0, \sigma^{2})
+$$</p>
+
+<p>I will not go into theoretical explanations about Gaussian processes, there
+are other sources for <a href="http://www.gaussianprocess.org/gpml/">that</a>. Instead,
+I will introduce an example of Gaussian processes in action.
+In the rest of this blog post, I use Ariadne to model weather data.</p>
+
+<h2 id="example-modelling-temperature-measurements">Example: modelling temperature measurements</h2>
+
+<p>Let&rsquo;s say I want to know how the weather was over the last couple of weeks in Cambridge (UK).
+Of course, I can download historical data from the <a href="http://openweathermap.org/">Open Weather Map</a>
+and analyze them. But what if I do not trust the summary data they provide
+for specific cities? I want to go to the source and download actual data measured at individual weather
+stations. If I download historical data from several different locations
+around Cambridge, I should be able to integrate the data together.</p>
+
+<p>Here, I will show a few code snippets, you can find the complete script with
+commentary <a href="http://evelinag.com/data/2014/journal-ariadne/WeatherData.html">here</a>.</p>
+
+<p>I downloaded temperatures (in Celsius) from 5 weather stations that all lie approximately
+within 15 mile radius from the centre
+of Cambridge. The data show average temperature for every day over the past month.
+This is how they look:</p>
+
+<p><img src="temperatures.png" alt="temperature in Cambridge" /></p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#f92672">&gt;</span> data<span style="color:#f92672">;;</span>
+<span style="color:#66d9ef">val</span> it <span style="color:#f92672">:</span> Observation<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">float</span><span style="color:#f92672">&gt;</span> [] <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">[|{</span>Locations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>3<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 4<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 5<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 6<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 7<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 8<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 9<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 10<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 11<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			16<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 21<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 22<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 23<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 24<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 25<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 26<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 27<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			28<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 29<span style="color:#f92672">.</span>0<span style="color:#f92672">|];</span>
+		Observations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>13<span style="color:#f92672">.</span>23<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>98<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>23<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>9<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>14<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>42<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>23<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>58<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>94<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>09<span style="color:#f92672">;</span>
+			18<span style="color:#f92672">.</span>08<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>7<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>12<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>49<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>18<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>53<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>22<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>53<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>1<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>86<span style="color:#f92672">;</span>
+			19<span style="color:#f92672">.</span>09<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>13<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>09<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>59<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>87<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>37<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>74<span style="color:#f92672">|];};</span>
+	<span style="color:#f92672">{</span>Locations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>0<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 1<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 2<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 3<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 4<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 5<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 6<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 7<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 8<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 9<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 10<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 11<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			13<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 21<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 22<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 23<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 24<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			25<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 26<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 27<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 28<span style="color:#f92672">.</span>0<span style="color:#f92672">|];</span>
+		Observations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>16<span style="color:#f92672">.</span>74<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>4<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>63<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>58<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>18<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>05<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>62<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>19<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>62<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>8<span style="color:#f92672">;</span>
+			16<span style="color:#f92672">.</span>5<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>61<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>77<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>49<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>68<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>17<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>88<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>07<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>07<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>51<span style="color:#f92672">;</span>
+			17<span style="color:#f92672">.</span>61<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>57<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>41<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>97<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>98<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>05<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>93<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>56<span style="color:#f92672">|];};</span>
+	<span style="color:#f92672">{</span>Locations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>3<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 4<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 5<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 6<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 7<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 8<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 9<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 10<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 11<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			16<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 21<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 22<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 23<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 24<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 25<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 26<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 27<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			28<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 29<span style="color:#f92672">.</span>0<span style="color:#f92672">|];</span>
+		Observations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>15<span style="color:#f92672">.</span>32<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>23<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>57<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>1<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>16<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>81<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>24<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>03<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>2<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>76<span style="color:#f92672">;</span>
+			16<span style="color:#f92672">.</span>58<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>6<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>28<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>75<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>08<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>88<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>08<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>64<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>18<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>99<span style="color:#f92672">;</span>
+			15<span style="color:#f92672">.</span>17<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>95<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>53<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>56<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>96<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>38<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>07<span style="color:#f92672">|];};</span>
+	<span style="color:#f92672">{</span>Locations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>1<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 2<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 3<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 4<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 5<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 9<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 10<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 24<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			25<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 26<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 27<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 28<span style="color:#f92672">.</span>0<span style="color:#f92672">|];</span>
+		Observations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>16<span style="color:#f92672">.</span>14<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>71<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>59<span style="color:#f92672">;</span> 11<span style="color:#f92672">.</span>76<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>73<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>57<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>7<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>87<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>83<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>16<span style="color:#f92672">;</span>
+			18<span style="color:#f92672">.</span>56<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>9<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>03<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>18<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>15<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>43<span style="color:#f92672">|];};</span>
+	<span style="color:#f92672">{</span>Locations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>0<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 1<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 2<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 3<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 4<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 5<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 9<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 10<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 11<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 12<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 13<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 14<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			16<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 21<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 22<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 23<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 24<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 25<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 26<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 27<span style="color:#f92672">.</span>0<span style="color:#f92672">|];</span>
+		Observations <span style="color:#f92672">=</span>
+		<span style="color:#f92672">[|</span>14<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>53<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>45<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>09<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>97<span style="color:#f92672">;</span> 15<span style="color:#f92672">.</span>73<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>54<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>41<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>03<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>51<span style="color:#f92672">;</span>
+			18<span style="color:#f92672">.</span>16<span style="color:#f92672">;</span> 20<span style="color:#f92672">.</span>58<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>46<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>57<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>84<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>94<span style="color:#f92672">;</span> 17<span style="color:#f92672">.</span>53<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>31<span style="color:#f92672">;</span> 19<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span>
+			18<span style="color:#f92672">.</span>39<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>81<span style="color:#f92672">;</span> 16<span style="color:#f92672">.</span>0<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>14<span style="color:#f92672">;</span> 18<span style="color:#f92672">.</span>24<span style="color:#f92672">|];}</span> <span style="color:#f92672">|]</span></code></pre></div>
+
+<p>The locations are in days from the beginning of my observations, different markers
+correspond to individual weather stations.
+Notice that the data are quite noisy. Also, we have different number of observations in
+different days. Sometimes there are 5 observations, sometimes only 2, sometimes there are
+outliers. Gaussian processes are a great tool to model this form of data because they take
+all the noise and uncertainty into account.</p>
+
+<p>Now we can construct a model for the observed data -
+ a Gaussian process with squared exponential covariance function. The covariance
+ function (also called kernel) specifies a form of function that we are modelling.
+Squared exponential kernel generally characterizes very smooth functions.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#f92672">#</span>r <span style="color:#e6db74">&#34;Ariadne.dll&#34;</span>
+<span style="color:#66d9ef">open</span> Ariadne.GaussianProcess
+<span style="color:#66d9ef">open</span> Ariadne.Kernels
+
+<span style="color:#75715e">// Covariance hyperparameters
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> lengthscale <span style="color:#f92672">=</span> 1<span style="color:#f92672">.</span>0
+<span style="color:#66d9ef">let</span> signalVariance <span style="color:#f92672">=</span> 20<span style="color:#f92672">.</span>0
+<span style="color:#66d9ef">let</span> noiseVariance <span style="color:#f92672">=</span> 1<span style="color:#f92672">.</span>0
+
+<span style="color:#75715e">// Covariance function
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> sqExp <span style="color:#f92672">=</span> SquaredExp.SquaredExp<span style="color:#f92672">(</span>lengthscale<span style="color:#f92672">,</span> signalVariance<span style="color:#f92672">,</span> noiseVariance<span style="color:#f92672">)</span></code></pre></div>
+
+<p>I initially guessed some values for hyperparameters of the squared exponential covariance function.
+The first hyperparameter is the lengthscale. Its value regulates how quickly the function
+values change, how wide squiggles we expect to see in the function. Lengthscale of 1
+assumes that the temperature changes quite quickly from day to day.</p>
+
+<p>The second parameter is the signal variance which regulates how far does the function
+go from its prior mean. Since the prior mean function of our Gaussian process is zero
+and I am being lazy by leaving the data on their original temperature scale, I have to set quite a
+large variance. The last parameter is the noise variance which models the amount of
+noise present in the observed data.
+You can find more details on interpretation
+of each hyperparameter in the <a href="http://evelinag.com/Ariadne/covarianceFunctions.html">documentation</a>.</p>
+
+<p>With hyperparameters prepared, we can finally fit the Gaussian process regression model.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> gp <span style="color:#f92672">=</span> sqExp<span style="color:#f92672">.</span>GaussianProcess()
+gp <span style="color:#f92672">|&gt;</span> plot data</code></pre></div>
+
+<p><img src="gp1.png" alt="gp1" /></p>
+
+<p>The graph shows the mean estimated temperature as a blue line. The grey region
+corresponds to a 95% confidence interval. The fit is not very bad, the confidence
+interval includes most of the observed data and the mean captures the general trend.
+You can see that the function goes to zero rapidly outside of the observed region.
+This is because the Gaussian process prediction reverts to the prior mean value
+when there are no observations. Note that the confidence interval is also getting much
+wider in that area. Generally we can reliably extrapolate only about
+one lengthscale outside of the data regions.</p>
+
+<h2 id="optimizing-hyperparameters">Optimizing hyperparameters</h2>
+
+<p>Guessing values hyperparameters is not a very reliable method of fitting a model. Ariadne
+provides two basic methods for <a href="http://evelinag.com/Ariadne/optimization.html">optimizing hyperparameters</a>:</p>
+
+<ul>
+<li>Metropolis-Hastings posterior sampling</li>
+<li>simple gradient descent</li>
+</ul>
+
+<p>Both methods are optimizing the log likelihood of hyperparameters given
+observed data.
+The first method, Metropolis-Hastings, is a probabilistic method which gives us
+the mean estimate of the posterior distribution of hyperparameters, given observations and our
+prior beliefs about hyperparameter values. This is a proper Bayesian method
+for optimizing hyperparameters.</p>
+
+<p>First we need to set prior distributions for each hyperparameter. Here I am using
+a Log-normal prior because all hyperparamters have to be larger than zero. The prior
+distributions are centred around my initial guessed values.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> rnd <span style="color:#f92672">=</span> System.Random<span style="color:#f92672">(</span>0<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> lengthscalePrior <span style="color:#f92672">=</span> Distributions.LogNormal.WithMeanVariance<span style="color:#f92672">(</span>1<span style="color:#f92672">.</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">.</span>0<span style="color:#f92672">,</span> rnd<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> variancePrior <span style="color:#f92672">=</span> Distributions.LogNormal.WithMeanVariance<span style="color:#f92672">(</span>20<span style="color:#f92672">.</span>0<span style="color:#f92672">,</span> 5<span style="color:#f92672">.</span>0<span style="color:#f92672">,</span> rnd<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> noisePrior <span style="color:#f92672">=</span> Distributions.LogNormal.WithMeanVariance<span style="color:#f92672">(</span>0<span style="color:#f92672">.</span>5<span style="color:#f92672">,</span> 1<span style="color:#f92672">.</span>0<span style="color:#f92672">,</span> rnd<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> prior <span style="color:#f92672">=</span> SquaredExp.Prior<span style="color:#f92672">(</span>lengthscalePrior<span style="color:#f92672">,</span> variancePrior<span style="color:#f92672">,</span> noisePrior<span style="color:#f92672">)</span></code></pre></div>
+
+<p>Now we set parameters of the Metropolis-Hastings sampler.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">open</span> Ariadne.Optimization.MetropolisHastings
+<span style="color:#66d9ef">let</span> settings <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">{</span> Burnin <span style="color:#f92672">=</span> 500		 <span style="color:#75715e">// Number of burn-in iterations
+</span><span style="color:#75715e"></span>		Lag <span style="color:#f92672">=</span> 5            <span style="color:#75715e">// Thinning of posterior samples
+</span><span style="color:#75715e"></span>		SampleSize <span style="color:#f92672">=</span> 100 <span style="color:#f92672">}</span> <span style="color:#f92672">//</span> Number <span style="color:#66d9ef">of</span> thinned posterior samples</code></pre></div>
+
+<p>And finally we can run the sampler and create a Gaussian process with the
+optimized covariance function (kernel).</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> kernelMH <span style="color:#f92672">=</span> SquaredExp.optimizeMetropolis data settings prior sqExp
+<span style="color:#66d9ef">let</span> gpMH <span style="color:#f92672">=</span> kernelMH<span style="color:#f92672">.</span>GaussianProcess()
+
+<span style="color:#75715e">// Compare log likelihoods
+</span><span style="color:#75715e"></span>printfn <span style="color:#e6db74">&#34;Original Gaussian process likelihood: %f&#34;</span> <span style="color:#f92672">(</span>gp<span style="color:#f92672">.</span>LogLikelihood data<span style="color:#f92672">)</span>
+printfn <span style="color:#e6db74">&#34;MH Gaussian process likelihood: %f&#34;</span> <span style="color:#f92672">(</span>gpMH<span style="color:#f92672">.</span>LogLikelihood data<span style="color:#f92672">)</span></code></pre></div>
+
+<p><img src="gp-mh.png" alt="Gaussian process after MH sampling" /></p>
+
+<pre><code>Original Gaussian process likelihood: -333.369341
+MH Gaussian process likelihood: -246.435036
+</code></pre>
+
+<p>Log likelihood of the new Gaussian process increased quite significantly, which means
+that the optimized Gaussian process provides a much better fit to the observed training
+data than the original one.</p>
+
+<p>Another method to select values of hyperparameters is to use some
+algorithm for standard nonlinear optimization.
+Ariadne currently implements only basic gradient descent algorithm. This method uses
+derivatives of the log likelihood function to find a local optimum.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> gdSettings <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">{</span> GradientDescent.Iterations <span style="color:#f92672">=</span> 1000<span style="color:#f92672">;</span> 
+		GradientDescent.StepSize <span style="color:#f92672">=</span> 0<span style="color:#f92672">.</span>1<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">let</span> gradientFunction parameters <span style="color:#f92672">=</span> SquaredExp.fullGradient data parameters
+
+<span style="color:#66d9ef">let</span> kernelGD <span style="color:#f92672">=</span> 
+	gradientDescent gradientFunction gdSettings <span style="color:#f92672">(</span>sqExp<span style="color:#f92672">.</span>Parameters<span style="color:#f92672">)</span>
+	<span style="color:#f92672">|&gt;</span> SquaredExp.ofParameters
+
+<span style="color:#66d9ef">let</span> gpGD <span style="color:#f92672">=</span> kernelGD<span style="color:#f92672">.</span>GaussianProcess()
+printfn <span style="color:#e6db74">&#34;Original Gaussian process likelihood: %f&#34;</span> <span style="color:#f92672">(</span>gp<span style="color:#f92672">.</span>LogLikelihood data<span style="color:#f92672">)</span>
+printfn <span style="color:#e6db74">&#34;GD Gaussian process likelihood: %f&#34;</span> <span style="color:#f92672">(</span>gpGD<span style="color:#f92672">.</span>LogLikelihood data<span style="color:#f92672">)</span></code></pre></div>
+
+<p><img src="gp-gd.png" alt="Gaussian process after GD" /></p>
+
+<pre><code>Original Gaussian process likelihood: -333.369341
+GD Gaussian process likelihood: -241.782424
+</code></pre>
+
+<p>Gradient descent found different optimum than Metropolis-Hastings. The fit seems to capture
+mainly the overall trend in the temperatures over the whole month.</p>
+
+<p>The two methods generally yield different resulting models.
+Metropolis-Hastings takes into account our prior beliefs about hyperparameter values
+and it also samples from the true posterior. On the other hand, gradient descent
+finds only a single local maximum of the nonlinear log likelihood function.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>It seems that conclusion of this little temperature analysis
+is that beginning of September was generally quite warm in Cambridge but
+the temperatures are probably slowly beginning to drop.
+This does not sound very surprising! However, we did it by summarizing noisy
+data with missing values, coming from five different weather stations. By using
+Gaussian processes, we also directly get error bars for our regression estimates.</p>
+
+<p>This blog post includes only snippets of the whole data analysis. You can find
+the complete F# script in
+<a href="http://evelinag.com/data/2014/journal-ariadne/WeatherData.html">this FsLab Journal</a>.
+More information on how to use Ariadne, such as how to compute predictions for
+unobserved data, are available on the <a href="http://evelinag.com/Ariadne">project website</a>.
+The library is in a very early stage and I will be happy for any feedback or suggestions.</p>
+
+<h2 id="links">Links</h2>
+
+<ul>
+<li><p><a href="http://evelinag.com/Ariadne">Ariadne project</a> website with documentation.</p></li>
+
+<li><p>Library source code on <a href="https://github.com/evelinag/Ariadne">GitHub</a>.</p></li>
+</ul>
+
+<p>You can download the source code for weather analysis from
+  <a href="https://github.com/evelinag/Projects/tree/master/WeatherData">GitHub</a>.</p>
+
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/">
+            <span class="icon is-small"><i class="fa fa-chevron-left"></i></span>
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Christmas Carol and other eigenvectors
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Christmas Carol and other eigenvectors
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Christmas Carol and other eigenvectors
+            </span>
+            <span class="is-hidden-tablet">
+              Christmas Carol and other eigenvectors
+            </span>
+            
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/">
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              Comparing F# and C# with dependency networks
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              Comparing F# and C# with dependency networks
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              Comparing F# and C# with dependency networks
+            </span>
+            <span class="is-hidden-tablet">
+              Comparing F# and C# with dependency...
+            </span>
+            
+            <span class="icon is-small"><i class="fa fa-chevron-right"></i></span>
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f09-15-introducing-ariadne%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f09-15-introducing-ariadne%2f&text=Introducing%20Ariadne%3a%20F%23%20library%20for%20Gaussian%20processes&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f09-15-introducing-ariadne%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f09-15-introducing-ariadne%2f&title=Introducing%20Ariadne%3a%20F%23%20library%20for%20Gaussian%20processes">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2014%2f09-15-introducing-ariadne%2f&title=Introducing%20Ariadne%3a%20F%23%20library%20for%20Gaussian%20processes">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

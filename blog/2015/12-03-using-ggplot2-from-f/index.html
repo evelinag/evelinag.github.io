@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)</title>
+  <meta name="author" content="" />
+  <meta name="description"
+        content="ggplot2 is a great R visualization library, here I show how to use it from F#."/>
+
+
+  <meta name="generator" content="Hugo 0.52" />
+
+  
+  <meta itemprop="name" content="Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)"/>
+  <meta itemprop="description"
+        content="ggplot2 is a great R visualization library, here I show how to use it from F#."/>
+  <meta itemprop="image"
+        content="ggplot-sample.png"/>
+
+  
+  <meta property="og:title" content="Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)"/>
+  <meta property="og:type"
+        content="article"/>
+  <meta property="og:url" content="http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/"/>
+  <meta property="og:image"
+        content="ggplot-sample.png"/>
+  <meta property="og:description"
+        content="ggplot2 is a great R visualization library, here I show how to use it from F#."/>
+  <meta property="og:site_name" content="Evelina Gabasova&#39;s Blog"/>
+  <meta property="article:published_time"
+        content="2015-12-03T00:00:00&#43;00:00"/>
+  <meta property="article:section" content="blog"/>
+
+  
+  
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:site"
+        content="@evelgab"/>
+  <meta name="twitter:title" content="Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)"/>
+  <meta name="twitter:description"
+        content="ggplot2 is a great R visualization library, here I show how to use it from F#."/>
+  <meta name="twitter:creator"
+        content="@evelgab"/>
+  <meta name="twitter:image:src"
+        content="ggplot-sample.png"/>
+
+  
+
+  
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/evelinag.min.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/stylesheet.css"/>
+  <link rel="stylesheet" type="text/css" href="http://evelinag.com/css/syntax.css"/>
+  
+  
+
+  
+
+
+  <link rel="apple-touch-icon" sizes="120x120" href="http://evelinag.com/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="http://evelinag.com/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="http://evelinag.com/favicon-16x16.png">
+  <link rel="manifest" href="http://evelinag.com/site.webmanifest">
+  <link rel="mask-icon" href="http://evelinag.com/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+    
+</head>
+
+
+  <body style="min-height:100vh;display:flex;flex-direction:column">
+
+    <nav class="navbar is-white"
+     role="navigation" aria-label="main navigation">
+  <div class="container">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="http://evelinag.com/">
+        
+        <div class="title logonavbar is-4 has-text-black">Evelina Gabasova <span class="logo">blog</span></div>
+      </a>
+
+      
+      <label class="button navbar-burger is-white" for="navbar-burger-state">
+        <span></span>                               
+        <span></span>
+        <span></span>
+      </label>
+    </div>
+
+    
+    <input type="checkbox" id="navbar-burger-state"/>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+      <a href="http://evelinag.com/about/"
+         class="navbar-item
+                ">About
+      </a>
+      <a href="http://evelinag.com/blog/"
+         class="navbar-item
+                is-active">Blog
+      </a>
+      <a href="http://evelinag.com/speaking/"
+         class="navbar-item
+                ">Speaking
+      </a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<hr style="margin: 0;"/>
+
+    <section class="section" style="flex:1">
+
+      
+      <div class="column is-6 is-offset-3">
+        <p class="title is-size-2 is-family-secondary has-text-primary">Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)</p>
+        <p class="subtitle">3 December 2015</p>
+
+        
+
+        
+        <div class="content">
+          
+
+<p>In my previous <a href="http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/index.html">blog post</a>
+I visualized data on James Bond films both with Google Charts and with ggplot2.
+Because I skipped the code relating to ggplot2, here I&rsquo;d like to
+look in detail at how to use ggplot2 from F#.</p>
+
+<p>Currently
+<a href="http://ggplot2.org/">ggplot2</a> is my go-to visualization library (unless
+I need to embed a plot - check out the James Bond bubble chart!).
+Here I summarize some of my experiences with using ggplot2 from F# through the RProvider.
+I also put together
+a <a href="(https://github.com/evelinag/ffplot)">simple wrapper</a> around the most common
+ggplot2 functions to simplify the usage.</p>
+
+<!-- more -->
+
+<figure class="image container is-fluid">
+<img style="max-width:500px" alt="ggplot2 bar plot" src="ggplot-sample.png" />
+</figure>
+
+<p><a href="http://ggplot2.org/">Ggplot2</a> is a plotting library developed for
+the <a href="https://www.r-project.org/">R</a> environment.
+The library uses a compositional approach to plots where the
+result is composed of graphical elements, each adding a specific data or visualization
+layer. This may sound complicated - but for simple cases
+ggplot2 has easy to use functions with sensible defaults.
+For more complex layered plots, it allows customizing almost every aspect.
+The flexibility of ggplot2 is great
+but what makes it truly usable is that it comes with a good
+<a href="http://docs.ggplot2.org/current/">documentation</a>.</p>
+
+<p>As an example of some more complex and customized plots that I created using ggplot2 recently,
+below are two plots I used in my PhD thesis.</p>
+
+<div class="columns">
+<div class="column is-4">
+
+<img alt="ggplot2 example 1" src="ari-plot.png" />
+
+</div>
+<div class="column is-8">
+
+<img alt="ggplot2 example 2" src="density-plot.png" />
+
+</div>
+</div>
+
+<p>In F#, in principle we can call any R function through the
+<a href="http://bluemountaincapital.github.io/FSharpRProvider/">RProvider</a>.
+Unfortunately, using ggplot2 with RProvider can be rather verbose and cumbersome.
+I&rsquo;ll illustrate
+some of the issues in the next section and then I&rsquo;ll introduce the F# wrapper,
+<a href="https://github.com/evelinag/ffplot">ffplot</a>.</p>
+
+<h2 id="using-ggplot2-directly">Using ggplot2 directly</h2>
+
+<p>Inside R, creating a simple plot is relatively straightforward. In the code sample
+below I first open the necessary packages. Then I load an example
+dataset - the <code>mtcars</code> data frame which describes several properties of 32 cars tested
+in the 70&rsquo;s by the <em>Motor Trend</em> magazine.
+After loading the data, I initialize the ggplot with the dataset and define
+a so-called aesthetic mapping in the <code>aes</code> function.
+The mapping relates the data to visual
+elements or properties: in this case the x axis is defined
+by the <code>disp</code> column of the <code>mtc</code> data frame, and the y axis is defined by the <code>drat</code> column.
+Then I choose an appropriate visualization method, in this case it&rsquo;s <code>geom_point</code> that creates
+a scatter plot combining the data frame with the aesthetic mapping.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R"><span style="color:#f92672">library</span>(ggplot2)
+<span style="color:#f92672">library</span>(datasets)
+mtc <span style="color:#f92672">=</span> mtcars
+ggplot(mtc, aes(x<span style="color:#f92672">=</span>disp, y<span style="color:#f92672">=</span>drat)) <span style="color:#f92672">+</span> 
+	geom_point()</code></pre></div>
+
+<p><img src="ggplot-simple-example.png" alt="Simple ggplot2 example" /></p>
+
+<p>Moving into F#, we can call ggplot2 directly like any other R function.
+Like in R, here I also first open the neccessary libraries and
+then load the <code>mtcars</code> dataset. Here I transform the <code>mtcars</code> values into a
+<a href="http://bluemountaincapital.github.io/Deedle/">Deedle</a> data frame, which is a
+direct equivalent of the R data frame:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#75715e">// load general environment
+</span><span style="color:#75715e"></span><span style="color:#f92672">#</span>load <span style="color:#e6db74">&#34;packages/FsLab/FsLab.fsx&#34;</span>
+<span style="color:#66d9ef">open</span> RProvider
+<span style="color:#66d9ef">open</span> RProvider.ggplot2
+<span style="color:#66d9ef">open</span> Deedle
+
+<span style="color:#75715e">// load example datasets from R 
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">open</span> RProvider.datasets	
+<span style="color:#66d9ef">let</span> mtc <span style="color:#f92672">=</span> R.mtcars<span style="color:#f92672">.</span>GetValue<span style="color:#f92672">&lt;</span>Frame<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">string</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">string</span><span style="color:#f92672">&gt;&gt;</span>()</code></pre></div>
+
+<p>Before I create the plot itself, I introduce a custom operator for the ggplot2 plot composition
+that is done in R with the <code>+</code> operator. In
+F#, the operator is available through RProvider as a function <code>R.</code><code>+</code><code>(_,_)</code>.
+Instead of using it directly, we can call it through the following operator:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> <span style="color:#f92672">(++)</span> <span style="color:#f92672">(</span>plot1<span style="color:#f92672">:</span>RDotNet.SymbolicExpression<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>plot2<span style="color:#f92672">:</span>RDotNet.SymbolicExpression<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 
+	R.``+``<span style="color:#f92672">(</span>plot1<span style="color:#f92672">,</span> plot2<span style="color:#f92672">)</span> </code></pre></div>
+
+<p>Now we can finally re-create the same plot within F#.
+Unfortunately, the simple R code turns into a much longer function call:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp">R.ggplot<span style="color:#f92672">(</span>
+	namedParams<span style="color:#f92672">[</span>
+		<span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">,</span> box mtc<span style="color:#f92672">;</span> 
+		<span style="color:#e6db74">&#34;mapping&#34;</span><span style="color:#f92672">,</span> box <span style="color:#f92672">(</span>
+			R.aes__string<span style="color:#f92672">(</span>x<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;disp&#34;</span><span style="color:#f92672">,</span> y<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;drat&#34;</span><span style="color:#f92672">))])</span>
+<span style="color:#f92672">++</span> R.geom__point()</code></pre></div>
+
+<p>This is because the <code>ggplot</code> function is extremely flexible and accepts any number of
+parameters. This may be OK in R, but it complicates the usage from F#.
+First, we have to specify names for all arguments that we pass
+into <code>ggplot</code>, which is done through the <code>namedParams</code> function from RProvider.
+Second, we have to identify
+columns in the dataframe through their names specified as strings - and we do that
+using the R function <code>aes_string</code>. This is because F# represents data frames differently
+from R.</p>
+
+<h2 id="using-ffplot-to-simplify-calling-ggplot2">Using ffplot to simplify calling ggplot2</h2>
+
+<p>The F# code sample is quite verbose which doesn&rsquo;t do ggplot2 any justice.
+ I put together a simple wrapper, the ffplot, to simplify some of the common scenarios of calling ggplot2.
+You can find the wrapper <a href="https://github.com/evelinag/ffplot">here on Github</a>.
+With ffplot, the ggplot2 example turns into almost a direct copy of the original R
+code:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#f92672">#</span>load <span style="color:#e6db74">&#34;ggplot.fs&#34;</span>
+<span style="color:#66d9ef">open</span> ggplot
+
+G.ggplot<span style="color:#f92672">(</span>mtc<span style="color:#f92672">,</span> G.aes<span style="color:#f92672">(</span>x<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;disp&#34;</span><span style="color:#f92672">,</span> y<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;drat&#34;</span><span style="color:#f92672">))</span>
+<span style="color:#f92672">++</span> R.geom__point()</code></pre></div>
+
+<p>We can also use the wrapper to add colour specification -
+here the points are coloured based
+on the values in the <code>mpg</code> column:</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp">G.ggplot<span style="color:#f92672">(</span>mtc<span style="color:#f92672">,</span> G.aes<span style="color:#f92672">(</span>x<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;disp&#34;</span><span style="color:#f92672">,</span> y<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;drat&#34;</span><span style="color:#f92672">,</span> colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;mpg&#34;</span><span style="color:#f92672">))</span>
+<span style="color:#f92672">++</span> R.geom__point()</code></pre></div>
+
+<p><img src="ggplot-simple-example2.png" alt="Colouring the points" /></p>
+
+<p>So far all the examples were using a Deedle data frame (created from an R
+data frame). But the usage is not limited to that, we can also use our
+own data. The only important thing is that ggplot2 is built
+around data frames which means that we have to transform any data
+into an R data frame before we can visualize them.</p>
+
+<p>The code snipped below
+creates a simple dataset and transforms it into an R data frame with
+two columns named &ldquo;X&rdquo; and &ldquo;Value&rdquo;. Then we call the <code>ggplot</code> function
+to visualize the plot, using the column names in the aesthetic mapping.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> x <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>0<span style="color:#f92672">.</span>0 <span style="color:#f92672">..</span> 0<span style="color:#f92672">.</span>1 <span style="color:#f92672">..</span> 10<span style="color:#f92672">.</span>0<span style="color:#f92672">]</span>
+<span style="color:#66d9ef">let</span> y <span style="color:#f92672">=</span> x <span style="color:#f92672">|&gt;</span> List.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> value <span style="color:#f92672">-&gt;</span> sin<span style="color:#f92672">(</span>value<span style="color:#f92672">))</span>
+
+<span style="color:#75715e">// create a data frame
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> dataframe <span style="color:#f92672">=</span> 
+	namedParams <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;X&#34;</span><span style="color:#f92672">,</span> x<span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;Value&#34;</span><span style="color:#f92672">,</span> y<span style="color:#f92672">]</span> 
+	<span style="color:#f92672">|&gt;</span> R.data_frame
+
+G.ggplot<span style="color:#f92672">(</span>dataframe<span style="color:#f92672">,</span> G.aes<span style="color:#f92672">(</span>x<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;X&#34;</span><span style="color:#f92672">,</span> y<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Value&#34;</span><span style="color:#f92672">))</span>
+<span style="color:#f92672">++</span> R.geom__line()</code></pre></div>
+
+<p><img src="ggplot-df.png" alt="Calling ggplot2 with a manually created dataframe" /></p>
+
+<dl>
+<dt>At the moment, the <code>G.aes</code> function accepts only a few aesthetics</dt>
+<dd>the <code>x</code> and <code>y</code> values, and the <code>colour</code> and <code>fill</code> values that
+specify optional colour mappings for the visualizations. If you would like to
+add more, please send a pull request!</dd>
+</dl>
+
+<p>Here I shown some simple usage of <a href="https://github.com/evelinag/ffplot">ffplot</a>
+and ggplot2 together in F#. In the Github repository I also included
+the <a href="https://github.com/evelinag/ffplot/blob/master/examples.fsx"><code>examples.fsx</code> file</a>
+showing more examples of various types of plots - histograms, bar plots,
+density plots, and also some more complex plots.</p>
+
+<p>To use ffplot in your own project,
+ download and reference the <a href="https://github.com/evelinag/ffplot/blob/master/ggplot.fs"><code>ggplot.fs</code></a>
+file from your solution. You can also add the file using the
+<a href="http://fsprojects.github.io/Paket/">paket dependency manager</a> by adding the following line into
+your <code>paket.dependencies</code> file:</p>
+
+<pre><code>github evelinag/ffplot ggplot.fs
+</code></pre>
+
+<h2 id="using-rprovider-without-fslab">Using RProvider without FsLab</h2>
+
+<p>In the examples above, I was using RProvider as a part of <a href="http://fslab.org/">FsLab</a>,
+a collection of F# data science tools. If you want to use ggplot2 and RProvider directly without
+installing other tools, the easiest way is to load the <code>fsx</code> file which is
+downloaded as a part of the RProvider package:</p>
+
+<pre><code>// load RProvider into F# interactive
+#load &quot;packages/RProvider/RProvider.fsx&quot;
+</code></pre>
+
+<p>This F# scripts loads all the necessary dependencies and adds a printer for
+F# interactive which displays the R plots.</p>
+
+<h2 id="helpful-tip">Helpful tip</h2>
+
+<p>I would like to finish with a simple tip.
+When using ggplot2 to create plots for my PhD thesis, I wanted all the plots
+to share a similar visual style. I wanted all the plots to have the same theme,
+the same colour scheme
+and the same font sizes in titles, axes and legends. All these can be
+of course specified in ggplot2. What I found useful was to create a single
+function that specified all the size and theme settings and then apply it to
+every plot that I was generating to keep a uniform visual style.</p>
+
+<p>This piece of code shows an example of such function that tweaks font sizes in axes, legends
+and titles. Then it&rsquo;s applied to a plot, using the same compositional approach
+as the ggplot2 library.</p>
+
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-FSharp" data-lang="FSharp"><span style="color:#66d9ef">let</span> sizeSettings () <span style="color:#f92672">=</span>
+	R.theme<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;axis.text&#34;</span><span style="color:#f92672">,</span> R.element__text<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">,</span> 12<span style="color:#f92672">])])</span>
+	<span style="color:#f92672">++</span> R.theme<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;legend.text&#34;</span><span style="color:#f92672">,</span> R.element__text<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">,</span> 12<span style="color:#f92672">])])</span>
+	<span style="color:#f92672">++</span> R.theme<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;axis.title&#34;</span><span style="color:#f92672">,</span> R.element__text<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">,</span> 14<span style="color:#f92672">])])</span>
+	<span style="color:#f92672">++</span> R.theme<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;plot.title&#34;</span><span style="color:#f92672">,</span> R.element__text<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">,</span> 18<span style="color:#f92672">])])</span>
+
+<span style="color:#75715e">// apply settings to a plot
+</span><span style="color:#75715e"></span>G.ggplot<span style="color:#f92672">(</span>iris<span style="color:#f92672">,</span> G.aes<span style="color:#f92672">(</span>x<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Sepal.Length&#34;</span><span style="color:#f92672">,</span> y<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Sepal.Width&#34;</span><span style="color:#f92672">,</span>colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Petal.Length&#34;</span><span style="color:#f92672">))</span>
+	<span style="color:#f92672">++</span> <span style="color:#75715e">(*[omit:(...)]*)</span>
+			R.geom__point<span style="color:#f92672">(</span>namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;size&#34;</span><span style="color:#f92672">,</span> 4<span style="color:#f92672">])</span>
+	<span style="color:#f92672">++</span> R.theme__bw()
+	<span style="color:#f92672">++</span> R.scale__color__gradient<span style="color:#f92672">(</span>
+		namedParams<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;low&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;blue&#34;</span><span style="color:#f92672">;</span> <span style="color:#e6db74">&#34;high&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;gold&#34;</span><span style="color:#f92672">])</span>
+	<span style="color:#f92672">++</span> R.ggtitle<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Iris dataset&#34;</span><span style="color:#f92672">)</span>
+	<span style="color:#f92672">++</span> R.xlab<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Sepal length&#34;</span><span style="color:#f92672">)</span>
+	<span style="color:#f92672">++</span> R.ylab<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Sepal width&#34;</span><span style="color:#f92672">)</span>
+	<span style="color:#75715e">(*[/omit]*)</span>
+	<span style="color:#f92672">++</span> sizeSettings()</code></pre></div>
+
+<p>You can apply the same approach with most charting libraries available in F#
+(such as <a href="https://tahahachana.github.io/XPlot/">XPlot</a>)
+because they use functional style that allows applying functions to entire plots.
+But with ggplot2 this makes even more sense. The settings tend to be
+verbose and some of them require extensive digging through the documentation.
+By separating them in a dedicated function, they can be reused and applied across
+multiple plots of different types to keep the same style.</p>
+
+<h2 id="links">Links</h2>
+
+<ul>
+<li>Get <a href="https://github.com/evelinag/ffplot">ffplot from Github</a>.</li>
+<li><a href="http://ggplot2.org/">ggplot2 website</a></li>
+<li>This blog post uses FsLab, you can download a template <a href="http://fslab.org/download/">here</a>.</li>
+<li>The code for my <a href="evelinag.com/blog/2015/11-18-f-tackles-james-bond/index.html">James Bond blogpost</a>
+contains a more complex example of using ggplot2 from F#:
+<a href="https://gist.github.com/evelinag/0ce68655f2aae1ecabcb">source code</a></li>
+</ul>
+
+<p>And finally, this is the plot produced by the last code sample:</p>
+
+<p><img src="example4.png" alt="ggplo2 example using the iris dataset" /></p>
+
+        </div>
+
+        
+
+        
+
+      </div>
+
+    </section>
+
+    <section class="section">
+      
+      <div class="container">
+  <div class="level">
+
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2015/12-15-star-wars-social-network/">
+            <span class="icon is-small"><i class="fa fa-chevron-left"></i></span>
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              The Star Wars social network
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              The Star Wars social network
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              The Star Wars social network
+            </span>
+            <span class="is-hidden-tablet">
+              The Star Wars social network
+            </span>
+            
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control has-addons">
+          <a class="button is-black" href="http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/">
+            <span class="is-hidden-touch is-hidden-desktop-only">
+              F# tackles James Bond
+            </span>
+            <span class="is-hidden-touch is-hidden-widescreen">
+              F# tackles James Bond
+            </span>
+            <span class="is-hidden-mobile is-hidden-desktop">
+              F# tackles James Bond
+            </span>
+            <span class="is-hidden-tablet">
+              F# tackles James Bond
+            </span>
+            
+            <span class="icon is-small"><i class="fa fa-chevron-right"></i></span>
+          </a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      <br>
+
+      
+      <div class="container">
+  <div class="is-flex">
+    <span>
+      <a class="button is-white">Share</a>
+    </span>
+
+    &nbsp;
+
+    <span>
+      
+      <a class="button is-medium is-black"
+         href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-03-using-ggplot2-from-f%2f">
+        <span class="icon"><i class="fa fa-facebook"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://twitter.com/intent/tweet?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-03-using-ggplot2-from-f%2f&text=Everything%20you%20always%20wanted%20to%20know%20about%20using%20ggplot2%20from%20F%23%20%28but%20were%20afraid%20to%20ask%29&via=@evelgab">
+        <span class="icon"><i class="fa fa-twitter"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://news.ycombinator.com/submitlink?u=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-03-using-ggplot2-from-f%2f">
+        <span class="icon"><i class="fa fa-hacker-news"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://reddit.com/submit?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-03-using-ggplot2-from-f%2f&title=Everything%20you%20always%20wanted%20to%20know%20about%20using%20ggplot2%20from%20F%23%20%28but%20were%20afraid%20to%20ask%29">
+        <span class="icon"><i class="fa fa-reddit-alien"></i></span>
+      </a>
+
+      
+      <a class="button is-medium is-black"
+         href="https://www.linkedin.com/shareArticle?url=http%3a%2f%2fevelinag.com%2fblog%2f2015%2f12-03-using-ggplot2-from-f%2f&title=Everything%20you%20always%20wanted%20to%20know%20about%20using%20ggplot2%20from%20F%23%20%28but%20were%20afraid%20to%20ask%29">
+        <span class="icon"><i class="fa fa-linkedin"></i></span>
+      </a>
+
+    </span>
+  </div>
+</div>
+
+
+      <br>
+
+      <div class="column is-6 is-offset-3">
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "evelinag" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+
+      
+      
+
+    </section>
+
+    <hr style="margin: 0;"/>
+<footer class="footer">
+  <div class="container">
+    <div class="columns">
+    <div class="column is-half">
+
+          <p class="subtitle is-5">Contact & about</p>
+
+          <p class="content">
+            This website is generated using <a href=https://gohugo.io/>Hugo</a> and 
+            hosted on <a href="https://github.com/evelinag/blog">GitHub</a>.  <br/>
+          Please submit issues & corrections on GitHub <a href="https://github.com/evelinag/blog/issues">here</a>. 
+          </p>
+
+          <ul>
+              <li>
+                  <a href="mailto:evelina@evelinag.com" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                      <span>Email me: evelina@evelinag</span>
+                    </a>
+              </li>
+            <li>
+              <a href="https://www.twitter.com/evelgab" class="has-text-black">
+                  <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                  </span>
+                  <span>Twitter: @evelgab</span>
+                </a>
+              </li>
+              <li>
+                  <a href="https://github.com/evelinag" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-github"></i>
+                      </span>
+                      <span>GitHub: evelinag</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.linkedin.com/in/egabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-linkedin"></i>
+                      </span>
+                      <span>LinkedIn: egabasova</span>
+                    </a>
+              </li>
+              <li>
+                  <a href="https://www.turing.ac.uk/people/researchers/evelina-gabasova" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-building"></i>
+                      </span>
+                      <span>Evelina Gabasova at the Turing</span>
+                    </a>
+              </li>              
+              <li>
+                  <a href="http://evelinag.com/index.xml" class="has-text-black">
+                      <span class="icon">
+                        <i class="fa fa-rss"></i>
+                      </span>
+                      <span>Blog RSS</span>
+                    </a>
+              </li>
+          </ul>
+    </div>
+
+    <div class="column is-half">
+
+          <p class="subtitle is-5">License</p>
+
+          <p>Unless explicitly mentioned, all articles on this site are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+             All source code samples are licensed under the MIT License.
+          </p>
+          <br/>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+          
+    </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+tex2jax: {
+  inlineMath: [['$','$'], ['\\(','\\)']],
+  displayMath: [['$$','$$']],
+}
+});
+</script>  
+</footer>
+
+  </body>
+
+</html>

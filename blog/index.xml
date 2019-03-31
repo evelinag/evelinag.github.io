@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blogs on Evelina Gabasova&#39;s Blog</title>
+    <link>http://evelinag.com/blog/</link>
+    <description>Recent content in Blogs on Evelina Gabasova&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Jun 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://evelinag.com/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Tabs, spaces and your salary - how is it really?</title>
+      <link>http://evelinag.com/blog/2017/06-20-stackoverflow-tabs-spaces-and-salary/</link>
+      <pubDate>Tue, 20 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2017/06-20-stackoverflow-tabs-spaces-and-salary/</guid>
+      <description>A couple of days ago, David Robinson published an article on the Stack Overflow blog with a very provocative title: Developers Who Use Spaces Make More Money Than Those Who Use Tabs. It uses the data from Stack Overflow developer survey to show that indeed, using spaces is associated with higher salaries, even when we account for experience level. So, should you start using spaces instead of tabs to increase your salary?</description>
+    </item>
+    
+    <item>
+      <title>Star Wars social networks: The Force Awakens</title>
+      <link>http://evelinag.com/blog/2016/01-25-social-network-force-awakens/</link>
+      <pubDate>Mon, 25 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2016/01-25-social-network-force-awakens/</guid>
+      <description>Warning: contains spoilers
+If you have seen the new addition to the Star Wars franchise - The Force Awakens - you have probably noticed some similarities to the plots of some of the earlier movies, especially Episode IV: A New Hope. Does the similarity in the story translate to similarity in the social network of the new film? I downloaded the movie script, extracted the social network of characters and compared it to the social networks from the earlier movies.</description>
+    </item>
+    
+    <item>
+      <title>The Star Wars social network</title>
+      <link>http://evelinag.com/blog/2015/12-15-star-wars-social-network/</link>
+      <pubDate>Tue, 15 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2015/12-15-star-wars-social-network/</guid>
+      <description>Some of us are looking forward to Christmas, and some of us are looking forward to the new film in the Star Wars franchise, The Force Awakens. Meanwhile, I decided to look at the whole 6-movie cycle from a quantitative point of view and extract the Star Wars social networks, both within each film and across the whole Star Wars universe. Looking at the social network structure reveals some surprising differences between the original trilogy and the prequels.</description>
+    </item>
+    
+    <item>
+      <title>Everything you always wanted to know about using ggplot2 from F# (but were afraid to ask)</title>
+      <link>http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/</link>
+      <pubDate>Thu, 03 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2015/12-03-using-ggplot2-from-f/</guid>
+      <description>In my previous blog post I visualized data on James Bond films both with Google Charts and with ggplot2. Because I skipped the code relating to ggplot2, here I&amp;rsquo;d like to look in detail at how to use ggplot2 from F#.
+Currently ggplot2 is my go-to visualization library (unless I need to embed a plot - check out the James Bond bubble chart!). Here I summarize some of my experiences with using ggplot2 from F# through the RProvider.</description>
+    </item>
+    
+    <item>
+      <title>F# tackles James Bond</title>
+      <link>http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/</link>
+      <pubDate>Wed, 18 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2015/11-18-f-tackles-james-bond/</guid>
+      <description>Earlier this week I read an interesting article on visualizing box office success of James Bond films using R and ggplot2 by Christoph Safferling ( you can find it here). The blog post shows how to pull information from Wikipedia and visualize the budget, box office and rating of each film - all this using R. While reading the blog post, I couldn&amp;rsquo;t help wondering how would a similar analysis look in F# using the HTML type provider from the F# Data library.</description>
+    </item>
+    
+    <item>
+      <title>Christmas Carol and other eigenvectors</title>
+      <link>http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/</link>
+      <pubDate>Mon, 15 Dec 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2014/12-15-christmas-carol-and-other-eigenvectors/</guid>
+      <description>This blog post marks day 15 of the amazing F# Advent Calendar. Christmas is getting closer - soon we will have time to relax and perhaps read a nice book. Do you know who wrote the classic Christmas story, &amp;lsquo;A Christmas Carol&amp;rsquo;? All sources claim it was Charles Dickens, but how can we be sure? I&amp;rsquo;ll look at how this book compares to other books he wrote in terms of the language used in the books.</description>
+    </item>
+    
+    <item>
+      <title>Introducing Ariadne: F# library for Gaussian processes</title>
+      <link>http://evelinag.com/blog/2014/09-15-introducing-ariadne/</link>
+      <pubDate>Mon, 15 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2014/09-15-introducing-ariadne/</guid>
+      <description>For my academic research, I recently wrote a library in F# for fitting basic Gaussian process regression that I used to model time-series gene expression data. I am releasing the code publicly as an Ariadne package. In its current state, you can use the library to model various time-series data.
+Gaussian processes are probabilistic models for random functions. Ariadne package implements basic Gaussian processes for supervised nonlinear regression.
+In general, Gaussian processes are used to model functions $ f : X \rightarrow Y$ when we have noisy observations of function values $y_i$ at locations $x_i$</description>
+    </item>
+    
+    <item>
+      <title>Comparing F# and C# with dependency networks</title>
+      <link>http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/</link>
+      <pubDate>Mon, 09 Jun 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2014/06-09-comparing-dependency-networks/</guid>
+      <description>Fans of different programming languages always argue about benefits of their language of choice. It is difficult to use objective criteria in a debate like this. Terms like &amp;lsquo;clarity&amp;rsquo; or &amp;lsquo;maintainability&amp;rsquo; are too vague and subjective. What if we used some tools from network science to compare projects written in different languages?
+In this blog post I use network analysis to investigate how complex dependency graphs are and if they differ between C# and F#.</description>
+    </item>
+    
+    <item>
+      <title>Who&#39;s the most central? F# network on Twitter</title>
+      <link>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter/</link>
+      <pubDate>Mon, 12 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://evelinag.com/blog/2014/05-12-analyzing-f-network-on-twitter/</guid>
+      <description>&lt;p&gt;Have you ever wondered who you should follow on Twitter to get more interesting
+F# content?
+Recently I&amp;rsquo;ve written a chapter on social network analysis for the new
+&lt;a href=&#34;http://www.manning.com/petricek2/&#34;&gt;F# Deep Dives&lt;/a&gt; book. The chapter shows
+how to download data on social connections from Twitter and how to do some
+exploratory data analysis, such as finding accounts that people
+find worth following.&lt;/p&gt;
+
+&lt;p&gt;I worked with a network around the
+&lt;a href=&#34;http://fsharp.org&#34;&gt;F# Software Foundation&amp;rsquo;s&lt;/a&gt; account. What
+emerged is a nice picture of how F# community looks on Twitter and which
+users are the most central to the network.
+Since the results are quite interesting, I&amp;rsquo;d like to share them with wider F# community.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
